@@ -178,15 +178,13 @@ def get_valid_moves(selected_piece, pieces):
         return moves  # Invalid position
 
     for dx, dy, step_size in directions:
-        print(f"Pos mounts {selected_piece.x, selected_piece.y}")
         adj_x = selected_piece.x + dx
         adj_y = selected_piece.y + dy
-        print(f"Pos cushion {adj_x, adj_y}")
         land_x = selected_piece.x + 2 * dx
         land_y = selected_piece.y + 2 * dy
 
         # Check if positions are within bounds
-        if 0 <= adj_x <= 4 and 0 <= adj_y <= 4 and 0 <= land_x <= 4 and 0 <= land_y <= 4:
+        if 0 <= adj_x <= 6 and 0 <= adj_y <= 5 and 0 <= land_x <= 6 and 0 <= land_y <= 5:
             # Check that the landing position is the same type as the starting position
             if (is_vertex((selected_piece.x, selected_piece.y)) and is_vertex((land_x, land_y))) or \
                (is_center((selected_piece.x, selected_piece.y)) and  is_center((land_x, land_y))):
@@ -252,8 +250,6 @@ def play_3():
                 mouse_pos = pygame.mouse.get_pos()
                 clicked_pos = get_clicked_pos(mouse_pos)
                 piece = get_piece_at_pos(pieces, clicked_pos)
-                print("Tick",clicked_pos)
-                print("Check", piece)
                 # Only allow selection if the piece belongs to the current player
                 if selected_piece:
                     # Try to move to clicked position
@@ -287,11 +283,9 @@ def play_3():
                         valid_moves = []
                 elif piece and not awaiting_capture_choice:
                     if piece.color:
-                        print('var')
                         selected_piece = piece
                         selected_piece.selected = True
                         valid_moves = get_valid_moves(selected_piece, pieces)
-                        print(valid_moves)
                         if not valid_moves:
                             selected_piece.selected = False
                             selected_piece = None
