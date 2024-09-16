@@ -25,7 +25,7 @@ YELLOW_PIECE_IMG = pygame.transform.scale(YELLOW_PIECE_IMG, (40, 40))
 GREEN_PIECE_IMG = pygame.transform.scale(GREEN_PIECE_IMG, (40, 40))
 PURPLE_PIECE_IMG = pygame.transform.scale(PURPLE_PIECE_IMG, (40, 40))
 HIGHLIGHT_COLOR = (255, 215, 0)  # Gold
-
+TEXT_COLOR = (194, 24, 7) # Chilli Red
 VALID_MOVE_COLOR = (50, 205, 50)  # Lime Green
 
 # Load fonts
@@ -88,7 +88,6 @@ class Piece:
         # MOVE_SOUND.play()
 
     def flip(self, move_color: str):
-        print(move_color)
         if move_color is not None:
             if self.color == "green" or self.color == "yellow":
                 self.color =  move_color
@@ -111,7 +110,7 @@ class Piece:
             current_x = self.start_pos[0] + (self.end_pos[0] - self.start_pos[0]) * (1 - self.animation_progress)
             current_y = self.start_pos[1] + (self.end_pos[1] - self.start_pos[1]) * (1 - self.animation_progress)
             win.blit(self.image, (current_x, current_y))
-            self.animation_progress -= 1e-2  # Adjust this value to change animation speed
+            self.animation_progress -= 1e-1  # Adjust this value to change animation speed
             if self.animation_progress <= 0:
                 self.animation_progress = 0
                 self.start_pos = None
@@ -286,34 +285,26 @@ def play_3():
         # Start background music
     # pygame.mixer.music.play(-1)
 
-    # clock = pygame.time.Clock()
+    clock = pygame.time.Clock()
     pieces = create_pieces()
     selected_piece = None
     valid_moves = []
     run = True
     game_over = False
     winner = None
-    # turn = 'green'  # Green pieces go first
+    turn = 'purple'  # Green pieces go first
     awaiting_capture_choice = False
     capture_options = {}
     moved_piece = None
 
     while run:
-        # clock.tick(120)  # Set the frame rate to 60 FPS
+        clock.tick(120)  # Set the frame rate to 120 FPS
         WIN.fill(WHITE)  # Fill the screen with white 
         
         # Check if the current player can move or has any pieces
-        # if not game_over:
-        #     if not any(p.color == turn for p in pieces) or not has_available_moves(turn, pieces):
-        #         game_over = True
-        #         if turn == 'green' and turn == 'yellow':
-        #             winner = 'purple'
-        #         elif turn == 'green' and turn == 'purple':
-        #             winner = 'yellow'
-        #         elif turn == 'purple' and turn == 'yellow':
-        #             winner = 'green'
-        #         else:
-        #             winner = None
+        if not game_over:
+            if not any(p.color == turn for p in pieces) or not has_available_moves(turn, pieces):
+                game_over = True
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -338,12 +329,19 @@ def play_3():
                     if selected_direction:
                         # Perform the capture in the selected direction
                         for piece in capture_options[selected_direction]:
-                            piece.flip(move_color=selected_piece.color)
+                            piece.flip(move_color=moved_piece.color)
                     awaiting_capture_choice = False
                     capture_options = {}
                     moved_piece = None
-                    # # Switch turn after capturing
-                    # turn = 'yellow' if turn == 'green' else 'green'
+                    # Switch turn after capturing
+                    match turn:
+                        case 'purple':
+                            turn = 'yellow'
+                        case 'yellow':
+                            turn = 'green'
+                        case 'green':
+                            turn = 'purple'
+                
                 elif selected_piece:
                     # Try to move to clicked position
                     if clicked_pos in valid_moves:
@@ -352,22 +350,35 @@ def play_3():
                         selected_piece.selected = False
                         # Check for captures
                         capture_options = find_capture_options(pieces, selected_piece)
+                        print(capture_options)
+                        print(len(capture_options))
                         if capture_options:
                             if len(capture_options) == 1:
                                 # Only one capture option, perform it automatically
                                 for pieces_to_flip in capture_options.values():
                                     for piece in pieces_to_flip:
                                         piece.flip(move_color=selected_piece.color)
-                                # # Switch turn after capturing
-                                # turn = 'yellow' if turn == 'green' else 'green'
+                                # Switch turn after capturing
+                                match turn:
+                                    case 'purple':
+                                        turn = 'yellow'
+                                    case 'yellow':
+                                        turn = 'green'
+                                    case 'green':
+                                        turn = 'purple'
                             else:
                                 # Multiple capture options, let the player choose
                                 awaiting_capture_choice = True
                                 moved_piece = selected_piece
                         else:
-                            pass
-                            # # No captures, switch turn
-                            # turn = 'yellow' if turn == 'green' else 'green'
+                            # Switch turn after capturing
+                            match turn:
+                                case 'purple':
+                                    turn = 'yellow'
+                                case 'yellow':
+                                    turn = 'green'
+                                case 'green':
+                                    turn = 'purple'
                         selected_piece = None
                         valid_moves = []
                     else:
@@ -376,15 +387,17 @@ def play_3():
                         valid_moves = []
                 elif piece and not awaiting_capture_choice:
                     # Only allow selection if the piece belongs to the current player
-                    # if piece.color == turn:
-                    selected_piece = piece
-                    selected_piece.selected = True
-                    valid_moves = get_valid_moves(selected_piece, pieces)
+                    if piece.color == turn:
+                        selected_piece = piece
+                        selected_piece.selected = True
+                        valid_moves = get_valid_moves(selected_piece, pieces)
                     
-                    if not valid_moves:
-                        selected_piece.selected = False
-                        selected_piece = None
+                        if not valid_moves:
+                            selected_piece.selected = False
+                            selected_piece = None
+
         draw_board(WIN,pieces)
+
         # Highlight valid moves
         if selected_piece and valid_moves:
             for move in valid_moves:
@@ -392,6 +405,16 @@ def play_3():
                 pygame.draw.circle(WIN, VALID_MOVE_COLOR,
                                    (blit_x + 20, blit_y + 20),
                                    15, 0)
+        # If awaiting capture choice, draw capture options
+        if awaiting_capture_choice and capture_options:
+            draw_capture_options(WIN, moved_piece, capture_options)
+        
+        # Display turn information or game over message
+        if game_over:
+            run = False
+        else:
+            turn_text = FONT.render(f"{turn.capitalize()}'s Turn", True, TEXT_COLOR)
+            WIN.blit(turn_text, (10, 10))
         pygame.display.update()
 
 if __name__ == "__main__":
