@@ -31,8 +31,8 @@ FONT = pygame.font.Font('assets/fonts/Roboto-Bold.ttf', 36)
 SMALL_FONT = pygame.font.Font('assets/fonts/Roboto-Regular.ttf', 24)
 
 # Load sounds
-MOVE_SOUND = pygame.mixer.Sound('assets/sounds/move.mp3')
-CAPTURE_SOUND = pygame.mixer.Sound('assets/sounds/capture.mp3')
+# MOVE_SOUND = pygame.mixer.Sound('assets/sounds/move.mp3')
+# CAPTURE_SOUND = pygame.mixer.Sound('assets/sounds/capture.mp3')
 
 # Define piece positions
 
@@ -95,12 +95,12 @@ class Piece:
         self.x = x
         self.y = y
         self.animation_progress = 1  # Start animation
-        MOVE_SOUND.play()
+        # MOVE_SOUND.play()
 
     def flip(self):
         self.color = 'green' if self.color == 'yellow' else 'yellow'
         self.image = GREEN_PIECE_IMG if self.color == 'green' else YELLOW_PIECE_IMG
-        CAPTURE_SOUND.play()
+        # CAPTURE_SOUND.play()
 
     def animate(self, win):
         if self.animation_progress > 0:

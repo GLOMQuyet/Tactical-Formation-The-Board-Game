@@ -13,7 +13,7 @@ SQUARE_SIZE = WIDTH // COLS  # Size of each square
 
 # Set up the display
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption('Custom Chess Game')
+pygame.display.set_caption('Custom Tactical Board Game')
 
 # Load images
 BG_IMAGE = pygame.image.load('assets/background.jpg')  # Background image
@@ -29,10 +29,10 @@ FONT = pygame.font.Font('assets/fonts/Roboto-Bold.ttf', 36)
 SMALL_FONT = pygame.font.Font('assets/fonts/Roboto-Regular.ttf', 24)
 
 # Load sounds
-MOVE_SOUND = pygame.mixer.Sound('assets/sounds/move.mp3')
-CAPTURE_SOUND = pygame.mixer.Sound('assets/sounds/capture.mp3')
-GAME_OVER_SOUND = pygame.mixer.Sound('assets/sounds/game_over.mp3')
-pygame.mixer.music.load('assets/sounds/background_music.mp3')
+# MOVE_SOUND = pygame.mixer.Sound('assets/sounds/move.mp3')
+# CAPTURE_SOUND = pygame.mixer.Sound('assets/sounds/capture.mp3')
+# GAME_OVER_SOUND = pygame.mixer.Sound('assets/sounds/game_over.mp3')
+# pygame.mixer.music.load('assets/sounds/background_music.mp3')
 
 # Colors
 WHITE = (255, 255, 255)
@@ -101,12 +101,12 @@ class Piece:
         self.x = x
         self.y = y
         self.animation_progress = 1  # Start animation
-        MOVE_SOUND.play()
+        # MOVE_SOUND.play()
 
     def flip(self):
         self.color = 'green' if self.color == 'yellow' else 'yellow'
         self.image = GREEN_PIECE_IMG if self.color == 'green' else YELLOW_PIECE_IMG
-        CAPTURE_SOUND.play()
+        # CAPTURE_SOUND.play()
 
     def animate(self, win):
         if self.animation_progress > 0:
@@ -337,7 +337,7 @@ def game_over_screen(winner):
 
 def main():
     # Start background music
-    pygame.mixer.music.play(-1)
+    # pygame.mixer.music.play(-1)
 
     clock = pygame.time.Clock()
     pieces = create_pieces()
