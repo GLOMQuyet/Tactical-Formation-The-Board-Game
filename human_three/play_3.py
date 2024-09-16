@@ -6,6 +6,8 @@ from utils.utils import is_vertex, is_center, get_piece_at_pos
 # Initialize Pygame
 pygame.init()
 
+
+
 # Screen dimensions
 WIDTH, HEIGHT = 600, 600  # Size of the window
 ROWS, COLS = 5, 6  # Updated to 5 rows and 6 columns
@@ -30,9 +32,9 @@ VALID_MOVE_COLOR = (50, 205, 50)  # Lime Green
 FONT = pygame.font.Font('assets/fonts/Roboto-Bold.ttf', 36)
 SMALL_FONT = pygame.font.Font('assets/fonts/Roboto-Regular.ttf', 24)
 
-# Load sounds
-MOVE_SOUND = pygame.mixer.Sound('assets/sounds/move.mp3')
-CAPTURE_SOUND = pygame.mixer.Sound('assets/sounds/capture.mp3')
+# # Load sounds
+# MOVE_SOUND = pygame.mixer.Sound('assets/sounds/move.mp3')
+# CAPTURE_SOUND = pygame.mixer.Sound('assets/sounds/capture.mp3')
 
 # Define piece positions
 yellow_positions = [
@@ -56,7 +58,7 @@ class Piece:
     def __init__(self, x, y, color):
         self.x = x  # Board coordinate x
         self.y = y  # Board coordinate y
-        self.color = color  # 'yellow' or 'green'
+        self.color = color  # 'yellow' or 'green' or 'purple
         self.selected = False
         if color == 'yellow':
             self.image = YELLOW_PIECE_IMG
@@ -83,19 +85,33 @@ class Piece:
         self.x = x
         self.y = y
         self.animation_progress = 1  # Start animation
-        MOVE_SOUND.play()
+        # MOVE_SOUND.play()
 
-    def flip(self):
-        self.color = 'green' if self.color == 'yellow' else 'yellow'
-        self.image = GREEN_PIECE_IMG if self.color == 'green' else YELLOW_PIECE_IMG
-        CAPTURE_SOUND.play()
+    def flip(self, move_color: str):
+        print(move_color)
+        if move_color is not None:
+            if self.color == "green" or self.color == "yellow":
+                self.color =  move_color
+            elif self.color == "green" or self.color == "purple": 
+                self.color = move_color
+            elif self.color:
+                self.color = move_color
+
+        if self.color == "green":
+            self.image = GREEN_PIECE_IMG
+        elif self.color == "purple": 
+            self.image = PURPLE_PIECE_IMG
+        else:
+            self.image = YELLOW_PIECE_IMG
+
+        # CAPTURE_SOUND.play()
 
     def animate(self, win):
         if self.animation_progress > 0:
             current_x = self.start_pos[0] + (self.end_pos[0] - self.start_pos[0]) * (1 - self.animation_progress)
             current_y = self.start_pos[1] + (self.end_pos[1] - self.start_pos[1]) * (1 - self.animation_progress)
             win.blit(self.image, (current_x, current_y))
-            self.animation_progress -= 0.05  # Adjust this value to change animation speed
+            self.animation_progress -= 1e-2  # Adjust this value to change animation speed
             if self.animation_progress <= 0:
                 self.animation_progress = 0
                 self.start_pos = None
@@ -190,6 +206,9 @@ def get_valid_moves(selected_piece, pieces):
                (is_center((selected_piece.x, selected_piece.y)) and  is_center((land_x, land_y))):
                 # Check if adjacent square has a piece and landing square is empty
                 if get_piece_at_pos(pieces, (adj_x, adj_y)) and not get_piece_at_pos(pieces, (land_x, land_y)):
+                    if (land_x, land_y) == (0, 5) or (land_x, land_y) == (0.5, 4.5) or \
+                        (land_x, land_y) == (6, 5) or (land_x, land_y) == (5.5, 4.5):
+                        continue
                     moves.append((land_x, land_y))
     return moves
 
@@ -200,6 +219,59 @@ def get_clicked_pos(mouse_pos):
     clicked_x = round(x * 2) / 2
     clicked_y = round(y * 2) / 2
     return (clicked_x, clicked_y)
+
+def find_capture_options(pieces, moved_piece):
+    capture_options = {}
+
+    # Determine directions to check
+    if is_vertex((moved_piece.x, moved_piece.y)):
+        directions = [
+            (0, -1), (1, 0), (0, 1), (-1, 0),  # Orthogonal directions
+            (-1, -1), (-1, 1), (1, -1), (1, 1)  # Diagonal directions
+        ]
+    elif is_center((moved_piece.x, moved_piece.y)):
+        directions = [
+            (-1, -1), (-1, 1), (1, -1), (1, 1)  # Diagonal directions
+        ]
+    else:
+        return {}  # Invalid position
+
+    for dx, dy in directions:
+        x, y = moved_piece.x, moved_piece.y
+        pieces_to_flip = []
+        step_size = 1 if (dx == 0 or dy == 0) else 0.5
+        while True:
+            x += dx * step_size
+            y += dy * step_size
+            if not (0 <= x <= 6 and 0 <= y <= 5):  # Reached the edge of the board
+                break
+            current_piece = get_piece_at_pos(pieces, (x, y))
+            
+            if current_piece is None:  # Empty space, no capture
+                break
+            elif current_piece.color != moved_piece.color:  # Enemy piece, add to list to flip
+                pieces_to_flip.append(current_piece)
+            else:  # Found own piece, capture is possible
+                if pieces_to_flip:  # Only add if there are enemy pieces to flip
+                    capture_options[(dx, dy)] = list(pieces_to_flip)
+                break  # Stop checking this direction
+    return capture_options
+
+def draw_capture_options(win, moved_piece, capture_options):
+    for direction in capture_options.keys():
+        dx, dy = direction
+        # Draw an arrow or line in the capture direction
+        start_pos = get_pixel_pos((moved_piece.x, moved_piece.y))
+        end_x = moved_piece.x + dx
+        end_y = moved_piece.y + dy
+        end_pos = get_pixel_pos((end_x, end_y))
+        pygame.draw.line(win, HIGHLIGHT_COLOR, start_pos, end_pos, 5)
+
+def get_pixel_pos(pos):
+    x, y = pos
+    pixel_x = (x / 6.0) * WIDTH 
+    pixel_y = (y / 6.0) * HEIGHT
+    return (pixel_x, pixel_y)
 
 def has_available_moves(player_color, pieces):
     for piece in pieces:
@@ -250,31 +322,52 @@ def play_3():
                 mouse_pos = pygame.mouse.get_pos()
                 clicked_pos = get_clicked_pos(mouse_pos)
                 piece = get_piece_at_pos(pieces, clicked_pos)
-                # Only allow selection if the piece belongs to the current player
-                if selected_piece:
+                if awaiting_capture_choice:
+                    # Handle capture direction selection
+                    min_distance = float('inf')
+                    selected_direction = None
+                    for direction in capture_options.keys():
+                        dir_dx, dir_dy = direction
+                        end_x = moved_piece.x + dir_dx
+                        end_y = moved_piece.y + dir_dy
+                        end_pixel = get_pixel_pos((end_x, end_y))
+                        distance = ((mouse_pos[0] - end_pixel[0]) ** 2 + (mouse_pos[1] - end_pixel[1]) ** 2) ** 0.5
+                        if distance < min_distance:
+                            min_distance = distance
+                            selected_direction = direction
+                    if selected_direction:
+                        # Perform the capture in the selected direction
+                        for piece in capture_options[selected_direction]:
+                            piece.flip(move_color=selected_piece.color)
+                    awaiting_capture_choice = False
+                    capture_options = {}
+                    moved_piece = None
+                    # # Switch turn after capturing
+                    # turn = 'yellow' if turn == 'green' else 'green'
+                elif selected_piece:
                     # Try to move to clicked position
                     if clicked_pos in valid_moves:
                         # Move the piece
                         selected_piece.move(clicked_pos[0], clicked_pos[1])
                         selected_piece.selected = False
-                        # # Check for captures
-                        # capture_options = find_capture_options(pieces, selected_piece)
+                        # Check for captures
+                        capture_options = find_capture_options(pieces, selected_piece)
                         if capture_options:
                             if len(capture_options) == 1:
                                 # Only one capture option, perform it automatically
                                 for pieces_to_flip in capture_options.values():
                                     for piece in pieces_to_flip:
-                                        piece.flip()
-                                # Switch turn after capturing
+                                        piece.flip(move_color=selected_piece.color)
+                                # # Switch turn after capturing
                                 # turn = 'yellow' if turn == 'green' else 'green'
                             else:
                                 # Multiple capture options, let the player choose
                                 awaiting_capture_choice = True
                                 moved_piece = selected_piece
                         else:
-                            # No captures, switch turn
-                            # turn = 'yellow' if turn == 'green' else 'green'
                             pass
+                            # # No captures, switch turn
+                            # turn = 'yellow' if turn == 'green' else 'green'
                         selected_piece = None
                         valid_moves = []
                     else:
@@ -282,13 +375,15 @@ def play_3():
                         selected_piece = None
                         valid_moves = []
                 elif piece and not awaiting_capture_choice:
-                    if piece.color:
-                        selected_piece = piece
-                        selected_piece.selected = True
-                        valid_moves = get_valid_moves(selected_piece, pieces)
-                        if not valid_moves:
-                            selected_piece.selected = False
-                            selected_piece = None
+                    # Only allow selection if the piece belongs to the current player
+                    # if piece.color == turn:
+                    selected_piece = piece
+                    selected_piece.selected = True
+                    valid_moves = get_valid_moves(selected_piece, pieces)
+                    
+                    if not valid_moves:
+                        selected_piece.selected = False
+                        selected_piece = None
         draw_board(WIN,pieces)
         # Highlight valid moves
         if selected_piece and valid_moves:
