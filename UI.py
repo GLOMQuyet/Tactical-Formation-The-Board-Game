@@ -6,27 +6,49 @@ from human_four.play_4 import play_4
 # Initialize Pygame
 pygame.init()
 
+def resource_path(relative_path):
+    """ Returns the path to a resource file, even when running from an .exe file """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        # Otherwise, use the current directory 
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 # Define constants
-WIDTH, HEIGHT = 600, 600  # Size of the window
+WIDTH, HEIGHT = 1000, 1000  # Size of the window
 ROWS, COLS = 4, 4
-SQUARE_SIZE = WIDTH // COLS  # Size of each square
+SQUARE_SIZE = 200  # Size of each square
+BOARD_SIZE = SQUARE_SIZE * COLS # 800x800 board
+
+# Calculate top-left position to center the board
+BOARD_TOP_LEFT = ((WIDTH - BOARD_SIZE) // 2, (HEIGHT - BOARD_SIZE) // 2)  # (100, 100)
 
 # Set up the display
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Custom Tactical Board Game')
 
-# Load images
-BG_IMAGE = pygame.image.load('assets/background.jpg')  # Background image
-WELCOME_BG_IMAGE = pygame.image.load('assets/welcome_background.png')  # Welcome screen background
+bg_path = resource_path('assets/background.jpg')
+welcome_bg_path = resource_path('assets/welcome_background.png')
+yellow_path = resource_path('assets/yellow_piece.png')
+green_path = resource_path('assets/green_piece.png')
+font_path = resource_path('assets/fonts/Roboto-Bold.ttf')
+small_font_path = resource_path('assets/fonts/Roboto-Regular.ttf')
 
-YELLOW_PIECE_IMG = pygame.image.load('assets/yellow_piece.png').convert_alpha()
-GREEN_PIECE_IMG = pygame.image.load('assets/green_piece.png').convert_alpha()
+# Load images
+BG_IMAGE = pygame.transform.scale(pygame.image.load(bg_path), (1920, 1080))  # Background image
+WELCOME_BG_IMAGE = pygame.transform.scale(pygame.image.load(welcome_bg_path), (1920, 1080))  # Welcome screen background
+
+YELLOW_PIECE_IMG = pygame.image.load(yellow_path).convert_alpha()
+GREEN_PIECE_IMG = pygame.image.load(green_path).convert_alpha()
 YELLOW_PIECE_IMG = pygame.transform.scale(YELLOW_PIECE_IMG, (40, 40))
 GREEN_PIECE_IMG = pygame.transform.scale(GREEN_PIECE_IMG, (40, 40))
 
 # Load fonts
-FONT = pygame.font.Font('assets/fonts/Roboto-Bold.ttf', 36)
-SMALL_FONT = pygame.font.Font('assets/fonts/Roboto-Regular.ttf', 24)
+FONT = pygame.font.Font(font_path, 36)
+SMALL_FONT = pygame.font.Font(small_font_path, 24)
 
 # Load sounds
 # MOVE_SOUND = pygame.mixer.Sound('assets/sounds/move.mp3')
@@ -92,7 +114,7 @@ class Piece:
         else:
             blit_x, blit_y = get_blit_pos((self.x, self.y))
             if self.selected:
-                pygame.draw.circle(win, HIGHLIGHT_COLOR, (blit_x + 20, blit_y + 20), 30, 10)
+                pygame.draw.circle(win, HIGHLIGHT_COLOR, (int(blit_x + 20), int(blit_y + 20)), 30, 10)
             win.blit(self.image, (blit_x, blit_y))
 
     def move(self, x, y):
@@ -113,7 +135,7 @@ class Piece:
             current_x = self.start_pos[0] + (self.end_pos[0] - self.start_pos[0]) * (1 - self.animation_progress)
             current_y = self.start_pos[1] + (self.end_pos[1] - self.start_pos[1]) * (1 - self.animation_progress)
             win.blit(self.image, (current_x, current_y))
-            self.animation_progress -= 0.05  # Adjust this value to change animation speed
+            self.animation_progress -= 1e-1  # Adjust this value to change animation speed
             if self.animation_progress <= 0:
                 self.animation_progress = 0
                 self.start_pos = None
@@ -127,8 +149,8 @@ def is_center(pos):
 
 def get_blit_pos(pos):
     x, y = pos
-    pixel_x = (x / 4.0) * WIDTH - 20
-    pixel_y = (y / 4.0) * HEIGHT - 20
+    pixel_x = BOARD_TOP_LEFT[0] + x * SQUARE_SIZE - 20 # Offset to center the piece image
+    pixel_y = BOARD_TOP_LEFT[1] + y * SQUARE_SIZE - 20
     return pixel_x, pixel_y
 
 def create_pieces():
@@ -144,25 +166,29 @@ def create_pieces():
 def draw_board(win, pieces):
     RED = (255,255,255)
     win.blit(BG_IMAGE, (0, 0))  # Draw the background image
-
-    # Draw the board lines
+    # Draw the board lines relative to BOARD_TOP_LEFT
     for row in range(ROWS):
         for col in range(COLS):
-            top_left = (col * SQUARE_SIZE, row * SQUARE_SIZE)
-            top_right = ((col + 1) * SQUARE_SIZE, row * SQUARE_SIZE)
-            bottom_left = (col * SQUARE_SIZE, (row + 1) * SQUARE_SIZE)
-            bottom_right = ((col + 1) * SQUARE_SIZE, (row + 1) * SQUARE_SIZE)
-            center = (col * SQUARE_SIZE + SQUARE_SIZE // 2, row * SQUARE_SIZE + SQUARE_SIZE // 2)
+            top_left = (BOARD_TOP_LEFT[0] + col * SQUARE_SIZE, BOARD_TOP_LEFT[1] + row * SQUARE_SIZE)
+            top_right = (BOARD_TOP_LEFT[0] + (col + 1) * SQUARE_SIZE, BOARD_TOP_LEFT[1] + row * SQUARE_SIZE)
+            bottom_left = (BOARD_TOP_LEFT[0] + col * SQUARE_SIZE, BOARD_TOP_LEFT[1] + (row + 1) * SQUARE_SIZE)
+            bottom_right = (BOARD_TOP_LEFT[0] + (col + 1) * SQUARE_SIZE, BOARD_TOP_LEFT[1] + (row + 1) * SQUARE_SIZE)
+            center = (BOARD_TOP_LEFT[0] + col * SQUARE_SIZE + SQUARE_SIZE // 2,
+                      BOARD_TOP_LEFT[1] + row * SQUARE_SIZE + SQUARE_SIZE // 2)
             pygame.draw.line(win, RED, top_left, center, 5)
             pygame.draw.line(win, RED, top_right, center, 5)
             pygame.draw.line(win, RED, bottom_left, center, 5)
             pygame.draw.line(win, RED, bottom_right, center, 5)
 
-    # Draw horizontal and vertical lines to create squares
+    # Draw horizontal and vertical lines to create squares relative to BOARD_TOP_LEFT
     for i in range(ROWS + 1):
-        pygame.draw.line(win, RED, (0, i * SQUARE_SIZE), (WIDTH, i * SQUARE_SIZE), 5)
+        pygame.draw.line(win, RED, 
+                         (BOARD_TOP_LEFT[0], BOARD_TOP_LEFT[1] + i * SQUARE_SIZE),
+                         (BOARD_TOP_LEFT[0] + BOARD_SIZE, BOARD_TOP_LEFT[1] + i * SQUARE_SIZE), 5)
     for i in range(COLS + 1):
-        pygame.draw.line(win, RED, (i * SQUARE_SIZE, 0), (i * SQUARE_SIZE, HEIGHT), 5)
+        pygame.draw.line(win, RED, 
+                         (BOARD_TOP_LEFT[0] + i * SQUARE_SIZE, BOARD_TOP_LEFT[1]),
+                         (BOARD_TOP_LEFT[0] + i * SQUARE_SIZE, BOARD_TOP_LEFT[1] + BOARD_SIZE), 5)
 
     # Draw the pieces
     for piece in pieces:
@@ -170,8 +196,11 @@ def draw_board(win, pieces):
 
 def get_piece_at_pos(pieces, pos):
     for piece in pieces:
-        if piece.x == pos[0] and piece.y == pos[1]:
-            return piece
+        try:
+            if piece.x == pos[0] and piece.y == pos[1]:
+                return piece
+        except:
+            continue
     return None
 
 def get_valid_moves(selected_piece, pieces):
@@ -211,11 +240,21 @@ def get_valid_moves(selected_piece, pieces):
     return moves
 
 def get_clicked_pos(mouse_pos):
-    x = (mouse_pos[0] / WIDTH) * 4.0
-    y = (mouse_pos[1] / HEIGHT) * 4.0
+    mx, my = mouse_pos
+
+    # Check if the click is within the board area
+    if not (BOARD_TOP_LEFT[0] - 20 <= mx <= BOARD_TOP_LEFT[0] + BOARD_SIZE + 20 and
+            BOARD_TOP_LEFT[1] - 20 <= my <= BOARD_TOP_LEFT[1] + BOARD_SIZE + 20):
+        return None  # Click outside the board
+
+    # Calculate board coordinates without adding SQUARE_SIZE / 2
+    x = (mx - BOARD_TOP_LEFT[0]) / SQUARE_SIZE
+    y = (my - BOARD_TOP_LEFT[1]) / SQUARE_SIZE
+
     # Round to nearest 0.5 to accommodate both vertex and center positions
     clicked_x = round(x * 2) / 2
     clicked_y = round(y * 2) / 2
+
     return (clicked_x, clicked_y)
 
 def find_capture_options(pieces, moved_piece):
@@ -266,8 +305,8 @@ def draw_capture_options(win, moved_piece, capture_options):
 
 def get_pixel_pos(pos):
     x, y = pos
-    pixel_x = (x / 4.0) * WIDTH 
-    pixel_y = (y / 4.0) * HEIGHT
+    pixel_x = BOARD_TOP_LEFT[0] + x * SQUARE_SIZE
+    pixel_y = BOARD_TOP_LEFT[1] + y * SQUARE_SIZE
     return (pixel_x, pixel_y)
 
 def has_available_moves(player_color, pieces):
@@ -310,7 +349,7 @@ def welcome_screen():
         pygame.display.update()
 
 def game_over_screen(winner):
-    GAME_OVER_SOUND.play()
+    # GAME_OVER_SOUND.play()
     running = True
 
     # Create buttons

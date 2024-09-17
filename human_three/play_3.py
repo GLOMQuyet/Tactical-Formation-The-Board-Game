@@ -1,40 +1,58 @@
 import pygame
 import sys
 import os
-from utils.Button import Button
 from utils.utils import is_vertex, is_center, get_piece_at_pos
 # Initialize Pygame
 pygame.init()
 
+def resource_path(relative_path):
+    """ Returns the path to a resource file, even when running from an .exe file """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        # Otherwise, use the current directory 
+        base_path = os.path.abspath(".")
 
+    return os.path.join(base_path, relative_path)
 
-# Screen dimensions
-WIDTH, HEIGHT = 600, 600  # Size of the window
-ROWS, COLS = 5, 6  # Updated to 5 rows and 6 columns
-WIN = pygame.display.set_mode((WIDTH, HEIGHT))
+# Define constants
+WIDTH_PLAY_3, HEIGHT_PLAY_3 = 1000, 1000  # Size of the window
+ROWS_PLAY_3, COLS_PLAY_3 = 5, 6
+SQUARE_SIZE_PLAY_3 = 150  # Size of each square
+LAND = (SQUARE_SIZE_PLAY_3 * ROWS_PLAY_3) - (WIDTH_PLAY_3 - (SQUARE_SIZE_PLAY_3 * 2))
+BOARD_SIZE_PLAY_3 = SQUARE_SIZE_PLAY_3 * COLS_PLAY_3 # 900x900 board
+# Calculate top-left position to center the board
+BOARD_TOP_LEFT = ((WIDTH_PLAY_3 - BOARD_SIZE_PLAY_3) // 2, (HEIGHT_PLAY_3 - BOARD_SIZE_PLAY_3) // 2)  # (100, 100)
+
+bg_path = resource_path('assets/background.jpg')
+yellow_path = resource_path('assets/yellow_piece.png')
+green_path = resource_path('assets/green_piece.png')
+purple_path = resource_path('assets/purple_piece.png')
+font_path = resource_path('assets/fonts/Roboto-Bold.ttf')
+small_font_path = resource_path('assets/fonts/Roboto-Regular.ttf')
+
+WIN = pygame.display.set_mode((WIDTH_PLAY_3, HEIGHT_PLAY_3))
 pygame.display.set_caption("Play game chess with 3 human")
 
 # Colors
 WHITE = (255, 255, 255)
-SQUARE_SIZE = WIDTH // COLS  # Size of each square
 
-YELLOW_PIECE_IMG = pygame.image.load('assets/yellow_piece.png').convert_alpha()
-GREEN_PIECE_IMG = pygame.image.load('assets/green_piece.png').convert_alpha()
-PURPLE_PIECE_IMG = pygame.image.load('assets/purple_piece.png').convert_alpha()
+YELLOW_PIECE_IMG = pygame.image.load(yellow_path).convert_alpha()
+GREEN_PIECE_IMG = pygame.image.load(green_path).convert_alpha()
+PURPLE_PIECE_IMG = pygame.image.load(purple_path).convert_alpha()
 YELLOW_PIECE_IMG = pygame.transform.scale(YELLOW_PIECE_IMG, (40, 40))
 GREEN_PIECE_IMG = pygame.transform.scale(GREEN_PIECE_IMG, (40, 40))
 PURPLE_PIECE_IMG = pygame.transform.scale(PURPLE_PIECE_IMG, (40, 40))
+BG_IMAGE = pygame.transform.scale(pygame.image.load(bg_path), (1920, 1080))  # Background image
+
 HIGHLIGHT_COLOR = (255, 215, 0)  # Gold
 TEXT_COLOR = (194, 24, 7) # Chilli Red
 VALID_MOVE_COLOR = (50, 205, 50)  # Lime Green
 
 # Load fonts
-FONT = pygame.font.Font('assets/fonts/Roboto-Bold.ttf', 36)
-SMALL_FONT = pygame.font.Font('assets/fonts/Roboto-Regular.ttf', 24)
-
-# # Load sounds
-# MOVE_SOUND = pygame.mixer.Sound('assets/sounds/move.mp3')
-# CAPTURE_SOUND = pygame.mixer.Sound('assets/sounds/capture.mp3')
+FONT = pygame.font.Font(font_path, 36)
+SMALL_FONT = pygame.font.Font(small_font_path, 24)
 
 # Define piece positions
 yellow_positions = [
@@ -53,6 +71,27 @@ purple_positions = [
     (1, 4), (2, 4), (3, 4), (4, 4), (5, 4)
 ]
 
+class Button:
+    def __init__(self, text, pos, size, callback):
+        self.text = text
+        self.pos = pos
+        self.size = size
+        self.callback = callback
+        self.rect = pygame.Rect(pos, size)
+        self.hovered = False
+
+    def draw(self, win):
+        color = (70, 130, 180) if self.hovered else (65, 105, 225)  # Steel Blue or Royal Blue
+        pygame.draw.rect(win, color, self.rect)
+        text_surf = FONT.render(self.text, True, WHITE)
+        text_rect = text_surf.get_rect(center=self.rect.center)
+        win.blit(text_surf, text_rect)
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEMOTION:
+            self.hovered = self.rect.collidepoint(event.pos)
+        elif event.type == pygame.MOUSEBUTTONDOWN and self.hovered:
+            self.callback()
 
 class Piece:
     def __init__(self, x, y, color):
@@ -76,7 +115,7 @@ class Piece:
         else:
             blit_x, blit_y = get_blit_pos((self.x, self.y))
             if self.selected:
-                pygame.draw.circle(win, HIGHLIGHT_COLOR, (blit_x + 20, blit_y + 20), 30, 10)
+                pygame.draw.circle(win, HIGHLIGHT_COLOR, (int(blit_x + 20), int(blit_y + 20)), 30, 10)
             win.blit(self.image, (blit_x, blit_y))
 
     def move(self, x, y):
@@ -85,7 +124,6 @@ class Piece:
         self.x = x
         self.y = y
         self.animation_progress = 1  # Start animation
-        # MOVE_SOUND.play()
 
     def flip(self, move_color: str):
         if move_color is not None:
@@ -103,8 +141,6 @@ class Piece:
         else:
             self.image = YELLOW_PIECE_IMG
 
-        # CAPTURE_SOUND.play()
-
     def animate(self, win):
         if self.animation_progress > 0:
             current_x = self.start_pos[0] + (self.end_pos[0] - self.start_pos[0]) * (1 - self.animation_progress)
@@ -119,8 +155,8 @@ class Piece:
 
 def get_blit_pos(pos):
     x, y = pos
-    pixel_x = (x / 6.0) * WIDTH - 20
-    pixel_y = (y / 6.0) * HEIGHT - 20
+    pixel_x = BOARD_TOP_LEFT[0] + x * SQUARE_SIZE_PLAY_3 - 20 # Offset to center the piece image
+    pixel_y = BOARD_TOP_LEFT[1] + y * SQUARE_SIZE_PLAY_3 - 20
     return pixel_x, pixel_y
 
 def create_pieces():
@@ -137,37 +173,37 @@ def create_pieces():
     return pieces
 
 def draw_board(win, pieces):
-    BG_IMAGE = pygame.image.load('assets/background.jpg')  # Background image
     win.blit(BG_IMAGE, (0, 0))  # Draw the background image
-
     # Draw the board lines
-    for row in range(ROWS):
-        for col in range(COLS):
-            if row == ROWS - 1 and (col == 0 or col == COLS - 1):
+    for row in range(ROWS_PLAY_3):
+        for col in range(COLS_PLAY_3):
+            if row == ROWS_PLAY_3 - 1 and (col == 0 or col == COLS_PLAY_3 - 1):
                 continue  # Skip the bottom-left and bottom-right corners
-            top_left = (col * SQUARE_SIZE, row * SQUARE_SIZE)
-            top_right = ((col + 1) * SQUARE_SIZE, row * SQUARE_SIZE)
-            bottom_left = (col * SQUARE_SIZE, (row + 1) * SQUARE_SIZE)
-            bottom_right = ((col + 1) * SQUARE_SIZE, (row + 1) * SQUARE_SIZE)
-            center = (col * SQUARE_SIZE + SQUARE_SIZE // 2, row * SQUARE_SIZE + SQUARE_SIZE // 2)
+            top_left = (BOARD_TOP_LEFT[0] + col * SQUARE_SIZE_PLAY_3, BOARD_TOP_LEFT[1] + row * SQUARE_SIZE_PLAY_3)
+            top_right = (BOARD_TOP_LEFT[0] + (col + 1) * SQUARE_SIZE_PLAY_3, BOARD_TOP_LEFT[1] + row * SQUARE_SIZE_PLAY_3)
+            bottom_left = (BOARD_TOP_LEFT[0] + col * SQUARE_SIZE_PLAY_3, BOARD_TOP_LEFT[1] + (row + 1) * SQUARE_SIZE_PLAY_3)
+            bottom_right = (BOARD_TOP_LEFT[0] + (col + 1) * SQUARE_SIZE_PLAY_3, BOARD_TOP_LEFT[1] + (row + 1) * SQUARE_SIZE_PLAY_3)
+            center = (BOARD_TOP_LEFT[0] + col * SQUARE_SIZE_PLAY_3 + SQUARE_SIZE_PLAY_3 // 2, 
+                    BOARD_TOP_LEFT[1] + row * SQUARE_SIZE_PLAY_3 + SQUARE_SIZE_PLAY_3 // 2)
+
             pygame.draw.line(win, WHITE, top_left, center, 5)
             pygame.draw.line(win, WHITE, top_right, center, 5)
             pygame.draw.line(win, WHITE, bottom_left, center, 5)
             pygame.draw.line(win, WHITE, bottom_right, center, 5)
 
-    for i in range(ROWS + 1):
-        if i == ROWS:
-            pygame.draw.line(win, WHITE, (SQUARE_SIZE, HEIGHT - SQUARE_SIZE), (HEIGHT - SQUARE_SIZE, HEIGHT - SQUARE_SIZE), 5)  # Draw the last horizontal line
+    for i in range(ROWS_PLAY_3 + 1):
+        if i == ROWS_PLAY_3:
+            pygame.draw.line(win, WHITE, (BOARD_TOP_LEFT[0] + SQUARE_SIZE_PLAY_3,  BOARD_TOP_LEFT[1] + BOARD_SIZE_PLAY_3 - SQUARE_SIZE_PLAY_3), (BOARD_TOP_LEFT[0] + BOARD_SIZE_PLAY_3 - SQUARE_SIZE_PLAY_3, BOARD_TOP_LEFT[1] + BOARD_SIZE_PLAY_3 - SQUARE_SIZE_PLAY_3), 5)  # Draw the last horizontal line
         else:
-            pygame.draw.line(win, WHITE, (0, i * SQUARE_SIZE), (WIDTH, i * SQUARE_SIZE), 5)
+            pygame.draw.line(win, WHITE, (BOARD_TOP_LEFT[0],  BOARD_TOP_LEFT[1] + i * SQUARE_SIZE_PLAY_3), (BOARD_TOP_LEFT[0] + BOARD_SIZE_PLAY_3,  BOARD_TOP_LEFT[1] + i * SQUARE_SIZE_PLAY_3), 5)
 
-    for i in range(COLS + 1):
+    for i in range(COLS_PLAY_3 + 1):
         if i == 0:
-            pygame.draw.line(win, WHITE, (0, 0), (0, HEIGHT - (2*SQUARE_SIZE) ), 5)  # Draw the first vertical line
-        elif i == COLS:
-            pygame.draw.line(win, WHITE, (WIDTH, 0), (WIDTH, HEIGHT - (2*SQUARE_SIZE)), 5)  # Draw the last vertical line
+            pygame.draw.line(win, WHITE, (BOARD_TOP_LEFT[0], BOARD_TOP_LEFT[1]), (BOARD_TOP_LEFT[0], HEIGHT_PLAY_3 - (2*SQUARE_SIZE_PLAY_3) - LAND ), 5)  # Draw the first vertical line
+        elif i == COLS_PLAY_3:
+            pygame.draw.line(win, WHITE, (WIDTH_PLAY_3 - LAND, BOARD_TOP_LEFT[1]), (WIDTH_PLAY_3 - LAND, HEIGHT_PLAY_3 - (2*SQUARE_SIZE_PLAY_3) - LAND ), 5)  # Draw the last vertical line
         else:
-            pygame.draw.line(win, WHITE, (i * SQUARE_SIZE, 0), (i * SQUARE_SIZE, HEIGHT-(WIDTH // COLS)), 5)
+            pygame.draw.line(win, WHITE, (BOARD_TOP_LEFT[0] + i * SQUARE_SIZE_PLAY_3, BOARD_TOP_LEFT[1]), (BOARD_TOP_LEFT[0] + i * SQUARE_SIZE_PLAY_3, HEIGHT_PLAY_3-(WIDTH_PLAY_3 // ROWS_PLAY_3)), 5)
 
     for piece in pieces:
         piece.draw(win)
@@ -212,11 +248,21 @@ def get_valid_moves(selected_piece, pieces):
     return moves
 
 def get_clicked_pos(mouse_pos):
-    x = (mouse_pos[0] / WIDTH) * 6.0
-    y = (mouse_pos[1] / HEIGHT) * 6.0
+    mx, my = mouse_pos
+
+    # Check if the click is within the board area
+    if not (BOARD_TOP_LEFT[0] - 20 <= mx <= BOARD_TOP_LEFT[0] + BOARD_SIZE_PLAY_3 + 20 and
+            BOARD_TOP_LEFT[1] - 20 <= my <= BOARD_TOP_LEFT[1] + BOARD_SIZE_PLAY_3 + 20):
+        return None  # Click outside the board
+
+    # Calculate board coordinates without adding SQUARE_SIZE / 2
+    x = (mx - BOARD_TOP_LEFT[0]) / SQUARE_SIZE_PLAY_3
+    y = (my - BOARD_TOP_LEFT[1]) / SQUARE_SIZE_PLAY_3
+
     # Round to nearest 0.5 to accommodate both vertex and center positions
     clicked_x = round(x * 2) / 2
     clicked_y = round(y * 2) / 2
+
     return (clicked_x, clicked_y)
 
 def find_capture_options(pieces, moved_piece):
@@ -268,8 +314,8 @@ def draw_capture_options(win, moved_piece, capture_options):
 
 def get_pixel_pos(pos):
     x, y = pos
-    pixel_x = (x / 6.0) * WIDTH 
-    pixel_y = (y / 6.0) * HEIGHT
+    pixel_x = BOARD_TOP_LEFT[0] + x * SQUARE_SIZE_PLAY_3
+    pixel_y = BOARD_TOP_LEFT[1] + y * SQUARE_SIZE_PLAY_3
     return (pixel_x, pixel_y)
 
 def has_available_moves(player_color, pieces):
@@ -350,8 +396,6 @@ def play_3():
                         selected_piece.selected = False
                         # Check for captures
                         capture_options = find_capture_options(pieces, selected_piece)
-                        print(capture_options)
-                        print(len(capture_options))
                         if capture_options:
                             if len(capture_options) == 1:
                                 # Only one capture option, perform it automatically
