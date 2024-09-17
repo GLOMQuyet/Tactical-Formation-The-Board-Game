@@ -18,9 +18,9 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 # Define constants
-WIDTH, HEIGHT = 1000, 1000  # Size of the window
+WIDTH, HEIGHT = 800, 800  # Size of the window
 ROWS, COLS = 4, 4
-SQUARE_SIZE = 200  # Size of each square
+SQUARE_SIZE = 150  # Size of each square
 BOARD_SIZE = SQUARE_SIZE * COLS # 800x800 board
 
 # Calculate top-left position to center the board

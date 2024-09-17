@@ -1,7 +1,7 @@
 import pygame
 import sys
 import os
-
+from utils.utils import is_vertex, is_center, get_piece_at_pos
 # Initialize Pygame
 pygame.init()
 
@@ -17,9 +17,9 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 # Define constants
-WIDTH_PLAY_4, HEIGHT_PLAY_4 = 1000, 1000  # Size of the window
+WIDTH_PLAY_4, HEIGHT_PLAY_4 = 800, 800  # Size of the window
 ROWS_PLAY_4, COLS_PLAY_4 = 6, 6
-SQUARE_SIZE_PLAY_4 = 150  # Size of each square
+SQUARE_SIZE_PLAY_4 = 100  # Size of each square
 LAND = (SQUARE_SIZE_PLAY_4 * ROWS_PLAY_4) - (WIDTH_PLAY_4 - (SQUARE_SIZE_PLAY_4 * 2))
 BOARD_SIZE_PLAY_4 = SQUARE_SIZE_PLAY_4 * COLS_PLAY_4 # 900x900 board
 # Calculate top-left position to center the board
@@ -200,6 +200,45 @@ def draw_board(win, pieces):
 
     for piece in pieces:
         piece.draw(win)
+
+def get_valid_moves(selected_piece, pieces):
+    moves = []
+
+    # Determine the type of the selected piece
+    if is_vertex((selected_piece.x, selected_piece.y)):
+        # For vertex positions
+        directions = [
+            # (dx, dy, step_size)
+            (0, -1, 1), (1, 0, 1), (0, 1, 1), (-1, 0, 1),  # Orthogonal moves
+            (-0.5, -0.5, 0.5), (-0.5, 0.5, 0.5), (0.5, -0.5, 0.5), (0.5, 0.5, 0.5)  # Diagonal moves
+        ]
+    elif is_center((selected_piece.x, selected_piece.y)):
+        # For center positions
+        directions = [
+            (-0.5, -0.5, 0.5), (-0.5, 0.5, 0.5),
+            (0.5, -0.5, 0.5),  (0.5, 0.5, 0.5)
+        ]
+    else:
+        return moves  # Invalid position
+
+    for dx, dy, step_size in directions:
+        adj_x = selected_piece.x + dx
+        adj_y = selected_piece.y + dy
+        land_x = selected_piece.x + 2 * dx
+        land_y = selected_piece.y + 2 * dy
+
+        # Check if positions are within bounds
+        if 0 <= adj_x <= 6 and 0 <= adj_y <= 6 and 0 <= land_x <= 6 and 0 <= land_y <= 6:
+            # Check that the landing position is the same type as the starting position
+            if (is_vertex((selected_piece.x, selected_piece.y)) and is_vertex((land_x, land_y))) or \
+               (is_center((selected_piece.x, selected_piece.y)) and  is_center((land_x, land_y))):
+                # Check if adjacent square has a piece and landing square is empty
+                if get_piece_at_pos(pieces, (adj_x, adj_y)) and not get_piece_at_pos(pieces, (land_x, land_y)):
+                    if (land_x, land_y) == (0, 6) or (land_x, land_y) == (0.5, 5.5) or \
+                        (land_x, land_y) == (6, 6) or (land_x, land_y) == (5.5, 5.5) :
+                        continue
+                    moves.append((land_x, land_y))
+    return moves
 
 def create_pieces():
     pieces = []

@@ -17,10 +17,10 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 # Define constants
-WIDTH_PLAY_3, HEIGHT_PLAY_3 = 1000, 1000  # Size of the window
+WIDTH_PLAY_3, HEIGHT_PLAY_3 = 800, 800  # Size of the window
 ROWS_PLAY_3, COLS_PLAY_3 = 5, 6
-SQUARE_SIZE_PLAY_3 = 150  # Size of each square
-LAND = (SQUARE_SIZE_PLAY_3 * ROWS_PLAY_3) - (WIDTH_PLAY_3 - (SQUARE_SIZE_PLAY_3 * 2))
+SQUARE_SIZE_PLAY_3 = 100  # Size of each square
+
 BOARD_SIZE_PLAY_3 = SQUARE_SIZE_PLAY_3 * COLS_PLAY_3 # 900x900 board
 # Calculate top-left position to center the board
 BOARD_TOP_LEFT = ((WIDTH_PLAY_3 - BOARD_SIZE_PLAY_3) // 2, (HEIGHT_PLAY_3 - BOARD_SIZE_PLAY_3) // 2)  # (100, 100)
@@ -37,6 +37,7 @@ pygame.display.set_caption("Play game chess with 3 human")
 
 # Colors
 WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
 
 YELLOW_PIECE_IMG = pygame.image.load(yellow_path).convert_alpha()
 GREEN_PIECE_IMG = pygame.image.load(green_path).convert_alpha()
@@ -47,7 +48,7 @@ PURPLE_PIECE_IMG = pygame.transform.scale(PURPLE_PIECE_IMG, (40, 40))
 BG_IMAGE = pygame.transform.scale(pygame.image.load(bg_path), (1920, 1080))  # Background image
 
 HIGHLIGHT_COLOR = (255, 215, 0)  # Gold
-TEXT_COLOR = (194, 24, 7) # Chilli Red
+TEXT_COLOR = (0, 255, 255) # Chilli Red
 VALID_MOVE_COLOR = (50, 205, 50)  # Lime Green
 
 # Load fonts
@@ -199,11 +200,11 @@ def draw_board(win, pieces):
 
     for i in range(COLS_PLAY_3 + 1):
         if i == 0:
-            pygame.draw.line(win, WHITE, (BOARD_TOP_LEFT[0], BOARD_TOP_LEFT[1]), (BOARD_TOP_LEFT[0], HEIGHT_PLAY_3 - (2*SQUARE_SIZE_PLAY_3) - LAND ), 5)  # Draw the first vertical line
+            pygame.draw.line(win, WHITE, (BOARD_TOP_LEFT[0], BOARD_TOP_LEFT[1]), (BOARD_TOP_LEFT[0], (BOARD_TOP_LEFT[1]-(2*SQUARE_SIZE_PLAY_3))  + HEIGHT_PLAY_3 - (2*SQUARE_SIZE_PLAY_3)), 5)  # Draw the first vertical line
         elif i == COLS_PLAY_3:
-            pygame.draw.line(win, WHITE, (WIDTH_PLAY_3 - LAND, BOARD_TOP_LEFT[1]), (WIDTH_PLAY_3 - LAND, HEIGHT_PLAY_3 - (2*SQUARE_SIZE_PLAY_3) - LAND ), 5)  # Draw the last vertical line
+            pygame.draw.line(win, WHITE, (BOARD_SIZE_PLAY_3 + BOARD_TOP_LEFT[0], BOARD_TOP_LEFT[1]), (BOARD_SIZE_PLAY_3 + BOARD_TOP_LEFT[0], (BOARD_TOP_LEFT[1]-(2*SQUARE_SIZE_PLAY_3))  + HEIGHT_PLAY_3 - (2*SQUARE_SIZE_PLAY_3)), 5)  # Draw the last vertical line
         else:
-            pygame.draw.line(win, WHITE, (BOARD_TOP_LEFT[0] + i * SQUARE_SIZE_PLAY_3, BOARD_TOP_LEFT[1]), (BOARD_TOP_LEFT[0] + i * SQUARE_SIZE_PLAY_3, HEIGHT_PLAY_3-(WIDTH_PLAY_3 // ROWS_PLAY_3)), 5)
+            pygame.draw.line(win, WHITE, (BOARD_TOP_LEFT[0] + i * SQUARE_SIZE_PLAY_3, BOARD_TOP_LEFT[1]), (BOARD_TOP_LEFT[0] + i * SQUARE_SIZE_PLAY_3, BOARD_SIZE_PLAY_3), 5)
 
     for piece in pieces:
         piece.draw(win)
@@ -326,6 +327,32 @@ def has_available_moves(player_color, pieces):
                 return True
     return False
 
+def game_over_screen(winner):
+    # GAME_OVER_SOUND.play()
+    running = True
+
+    # Create buttons
+    restart_button = Button('Restart Game', (WIDTH_PLAY_3 // 2 - 120, HEIGHT_PLAY_3 // 2 + 20), (240, 50), play_3)
+    exit_button = Button('Exit', (WIDTH_PLAY_3 // 2 - 120, HEIGHT_PLAY_3 // 2 + 90), (240, 50), sys.exit)
+
+    while running:
+        WIN.fill(BLACK)
+        over_text = FONT.render(f'{winner.capitalize()} Wins!', True, HIGHLIGHT_COLOR)
+        over_rect = over_text.get_rect(center=(WIDTH_PLAY_3 // 2, HEIGHT_PLAY_3 // 2 - 100))
+        WIN.blit(over_text, over_rect)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+                sys.exit()
+            restart_button.handle_event(event)
+            exit_button.handle_event(event)
+
+        restart_button.draw(WIN)
+        exit_button.draw(WIN)
+
+        pygame.display.update()
+
 def play_3():
     """Displays a blank Pygame screen."""
         # Start background music
@@ -338,10 +365,13 @@ def play_3():
     run = True
     game_over = False
     winner = None
-    turn = 'purple'  # Green pieces go first
     awaiting_capture_choice = False
     capture_options = {}
     moved_piece = None
+
+    # Initialize active players and turn index
+    active_players = ['purple', 'yellow', 'green']
+    turn_index = 0  # Index to keep track of whose turn it is
 
     while run:
         clock.tick(120)  # Set the frame rate to 120 FPS
@@ -349,8 +379,16 @@ def play_3():
         
         # Check if the current player can move or has any pieces
         if not game_over:
+            # Get the current player's color
+            turn = active_players[turn_index % len(active_players)]
+
             if not any(p.color == turn for p in pieces) or not has_available_moves(turn, pieces):
-                game_over = True
+                active_players.remove(turn)
+                turn_index = turn_index + 1
+                # Check if only one player is left
+                if len(active_players) == 1:
+                    game_over = True
+                    winner = active_players[0]
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -380,13 +418,7 @@ def play_3():
                     capture_options = {}
                     moved_piece = None
                     # Switch turn after capturing
-                    match turn:
-                        case 'purple':
-                            turn = 'yellow'
-                        case 'yellow':
-                            turn = 'green'
-                        case 'green':
-                            turn = 'purple'
+                    turn_index +=1
                 
                 elif selected_piece:
                     # Try to move to clicked position
@@ -403,26 +435,14 @@ def play_3():
                                     for piece in pieces_to_flip:
                                         piece.flip(move_color=selected_piece.color)
                                 # Switch turn after capturing
-                                match turn:
-                                    case 'purple':
-                                        turn = 'yellow'
-                                    case 'yellow':
-                                        turn = 'green'
-                                    case 'green':
-                                        turn = 'purple'
+                                turn_index+=1
                             else:
                                 # Multiple capture options, let the player choose
                                 awaiting_capture_choice = True
                                 moved_piece = selected_piece
                         else:
                             # Switch turn after capturing
-                            match turn:
-                                case 'purple':
-                                    turn = 'yellow'
-                                case 'yellow':
-                                    turn = 'green'
-                                case 'green':
-                                    turn = 'purple'
+                            turn_index+=1
                         selected_piece = None
                         valid_moves = []
                     else:
@@ -455,10 +475,11 @@ def play_3():
         
         # Display turn information or game over message
         if game_over:
+            game_over_screen(winner)
             run = False
         else:
             turn_text = FONT.render(f"{turn.capitalize()}'s Turn", True, TEXT_COLOR)
-            WIN.blit(turn_text, (10, 10))
+            WIN.blit(turn_text, (WIDTH_PLAY_3 / 2 - 100, WIDTH_PLAY_3 - 100))
         pygame.display.update()
 
 if __name__ == "__main__":

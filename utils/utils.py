@@ -8,7 +8,10 @@ def is_center(pos):
 # Check xem thử bạn có click vào quân cờ hay không , nếu không trả về None
 def get_piece_at_pos(pieces, pos):
     for piece in pieces:
-        if piece.x == pos[0] and piece.y == pos[1]:
-            return piece
+        try:
+            if piece.x == pos[0] and piece.y == pos[1]:
+                return piece
+        except:
+            continue
     return None
 
