@@ -332,7 +332,7 @@ def welcome_screen():
 
     while running:
         WIN.blit(WELCOME_BG_IMAGE, (0, 0))
-        title_text = FONT.render('Custom Chess Game', True, TEXT_COLOR)
+        title_text = FONT.render('Tactical Formation Game', True, TEXT_COLOR)
         title_rect = title_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 150))
         WIN.blit(title_text, title_rect)
 
@@ -406,7 +406,6 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-                sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN and not game_over:
                 mouse_pos = pygame.mouse.get_pos()
                 clicked_pos = get_clicked_pos(mouse_pos)
