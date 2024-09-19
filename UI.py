@@ -36,10 +36,14 @@ yellow_path = resource_path('assets/yellow_piece.png')
 green_path = resource_path('assets/green_piece.png')
 font_path = resource_path('assets/fonts/Roboto-Bold.ttf')
 small_font_path = resource_path('assets/fonts/Roboto-Regular.ttf')
+move_sound_path = resource_path('assets/sounds/move.mp3')
+capture_sound_path = resource_path('assets/sounds/capture.mp3')
+game_over_path = resource_path('assets/sounds/game_over.mp3')
+background_path = resource_path('assets/sounds/background_music.mp3')
 
 # Load images
 BG_IMAGE = pygame.transform.scale(pygame.image.load(bg_path), (1920, 1080))  # Background image
-WELCOME_BG_IMAGE = pygame.transform.scale(pygame.image.load(welcome_bg_path), (1920, 1080))  # Welcome screen background
+WELCOME_BG_IMAGE = pygame.transform.scale(pygame.image.load(welcome_bg_path), (800, 800))  # Welcome screen background
 
 YELLOW_PIECE_IMG = pygame.image.load(yellow_path).convert_alpha()
 GREEN_PIECE_IMG = pygame.image.load(green_path).convert_alpha()
@@ -51,10 +55,10 @@ FONT = pygame.font.Font(font_path, 36)
 SMALL_FONT = pygame.font.Font(small_font_path, 24)
 
 # Load sounds
-# MOVE_SOUND = pygame.mixer.Sound('assets/sounds/move.mp3')
-# CAPTURE_SOUND = pygame.mixer.Sound('assets/sounds/capture.mp3')
-# GAME_OVER_SOUND = pygame.mixer.Sound('assets/sounds/game_over.mp3')
-# pygame.mixer.music.load('assets/sounds/background_music.mp3')
+MOVE_SOUND = pygame.mixer.Sound(move_sound_path)
+CAPTURE_SOUND = pygame.mixer.Sound(capture_sound_path)
+GAME_OVER_SOUND = pygame.mixer.Sound(game_over_path)
+pygame.mixer.music.load(background_path)
 
 # Colors
 WHITE = (255, 255, 255)
@@ -123,12 +127,12 @@ class Piece:
         self.x = x
         self.y = y
         self.animation_progress = 1  # Start animation
-        # MOVE_SOUND.play()
+        MOVE_SOUND.play()
 
     def flip(self):
         self.color = 'green' if self.color == 'yellow' else 'yellow'
         self.image = GREEN_PIECE_IMG if self.color == 'green' else YELLOW_PIECE_IMG
-        # CAPTURE_SOUND.play()
+        CAPTURE_SOUND.play()
 
     def animate(self, win):
         if self.animation_progress > 0:
@@ -322,9 +326,9 @@ def welcome_screen():
 
     # Create buttons
     start_button = Button('Start Game', (WIDTH // 2 - 100, HEIGHT // 2 - 50), (200, 50), main)
-    exit_button = Button('Exit', (WIDTH // 2 - 100, HEIGHT // 2 + 20), (200, 50), sys.exit)
-    play_3_button = Button('Play 3', (WIDTH // 2 - 100, HEIGHT // 2 + 90), (200, 50), play_3)
-    play_4_button = Button('Play 4', (WIDTH // 2 - 100, HEIGHT // 2 + 160), (200, 50), play_4)
+    play_3_button = Button('Play 3', (WIDTH // 2 - 100, HEIGHT // 2 + 20), (200, 50), play_3)
+    play_4_button = Button('Play 4', (WIDTH // 2 - 100, HEIGHT // 2 + 90), (200, 50), play_4)
+    exit_button = Button('Exit', (WIDTH // 2 - 100, HEIGHT // 2 + 160), (200, 50), sys.exit)
 
     while running:
         WIN.blit(WELCOME_BG_IMAGE, (0, 0))
@@ -349,7 +353,7 @@ def welcome_screen():
         pygame.display.update()
 
 def game_over_screen(winner):
-    # GAME_OVER_SOUND.play()
+    GAME_OVER_SOUND.play()
     running = True
 
     # Create buttons
@@ -376,7 +380,7 @@ def game_over_screen(winner):
 
 def main():
     # Start background music
-    # pygame.mixer.music.play(-1)
+    pygame.mixer.music.play(-1)
 
     clock = pygame.time.Clock()
     pieces = create_pieces()
