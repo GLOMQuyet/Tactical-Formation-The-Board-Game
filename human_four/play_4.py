@@ -1,20 +1,9 @@
 import pygame
 import sys
 import os
-from utils.utils import is_vertex, is_center, get_piece_at_pos
+from utils.utils import is_vertex, is_center, get_piece_at_pos, resource_path
 # Initialize Pygame
 pygame.init()
-
-def resource_path(relative_path):
-    """ Returns the path to a resource file, even when running from an .exe file """
-    try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
-        base_path = sys._MEIPASS
-    except Exception:
-        # Otherwise, use the current directory 
-        base_path = os.path.abspath(".")
-
-    return os.path.join(base_path, relative_path)
 
 # Define constants
 WIDTH_PLAY_4, HEIGHT_PLAY_4 = 800, 800  # Size of the window
