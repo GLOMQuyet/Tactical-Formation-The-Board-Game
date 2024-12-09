@@ -1,7 +1,83 @@
+# import sys
+# import os
+# import asyncio
+# import pygame
+# from human_three.play_3 import play_3
+# from human_four.play_4 import play_4
+# from human_two.play_2 import play_2, Button
+# # If resource_path causes issues, consider removing or just use direct paths.
+# # from utils.utils import resource_path
+
+# async def main():
+#     pygame.init()
+
+#     # Define constants
+#     WIDTH, HEIGHT = 800, 800
+#     ROWS, COLS = 4, 4
+
+#     # Set up the display
+#     WIN = pygame.display.set_mode((WIDTH, HEIGHT))
+#     pygame.display.set_caption('Custom Tactical Board Game')
+
+#     # Load images and fonts directly
+#     WELCOME_BG_IMAGE = pygame.transform.scale(
+#         pygame.image.load('assets/welcome_background.png'), (800, 800)
+#     )
+#     FONT = pygame.font.Font('assets/fonts/Roboto-Bold.ttf', 36)
+#     TEXT_COLOR = (255, 255, 255)
+
+#     running = True
+
+#     # Create buttons
+#     start_button = Button('Play 2', (WIDTH // 2 - 100, HEIGHT // 2 - 50), (200, 50), play_2)
+#     # bot_button = Button('Play bot', (WIDTH // 2 - 100, HEIGHT // 2 + 20), (200, 50), bot_AI)
+#     play_3_button = Button('Play 3', (WIDTH // 2 - 100, HEIGHT // 2 + 90), (200, 50), play_3)
+#     play_4_button = Button('Play 4', (WIDTH // 2 - 100, HEIGHT // 2 + 160), (200, 50), play_4)
+
+#     # Instead of sys.exit, we’ll handle exiting gracefully
+#     def exit_game():
+#         nonlocal running
+#         running = False
+
+#     exit_button = Button('Exit', (WIDTH // 2 - 100, HEIGHT // 2 + 230), (200, 50), exit_game)
+
+#     clock = pygame.time.Clock()
+
+#     while running:
+#         WIN.blit(WELCOME_BG_IMAGE, (0, 0))
+#         title_text = FONT.render('Tactical Formation Game', True, TEXT_COLOR)
+#         title_rect = title_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 150))
+#         WIN.blit(title_text, title_rect)
+
+#         for event in pygame.event.get():
+#             if event.type == pygame.QUIT:
+#                 running = False
+#             start_button.handle_event(event)
+#             exit_button.handle_event(event)
+#             play_3_button.handle_event(event)
+#             play_4_button.handle_event(event)
+#             # bot_button.handle_event(event)
+
+#         start_button.draw(WIN)
+#         exit_button.draw(WIN)
+#         play_3_button.draw(WIN)
+#         play_4_button.draw(WIN)
+#         # bot_button.draw(WIN)
+
+#         pygame.display.update()
+#         clock.tick(60)
+        
+#         # Yield to the browser event loop
+#         await asyncio.sleep(0)
+
+# if __name__ == '__main__':
+#     asyncio.run(main())
+
 import pygame
 import sys
 import os
-from utils.utils import is_vertex, is_center, get_piece_at_pos, resource_path
+from utils.utils import is_vertex, is_center, get_piece_at_pos, resource_path, Button
+import asyncio
 
 # Initialize Pygame
 pygame.init()
@@ -25,10 +101,20 @@ yellow_path = resource_path('assets/yellow_piece.png')
 green_path = resource_path('assets/green_piece.png')
 font_path = resource_path('assets/fonts/Roboto-Bold.ttf')
 small_font_path = resource_path('assets/fonts/Roboto-Regular.ttf')
-move_sound_path = resource_path('assets/sounds/move.mp3')
-capture_sound_path = resource_path('assets/sounds/capture.mp3')
-game_over_path = resource_path('assets/sounds/game_over.mp3')
-background_path = resource_path('assets/sounds/background_music.mp3')
+if sys.platform == "emscripten":
+    move_sound_path = resource_path('assets/sounds/move.ogg')
+    capture_sound_path = resource_path('assets/sounds/capture.ogg')
+    game_over_path = resource_path('assets/sounds/game_over.ogg')
+    background_path = resource_path('assets/sounds/background_music.ogg')
+else:
+    move_sound_path = resource_path('assets/sounds/move.mp3')
+    capture_sound_path = resource_path('assets/sounds/capture.mp3')
+    game_over_path = resource_path('assets/sounds/game_over.mp3')
+    background_path = resource_path('assets/sounds/background_music.mp3')
+
+sound_muted_icon_path = resource_path('assets/sounds/muted_icon.png')
+sound_unmuted_icon_path = resource_path('assets/sounds/speaker_icon.png')  # Added
+undo_icon_path = resource_path('assets/undo_icon.png')  # Path for Undo icon
 
 # Load images
 BG_IMAGE = pygame.transform.scale(pygame.image.load(bg_path), (1920, 1080))  # Background image
@@ -68,27 +154,7 @@ green_positions = [
     (0, 3), (1, 3), (2, 3), (3, 3), (4, 3),
 ]
 
-class Button:
-    def __init__(self, text, pos, size, callback):
-        self.text = text
-        self.pos = pos
-        self.size = size
-        self.callback = callback
-        self.rect = pygame.Rect(pos, size)
-        self.hovered = False
 
-    def draw(self, win):
-        color = (70, 130, 180) if self.hovered else (65, 105, 225)  # Steel Blue or Royal Blue
-        pygame.draw.rect(win, color, self.rect)
-        text_surf = FONT.render(self.text, True, WHITE)
-        text_rect = text_surf.get_rect(center=self.rect.center)
-        win.blit(text_surf, text_rect)
-
-    def handle_event(self, event):
-        if event.type == pygame.MOUSEMOTION:
-            self.hovered = self.rect.collidepoint(event.pos)
-        elif event.type == pygame.MOUSEBUTTONDOWN and self.hovered:
-            self.callback()
 
 class Piece:
     def __init__(self, x, y, color):
@@ -347,7 +413,7 @@ def play_2():
     moved_piece = None
 
     while run:
-        clock.tick(120)  # Set the frame rate to 60 FPS
+        clock.tick(60)  # Set the frame rate to 120 FPS default
 
         # Check if the current player can move or has any pieces
         if not game_over:
@@ -448,4 +514,9 @@ def play_2():
             WIN.blit(turn_text, (10, 10))
 
         pygame.display.update()
+
+    pygame.quit()
+    
+if __name__ == "__main__":
+    play_2()
 
