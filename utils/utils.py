@@ -35,35 +35,6 @@ WIDTH,HEIGHT = 800, 800
 HIGHLIGHT_COLOR = (255, 215, 0)  # Gold
 BLACK = (0, 0, 0)
 
-# class Button:
-#     def __init__(self, text, pos, size, callback):
-#         self.text = text
-#         self.pos = pos
-#         self.size = size
-#         self.callback = callback
-#         self.rect = pygame.Rect(pos, size)
-#         self.hovered = False
-
-#     def draw(self, win):
-#         color = (70, 130, 180) if self.hovered else (65, 105, 225)  # Steel Blue or Royal Blue
-#         pygame.draw.rect(win, color, self.rect)
-#         text_surf = FONT.render(self.text, True, WHITE)
-#         text_rect = text_surf.get_rect(center=self.rect.center)
-#         win.blit(text_surf, text_rect)
-
-#     def handle_event(self, event):
-#         if event.type == pygame.MOUSEMOTION:
-#             self.hovered = self.rect.collidepoint(event.pos)
-#         elif event.type == pygame.MOUSEBUTTONDOWN and self.hovered:
-#             if self.rect.collidepoint(event.pos):
-#                 # Kiểm tra xem callback có phải là coroutine hay không
-#                 if asyncio.iscoroutinefunction(self.callback):
-#                     # Nếu là coroutine, tạo một task để chạy nó
-#                     asyncio.create_task(self.callback())
-#                 else:
-#                     # Nếu không phải, gọi trực tiếp
-#                     self.callback()
-
 class Button:
     def __init__(self, text, pos, size, callback):
         self.text = text

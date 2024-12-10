@@ -314,7 +314,6 @@ async def play_3():
     """Displays a blank Pygame screen."""
         # Start background music
     # pygame.mixer.music.play(-1)
-
     clock = pygame.time.Clock()
     pieces = create_pieces()
     selected_piece = None
@@ -349,7 +348,7 @@ async def play_3():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-                current_screen = "menu"
+                return "exit"
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
@@ -452,7 +451,7 @@ async def play_3():
                 continue  # Begin loop while True
             elif result == "exit":
                 run = False
-                current_screen = "menu"       
+                return 'menu'
         else:
             turn_text = FONT.render(f"{turn.capitalize()}'s Turn", True, TEXT_COLOR)
             WIN.blit(turn_text, (WIDTH_PLAY_3 / 2 - 100, WIDTH_PLAY_3 - 100))
@@ -460,6 +459,7 @@ async def play_3():
         pygame.display.update()
         await asyncio.sleep(0)
 
+    pygame.quit()
 if __name__ == "__main__":
     asyncio.run(play_3())
 
