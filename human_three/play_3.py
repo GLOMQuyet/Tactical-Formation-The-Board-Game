@@ -1,7 +1,9 @@
 import pygame
 import sys
 import os
-from utils.utils import is_vertex, is_center, get_piece_at_pos, resource_path
+from utils.utils import is_vertex, is_center, get_piece_at_pos, resource_path, Button, game_over_screen
+import asyncio
+
 # Initialize Pygame
 pygame.init()
 
@@ -20,13 +22,13 @@ green_path = resource_path('assets/green_piece.png')
 purple_path = resource_path('assets/purple_piece.png')
 font_path = resource_path('assets/fonts/Roboto-Bold.ttf')
 small_font_path = resource_path('assets/fonts/Roboto-Regular.ttf')
-move_sound_path = resource_path('assets/sounds/move.mp3')
-capture_sound_path = resource_path('assets/sounds/capture.mp3')
-game_over_path = resource_path('assets/sounds/game_over.mp3')
-background_path = resource_path('assets/sounds/background_music.mp3')
+# move_sound_path = resource_path('assets/sounds/move.mp3')
+# capture_sound_path = resource_path('assets/sounds/capture.mp3')
+# game_over_path = resource_path('assets/sounds/game_over.mp3')
+# background_path = resource_path('assets/sounds/background_music.mp3')
 
 WIN = pygame.display.set_mode((WIDTH_PLAY_3, HEIGHT_PLAY_3))
-pygame.display.set_caption("Play game chess with 3 human")
+pygame.display.set_caption("Tactical Board Game play 3 human")
 
 # Colors
 WHITE = (255, 255, 255)
@@ -49,10 +51,10 @@ FONT = pygame.font.Font(font_path, 36)
 SMALL_FONT = pygame.font.Font(small_font_path, 24)
 
 # Load sounds
-MOVE_SOUND = pygame.mixer.Sound(move_sound_path)
-CAPTURE_SOUND = pygame.mixer.Sound(capture_sound_path)
-GAME_OVER_SOUND = pygame.mixer.Sound(game_over_path)
-pygame.mixer.music.load(background_path)
+# MOVE_SOUND = pygame.mixer.Sound(move_sound_path)
+# CAPTURE_SOUND = pygame.mixer.Sound(capture_sound_path)
+# GAME_OVER_SOUND = pygame.mixer.Sound(game_over_path)
+# pygame.mixer.music.load(background_path)
 
 # Define piece positions
 yellow_positions = [
@@ -71,27 +73,6 @@ purple_positions = [
     (1, 4), (2, 4), (3, 4), (4, 4), (5, 4)
 ]
 
-class Button:
-    def __init__(self, text, pos, size, callback):
-        self.text = text
-        self.pos = pos
-        self.size = size
-        self.callback = callback
-        self.rect = pygame.Rect(pos, size)
-        self.hovered = False
-
-    def draw(self, win):
-        color = (70, 130, 180) if self.hovered else (65, 105, 225)  # Steel Blue or Royal Blue
-        pygame.draw.rect(win, color, self.rect)
-        text_surf = FONT.render(self.text, True, WHITE)
-        text_rect = text_surf.get_rect(center=self.rect.center)
-        win.blit(text_surf, text_rect)
-
-    def handle_event(self, event):
-        if event.type == pygame.MOUSEMOTION:
-            self.hovered = self.rect.collidepoint(event.pos)
-        elif event.type == pygame.MOUSEBUTTONDOWN and self.hovered:
-            self.callback()
 
 class Piece:
     def __init__(self, x, y, color):
@@ -124,7 +105,7 @@ class Piece:
         self.x = x
         self.y = y
         self.animation_progress = 1  # Start animation
-        MOVE_SOUND.play()
+        # MOVE_SOUND.play()
 
     def flip(self, move_color: str):
         if move_color is not None:
@@ -141,7 +122,7 @@ class Piece:
             self.image = PURPLE_PIECE_IMG
         else:
             self.image = YELLOW_PIECE_IMG
-        CAPTURE_SOUND.play()
+        # CAPTURE_SOUND.play()
 
     def animate(self, win):
         if self.animation_progress > 0:
@@ -328,36 +309,11 @@ def has_available_moves(player_color, pieces):
                 return True
     return False
 
-def game_over_screen(winner):
-    GAME_OVER_SOUND.play()
-    running = True
 
-    # Create buttons
-    restart_button = Button('Restart Game', (WIDTH_PLAY_3 // 2 - 120, HEIGHT_PLAY_3 // 2 + 20), (240, 50), play_3)
-    exit_button = Button('Exit', (WIDTH_PLAY_3 // 2 - 120, HEIGHT_PLAY_3 // 2 + 90), (240, 50), sys.exit)
-
-    while running:
-        WIN.fill(BLACK)
-        over_text = FONT.render(f'{winner.capitalize()} Wins!', True, HIGHLIGHT_COLOR)
-        over_rect = over_text.get_rect(center=(WIDTH_PLAY_3 // 2, HEIGHT_PLAY_3 // 2 - 100))
-        WIN.blit(over_text, over_rect)
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-                sys.exit()
-            restart_button.handle_event(event)
-            exit_button.handle_event(event)
-
-        restart_button.draw(WIN)
-        exit_button.draw(WIN)
-
-        pygame.display.update()
-
-def play_3():
+async def play_3():
     """Displays a blank Pygame screen."""
         # Start background music
-    pygame.mixer.music.play(-1)
+    # pygame.mixer.music.play(-1)
 
     clock = pygame.time.Clock()
     pieces = create_pieces()
@@ -385,7 +341,6 @@ def play_3():
 
             if not any(p.color == turn for p in pieces) or not has_available_moves(turn, pieces):
                 active_players.remove(turn)
-                turn_index = turn_index + 1
                 # Check if only one player is left
                 if len(active_players) == 1:
                     game_over = True
@@ -394,6 +349,8 @@ def play_3():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+                current_screen = "menu"
+
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
                 clicked_pos = get_clicked_pos(mouse_pos)
@@ -419,7 +376,7 @@ def play_3():
                     capture_options = {}
                     moved_piece = None
                     # Switch turn after capturing
-                    turn_index +=1
+                    turn_index = (turn_index + 1) % len(active_players)
                 
                 elif selected_piece:
                     # Try to move to clicked position
@@ -436,14 +393,14 @@ def play_3():
                                     for piece in pieces_to_flip:
                                         piece.flip(move_color=selected_piece.color)
                                 # Switch turn after capturing
-                                turn_index+=1
+                                turn_index = (turn_index + 1) % len(active_players)
                             else:
                                 # Multiple capture options, let the player choose
                                 awaiting_capture_choice = True
                                 moved_piece = selected_piece
                         else:
                             # Switch turn after capturing
-                            turn_index+=1
+                            turn_index = (turn_index + 1) % len(active_players)
                         selected_piece = None
                         valid_moves = []
                     else:
@@ -476,13 +433,33 @@ def play_3():
         
         # Display turn information or game over message
         if game_over:
-            game_over_screen(winner)
-            run = False
+            result = await game_over_screen(winner, play_3)
+            if result == "restart":
+                # Reset game
+                pieces = create_pieces()
+                selected_piece = None
+                valid_moves = []
+                run = True
+                game_over = False
+                winner = None
+                awaiting_capture_choice = False
+                capture_options = {}
+                moved_piece = None
+
+                # Initialize active players and turn index
+                active_players = ['purple', 'yellow', 'green']
+                turn_index = 0  # Index to keep track of whose turn it is
+                continue  # Begin loop while True
+            elif result == "exit":
+                run = False
+                current_screen = "menu"       
         else:
             turn_text = FONT.render(f"{turn.capitalize()}'s Turn", True, TEXT_COLOR)
             WIN.blit(turn_text, (WIDTH_PLAY_3 / 2 - 100, WIDTH_PLAY_3 - 100))
+
         pygame.display.update()
+        await asyncio.sleep(0)
 
 if __name__ == "__main__":
-    play_3()
+    asyncio.run(play_3())
 
