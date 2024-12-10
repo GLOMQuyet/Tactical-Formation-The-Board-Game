@@ -1,82 +1,7 @@
-# import sys
-# import os
-# import asyncio
-# import pygame
-# from human_three.play_3 import play_3
-# from human_four.play_4 import play_4
-# from human_two.play_2 import play_2, Button
-# # If resource_path causes issues, consider removing or just use direct paths.
-# # from utils.utils import resource_path
-
-# async def main():
-#     pygame.init()
-
-#     # Define constants
-#     WIDTH, HEIGHT = 800, 800
-#     ROWS, COLS = 4, 4
-
-#     # Set up the display
-#     WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-#     pygame.display.set_caption('Custom Tactical Board Game')
-
-#     # Load images and fonts directly
-#     WELCOME_BG_IMAGE = pygame.transform.scale(
-#         pygame.image.load('assets/welcome_background.png'), (800, 800)
-#     )
-#     FONT = pygame.font.Font('assets/fonts/Roboto-Bold.ttf', 36)
-#     TEXT_COLOR = (255, 255, 255)
-
-#     running = True
-
-#     # Create buttons
-#     start_button = Button('Play 2', (WIDTH // 2 - 100, HEIGHT // 2 - 50), (200, 50), play_2)
-#     # bot_button = Button('Play bot', (WIDTH // 2 - 100, HEIGHT // 2 + 20), (200, 50), bot_AI)
-#     play_3_button = Button('Play 3', (WIDTH // 2 - 100, HEIGHT // 2 + 90), (200, 50), play_3)
-#     play_4_button = Button('Play 4', (WIDTH // 2 - 100, HEIGHT // 2 + 160), (200, 50), play_4)
-
-#     # Instead of sys.exit, we’ll handle exiting gracefully
-#     def exit_game():
-#         nonlocal running
-#         running = False
-
-#     exit_button = Button('Exit', (WIDTH // 2 - 100, HEIGHT // 2 + 230), (200, 50), exit_game)
-
-#     clock = pygame.time.Clock()
-
-#     while running:
-#         WIN.blit(WELCOME_BG_IMAGE, (0, 0))
-#         title_text = FONT.render('Tactical Formation Game', True, TEXT_COLOR)
-#         title_rect = title_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 150))
-#         WIN.blit(title_text, title_rect)
-
-#         for event in pygame.event.get():
-#             if event.type == pygame.QUIT:
-#                 running = False
-#             start_button.handle_event(event)
-#             exit_button.handle_event(event)
-#             play_3_button.handle_event(event)
-#             play_4_button.handle_event(event)
-#             # bot_button.handle_event(event)
-
-#         start_button.draw(WIN)
-#         exit_button.draw(WIN)
-#         play_3_button.draw(WIN)
-#         play_4_button.draw(WIN)
-#         # bot_button.draw(WIN)
-
-#         pygame.display.update()
-#         clock.tick(60)
-        
-#         # Yield to the browser event loop
-#         await asyncio.sleep(0)
-
-# if __name__ == '__main__':
-#     asyncio.run(main())
-
 import pygame
 import sys
 import os
-from utils.utils import is_vertex, is_center, get_piece_at_pos, resource_path, Button
+from utils.utils import is_vertex, is_center, get_piece_at_pos, resource_path, Button, game_over_screen
 import asyncio
 
 # Initialize Pygame
@@ -93,7 +18,7 @@ BOARD_TOP_LEFT = ((WIDTH - BOARD_SIZE) // 2, (HEIGHT - BOARD_SIZE) // 2)  # (100
 
 # Set up the display
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption('Custom Tactical Board Game')
+pygame.display.set_caption('Tactical Board Game play 2 human')
 
 bg_path = resource_path('assets/background.jpg')
 welcome_bg_path = resource_path('assets/welcome_background.png')
@@ -101,16 +26,17 @@ yellow_path = resource_path('assets/yellow_piece.png')
 green_path = resource_path('assets/green_piece.png')
 font_path = resource_path('assets/fonts/Roboto-Bold.ttf')
 small_font_path = resource_path('assets/fonts/Roboto-Regular.ttf')
-if sys.platform == "emscripten":
-    move_sound_path = resource_path('assets/sounds/move.ogg')
-    capture_sound_path = resource_path('assets/sounds/capture.ogg')
-    game_over_path = resource_path('assets/sounds/game_over.ogg')
-    background_path = resource_path('assets/sounds/background_music.ogg')
-else:
-    move_sound_path = resource_path('assets/sounds/move.mp3')
-    capture_sound_path = resource_path('assets/sounds/capture.mp3')
-    game_over_path = resource_path('assets/sounds/game_over.mp3')
-    background_path = resource_path('assets/sounds/background_music.mp3')
+# print(sys.platform)
+# if sys.platform == "emscripten":
+#     move_sound_path = resource_path('assets/sounds/move.ogg')
+#     capture_sound_path = resource_path('assets/sounds/capture.ogg')
+#     game_over_path = resource_path('assets/sounds/game_over.ogg')
+#     background_path = resource_path('assets/sounds/background_music.ogg')
+# else:
+#     move_sound_path = resource_path('assets/sounds/move.mp3')
+#     capture_sound_path = resource_path('assets/sounds/capture.mp3')
+#     game_over_path = resource_path('assets/sounds/game_over.mp3')
+#     background_path = resource_path('assets/sounds/background_music.mp3')
 
 sound_muted_icon_path = resource_path('assets/sounds/muted_icon.png')
 sound_unmuted_icon_path = resource_path('assets/sounds/speaker_icon.png')  # Added
@@ -130,10 +56,10 @@ FONT = pygame.font.Font(font_path, 36)
 SMALL_FONT = pygame.font.Font(small_font_path, 24)
 
 # Load sounds
-MOVE_SOUND = pygame.mixer.Sound(move_sound_path)
-CAPTURE_SOUND = pygame.mixer.Sound(capture_sound_path)
-GAME_OVER_SOUND = pygame.mixer.Sound(game_over_path)
-pygame.mixer.music.load(background_path)
+# MOVE_SOUND = pygame.mixer.Sound(move_sound_path)
+# CAPTURE_SOUND = pygame.mixer.Sound(capture_sound_path)
+# GAME_OVER_SOUND = pygame.mixer.Sound(game_over_path)
+# pygame.mixer.music.load(background_path)
 
 # Colors
 WHITE = (255, 255, 255)
@@ -182,12 +108,12 @@ class Piece:
         self.x = x
         self.y = y
         self.animation_progress = 1  # Start animation
-        MOVE_SOUND.play()
+        # MOVE_SOUND.play()
 
     def flip(self):
         self.color = 'green' if self.color == 'yellow' else 'yellow'
         self.image = GREEN_PIECE_IMG if self.color == 'green' else YELLOW_PIECE_IMG
-        CAPTURE_SOUND.play()
+        # CAPTURE_SOUND.play()
 
     def animate(self, win):
         if self.animation_progress > 0:
@@ -370,36 +296,12 @@ def has_available_moves(player_color, pieces):
                 return True
     return False
 
-def game_over_screen(winner):
-    GAME_OVER_SOUND.play()
-    running = True
 
-    # Create buttons
-    restart_button = Button('Restart Game', (WIDTH // 2 - 120, HEIGHT // 2 + 20), (240, 50), play_2)
-    exit_button = Button('Exit', (WIDTH // 2 - 120, HEIGHT// 2 + 90), (240, 50), sys.exit)
-
-    while running:
-        WIN.fill(BLACK)
-        over_text = FONT.render(f'{winner.capitalize()} Wins!', True, HIGHLIGHT_COLOR)
-        over_rect = over_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 100))
-        WIN.blit(over_text, over_rect)
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-                sys.exit()
-            restart_button.handle_event(event)
-            exit_button.handle_event(event)
-
-        restart_button.draw(WIN)
-        exit_button.draw(WIN)
-
-        pygame.display.update()
-
-def play_2():
+async def play_2():
     # Start background music
-    pygame.mixer.music.play(-1)
+    # pygame.mixer.music.play(-1)
 
+    global current_screen
     clock = pygame.time.Clock()
     pieces = create_pieces()
     selected_piece = None
@@ -413,7 +315,7 @@ def play_2():
     moved_piece = None
 
     while run:
-        clock.tick(60)  # Set the frame rate to 120 FPS default
+        clock.tick(120)  # Set the frame rate to 120 FPS default
 
         # Check if the current player can move or has any pieces
         if not game_over:
@@ -424,6 +326,8 @@ def play_2():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+                current_screen = "menu"
+                
             elif event.type == pygame.MOUSEBUTTONDOWN and not game_over:
                 mouse_pos = pygame.mouse.get_pos()
                 clicked_pos = get_clicked_pos(mouse_pos)
@@ -507,16 +411,29 @@ def play_2():
 
         # Display turn information or game over message
         if game_over:
-            game_over_screen(winner)
-            run = False
+            result = await game_over_screen(winner, play_2)
+            if result == "restart":
+                # Reset game
+                pieces = create_pieces()
+                selected_piece = None
+                valid_moves = []
+                game_over = False
+                winner = None
+                turn = 'green'
+                awaiting_capture_choice = False
+                capture_options = {}
+                moved_piece = None
+                continue  # Begin loop while True
+            elif result == "exit":
+                run = False
+                current_screen = "menu"
+                    
         else:
             turn_text = FONT.render(f"{turn.capitalize()}'s Turn", True, TEXT_COLOR)
             WIN.blit(turn_text, (10, 10))
 
         pygame.display.update()
+        await asyncio.sleep(0)
 
-    pygame.quit()
-    
 if __name__ == "__main__":
-    play_2()
-
+    asyncio.run(play_2())
