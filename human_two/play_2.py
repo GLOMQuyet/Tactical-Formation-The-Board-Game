@@ -301,7 +301,6 @@ async def play_2():
     # Start background music
     # pygame.mixer.music.play(-1)
 
-    global current_screen
     clock = pygame.time.Clock()
     pieces = create_pieces()
     selected_piece = None
@@ -326,7 +325,7 @@ async def play_2():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-                current_screen = "menu"
+                return 'exit'
                 
             elif event.type == pygame.MOUSEBUTTONDOWN and not game_over:
                 mouse_pos = pygame.mouse.get_pos()
@@ -426,7 +425,7 @@ async def play_2():
                 continue  # Begin loop while True
             elif result == "exit":
                 run = False
-                current_screen = "menu"
+                return 'menu'
                     
         else:
             turn_text = FONT.render(f"{turn.capitalize()}'s Turn", True, TEXT_COLOR)
@@ -435,5 +434,6 @@ async def play_2():
         pygame.display.update()
         await asyncio.sleep(0)
 
+    pygame.quit()
 if __name__ == "__main__":
     asyncio.run(play_2())
