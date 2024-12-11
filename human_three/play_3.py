@@ -40,7 +40,7 @@ PURPLE_PIECE_IMG = pygame.image.load(purple_path).convert_alpha()
 YELLOW_PIECE_IMG = pygame.transform.scale(YELLOW_PIECE_IMG, (40, 40))
 GREEN_PIECE_IMG = pygame.transform.scale(GREEN_PIECE_IMG, (40, 40))
 PURPLE_PIECE_IMG = pygame.transform.scale(PURPLE_PIECE_IMG, (40, 40))
-BG_IMAGE = pygame.transform.scale(pygame.image.load(bg_path), (1920, 1080))  # Background image
+BG_IMAGE = pygame.transform.scale(pygame.image.load(bg_path), (800, 800))  # Background image
 
 HIGHLIGHT_COLOR = (255, 215, 0)  # Gold
 TEXT_COLOR = (0, 255, 255) # Chilli Red
