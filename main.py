@@ -5,6 +5,7 @@ import pygame
 from human_three.play_3 import play_3
 from human_four.play_4 import play_4
 from human_two.play_2 import play_2
+from human_two.bot_AI import bot_AI
 from utils.utils import Button
 
 
@@ -34,6 +35,9 @@ async def main():
 
     async def start_game_2():
         return "play_2"
+    
+    async def start_game_bot():
+        return "bot_AI"
 
     async def start_game_3():
         return "play_3"
@@ -42,6 +46,7 @@ async def main():
         return "play_4"
 
     start_button = Button('Play 2', (WIDTH // 2 - 100, HEIGHT // 2 - 50), (200, 50), start_game_2)
+    bot_button = Button('Bot AI', (WIDTH // 2 - 100, HEIGHT // 2 + 20), (200, 50), start_game_bot)
     play_3_button = Button('Play 3', (WIDTH // 2 - 100, HEIGHT // 2 + 90), (200, 50), start_game_3)
     play_4_button = Button('Play 4', (WIDTH // 2 - 100, HEIGHT // 2 + 160), (200, 50), start_game_4)
     exit_button = Button('Exit', (WIDTH // 2 - 100, HEIGHT // 2 + 230), (200, 50), exit_game)
@@ -63,6 +68,10 @@ async def main():
                 if callback:
                     current_screen = await callback()
 
+                callback = bot_button.handle_event(event)
+                if callback:
+                    current_screen = await callback()
+
                 callback = play_3_button.handle_event(event)
                 if callback:
                     current_screen = await callback()
@@ -76,12 +85,16 @@ async def main():
                     current_screen = await callback()
 
             start_button.draw(WIN)
+            bot_button.draw(WIN)
             play_3_button.draw(WIN)
             play_4_button.draw(WIN)
             exit_button.draw(WIN)
 
         elif current_screen == "play_2":
             current_screen = await play_2()
+        
+        elif current_screen == "bot_AI":
+            current_screen = await bot_AI()
 
         elif current_screen == "play_3":
             current_screen = await play_3()
@@ -99,3 +112,6 @@ async def main():
 
 if __name__ == '__main__':
     asyncio.run(main())
+
+
+
