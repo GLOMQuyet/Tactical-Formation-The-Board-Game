@@ -43,7 +43,7 @@ sound_unmuted_icon_path = resource_path('assets/sounds/speaker_icon.png')  # Add
 undo_icon_path = resource_path('assets/undo_icon.png')  # Path for Undo icon
 
 # Load images
-BG_IMAGE = pygame.transform.scale(pygame.image.load(bg_path), (1920, 1080))  # Background image
+BG_IMAGE = pygame.transform.scale(pygame.image.load(bg_path), (800, 800))  # Background image
 WELCOME_BG_IMAGE = pygame.transform.scale(pygame.image.load(welcome_bg_path), (800, 800))  # Welcome screen background
 
 YELLOW_PIECE_IMG = pygame.image.load(yellow_path).convert_alpha()

@@ -38,7 +38,7 @@ small_font_path = resource_path('assets/fonts/Roboto-Regular.ttf')
 # background_path = resource_path('assets/sounds/background_music.mp3')
 
 
-BG_IMAGE = pygame.transform.scale(pygame.image.load(bg_path), (1920, 1080))  # Background image
+BG_IMAGE = pygame.transform.scale(pygame.image.load(bg_path), (800, 800))  # Background image
 YELLOW_PIECE_IMG = pygame.image.load(yellow_path).convert_alpha()
 GREEN_PIECE_IMG = pygame.image.load(green_path).convert_alpha()
 PURPLE_PIECE_IMG = pygame.image.load(purple_path).convert_alpha()

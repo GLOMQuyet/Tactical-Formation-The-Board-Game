@@ -61,6 +61,7 @@ class Button:
             if self.rect.collidepoint(event.pos):
                 return self.callback
         return None
+  
     
 def is_vertex(pos):
     return pos[0] % 1 == 0 and pos[1] % 1 == 0

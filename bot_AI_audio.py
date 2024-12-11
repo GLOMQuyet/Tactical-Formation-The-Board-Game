@@ -3,7 +3,8 @@ import sys
 import os
 import random
 import copy
-from utils.utils import is_vertex, is_center, get_piece_at_pos, resource_path
+from utils.utils import is_vertex, is_center, get_piece_at_pos, resource_path, Button, game_over_screen
+import asyncio
 
 # Initialize Pygame
 pygame.init()
@@ -19,7 +20,7 @@ BOARD_TOP_LEFT = ((WIDTH - BOARD_SIZE) // 2, (HEIGHT - BOARD_SIZE) // 2)  # (100
 
 # Set up the display
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption('Custom Tactical Board Game')
+pygame.display.set_caption('Tactical Board Game play bot')
 
 # Resource paths
 bg_path = resource_path('assets/background.jpg')
@@ -36,8 +37,9 @@ sound_muted_icon_path = resource_path('assets/sounds/muted_icon.png')
 sound_unmuted_icon_path = resource_path('assets/sounds/speaker_icon.png')  # Added
 undo_icon_path = resource_path('assets/undo_icon.png')  # Path for Undo icon
 
+
 # Load images
-BG_IMAGE = pygame.transform.scale(pygame.image.load(bg_path), (1920, 1080))  # Background image
+BG_IMAGE = pygame.transform.scale(pygame.image.load(bg_path), (800, 800))  # Background image
 WELCOME_BG_IMAGE = pygame.transform.scale(pygame.image.load(welcome_bg_path), (800, 800))  # Welcome screen background
 
 YELLOW_PIECE_IMG = pygame.image.load(yellow_path).convert_alpha()
@@ -50,10 +52,10 @@ FONT = pygame.font.Font(font_path, 36)
 SMALL_FONT = pygame.font.Font(small_font_path, 24)
 
 # Load sounds
-MOVE_SOUND = pygame.mixer.Sound(move_sound_path)
-CAPTURE_SOUND = pygame.mixer.Sound(capture_sound_path)
-GAME_OVER_SOUND = pygame.mixer.Sound(game_over_path)
-pygame.mixer.music.load(background_path)
+# MOVE_SOUND = pygame.mixer.Sound(move_sound_path)
+# CAPTURE_SOUND = pygame.mixer.Sound(capture_sound_path)
+# GAME_OVER_SOUND = pygame.mixer.Sound(game_over_path)
+# pygame.mixer.music.load(background_path)
 
 # Load sound icons
 SOUND_MUTED_ICON = pygame.transform.scale(
@@ -62,6 +64,7 @@ SOUND_MUTED_ICON = pygame.transform.scale(
 SOUND_UNMUTED_ICON = pygame.transform.scale(
     pygame.image.load(sound_unmuted_icon_path).convert_alpha(), (40, 40)
 )
+
 # Load Undo icon
 UNDO_ICON = pygame.transform.scale(
     pygame.image.load(undo_icon_path).convert_alpha(), (40, 40)
@@ -85,28 +88,7 @@ green_positions = [
     (0.5, 3.5), (1.5, 3.5), (2.5, 3.5), (3.5, 3.5),
     (0, 3), (1, 3), (2, 3), (3, 3), (4, 3),
 ]
-
-class Button:
-    def __init__(self, text, pos, size, callback):
-        self.text = text
-        self.pos = pos
-        self.size = size
-        self.callback = callback
-        self.rect = pygame.Rect(pos, size)
-        self.hovered = False
-
-    def draw(self, win):
-        color = (70, 130, 180) if self.hovered else (65, 105, 225)  # Steel Blue or Royal Blue
-        pygame.draw.rect(win, color, self.rect)
-        text_surf = FONT.render(self.text, True, WHITE)
-        text_rect = text_surf.get_rect(center=self.rect.center)
-        win.blit(text_surf, text_rect)
-
-    def handle_event(self, event):
-        if event.type == pygame.MOUSEMOTION:
-            self.hovered = self.rect.collidepoint(event.pos)
-        elif event.type == pygame.MOUSEBUTTONDOWN and self.hovered:
-            self.callback()
+BOT_MOVE_EVENT = pygame.USEREVENT + 1
 
 class SoundButton:
     def __init__(self, pos, size):
@@ -131,15 +113,17 @@ class SoundButton:
     def toggle_mute(self):
         self.is_muted = not self.is_muted
         if self.is_muted:
-            pygame.mixer.music.set_volume(0)
-            MOVE_SOUND.set_volume(0)
-            CAPTURE_SOUND.set_volume(0)
-            GAME_OVER_SOUND.set_volume(0)
+            # pygame.mixer.music.set_volume(0)
+            # MOVE_SOUND.set_volume(0)
+            # CAPTURE_SOUND.set_volume(0)
+            # GAME_OVER_SOUND.set_volume(0)
+            pass
         else:
-            pygame.mixer.music.set_volume(1.0)
-            MOVE_SOUND.set_volume(1.0)
-            CAPTURE_SOUND.set_volume(1.0)
-            GAME_OVER_SOUND.set_volume(1.0)
+            # pygame.mixer.music.set_volume(1.0)
+            # MOVE_SOUND.set_volume(1.0)
+            # CAPTURE_SOUND.set_volume(1.0)
+            # GAME_OVER_SOUND.set_volume(1.0)
+            pass
 
 class UndoButton:
     def __init__(self, pos, size, callback):
@@ -195,19 +179,19 @@ class Piece:
         self.x = x
         self.y = y
         self.animation_progress = 1  # Start animation
-        MOVE_SOUND.play()
+        # MOVE_SOUND.play()
 
     def flip(self):
         self.color = 'green' if self.color == 'yellow' else 'yellow'
         self.image = GREEN_PIECE_IMG if self.color == 'green' else YELLOW_PIECE_IMG
-        CAPTURE_SOUND.play()
+        # CAPTURE_SOUND.play()
 
     def animate(self, win):
         if self.animation_progress > 0:
             current_x = self.start_pos[0] + (self.end_pos[0] - self.start_pos[0]) * (1 - self.animation_progress)
             current_y = self.start_pos[1] + (self.end_pos[1] - self.start_pos[1]) * (1 - self.animation_progress)
             win.blit(self.image, (current_x, current_y))
-            self.animation_progress -= 0.05  # Adjust this value to change animation speed
+            self.animation_progress -= 1e-1  # Adjust this value to change animation speed
             if self.animation_progress <= 0:
                 self.animation_progress = 0
                 self.start_pos = None
@@ -374,71 +358,11 @@ def has_available_moves(player_color, pieces):
                 return True
     return False
 
-def welcome_screen():
-    running = True
-
-    # Create buttons
-    start_button = Button('Start Game', (WIDTH // 2 - 100, HEIGHT // 2 - 50), (200, 50), bot_AI)
-
-    # Initialize SoundButton
-    sound_button = SoundButton(pos=(10, 10), size=(40, 40))  # Positioned at top-left corner
-
-    while running:
-        WIN.blit(WELCOME_BG_IMAGE, (0, 0))
-        title_text = FONT.render('Tactical Formation Game', True, TEXT_COLOR)
-        title_rect = title_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 150))
-        WIN.blit(title_text, title_rect)
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-                sys.exit()
-            start_button.handle_event(event)
-            sound_button.handle_event(event)  # Handle sound button events
-
-        start_button.draw(WIN)
-        sound_button.draw(WIN)  # Draw sound button
-
-        pygame.display.update()
-
-def game_over_screen(winner):
-    GAME_OVER_SOUND.play()
-    running = True
-
-    # Create buttons
-    restart_button = Button('Restart Game', (WIDTH // 2 - 120, HEIGHT // 2 + 20), (240, 50), bot_AI)
-    exit_button = Button('Exit', (WIDTH // 2 - 120, HEIGHT // 2 + 90), (240, 50), sys.exit)
-
-    # Initialize SoundButton
-    sound_button = SoundButton(pos=(10, 10), size=(40, 40))  # Positioned at top-left corner
-
-    while running:
-        WIN.fill(BLACK)
-        over_text = FONT.render(f'{winner.capitalize()} Wins!', True, HIGHLIGHT_COLOR)
-        over_rect = over_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 100))
-        WIN.blit(over_text, over_rect)
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-                sys.exit()
-            restart_button.handle_event(event)
-            exit_button.handle_event(event)
-            sound_button.handle_event(event)  # Handle sound button events
-
-        restart_button.draw(WIN)
-        exit_button.draw(WIN)
-        sound_button.draw(WIN)  # Draw sound button
-
-        pygame.display.update()
-
 # Define a custom event for the bot's move
-BOT_MOVE_EVENT = pygame.USEREVENT + 1
-
 def minimax(pieces, depth, alpha, beta, maximizingPlayer):
     if depth == 0 or is_terminal(pieces):
         return evaluate(pieces), None
-
+    
     if maximizingPlayer:
         maxEval = -float('inf')
         best_move = None
@@ -478,7 +402,7 @@ def evaluate(pieces):
     # Simple evaluation: difference in number of pieces
     yellow = sum(1 for p in pieces if p.color == 'yellow')
     green = sum(1 for p in pieces if p.color == 'green')
-    return yellow - green  # Maximum evaluate 
+    return yellow - green  # Maximum evaluate because yellow is bot & green is human
 
 def get_all_possible_moves(pieces, player_color):
     moves = []
@@ -506,7 +430,7 @@ def bot_move(pieces, move_history):
     Bot makes a move using the Minimax algorithm with Alpha-Beta Pruning.
     Returns True if a move was made, False otherwise.
     """
-    depth = 6  # Adjust depth as needed for performance vs. intelligence
+    depth = 2  # Adjust depth as needed for performance vs. intelligence
     _, best_move = minimax(pieces, depth, -float('inf'), float('inf'), True)
     
     if best_move:
@@ -543,13 +467,11 @@ def undo_move(pieces, move_history):
     Undo the last two moves (machine's and human's).
     """
     if len(move_history) < 2:
-        print("Not enough moves to undo.")
-        return
+        return 
 
     # Undo machine's last move
     machine_move = move_history.pop()
     if machine_move['player'] != 'yellow':
-        print("Last move was not by the machine. Cannot undo.")
         return
     piece = machine_move['piece']
     piece.x, piece.y = machine_move['from_pos']
@@ -562,8 +484,8 @@ def undo_move(pieces, move_history):
     # Undo human's last move
     human_move = move_history.pop()
     if human_move['player'] != 'green':
-        print("Last move was not by the human. Cannot undo.")
-        return
+        return None
+    
     piece = human_move['piece']
     piece.x, piece.y = human_move['from_pos']
     piece.image = GREEN_PIECE_IMG
@@ -572,9 +494,9 @@ def undo_move(pieces, move_history):
     for captured_piece in human_move['captured_pieces']:
         captured_piece.flip()
 
-def bot_AI():
+async def bot_AI():
     # Start background music
-    pygame.mixer.music.play(-1)
+    # pygame.mixer.music.play(-1)
 
     clock = pygame.time.Clock()
     pieces = create_pieces()
@@ -595,109 +517,114 @@ def bot_AI():
     undo_button = UndoButton(pos=(750, 10), size=(40, 40), callback=lambda: undo_move(pieces, move_history))  # Positioned next to SoundButton
 
     while run:
-        clock.tick(60)  # Set the frame rate to 60 FPS
+        clock.tick(120)  # Set the frame rate to 60 FPS
 
+        # Check if the current player can move or has any pieces
+        if not game_over:
+            if not any(p.color == turn for p in pieces) or not has_available_moves(turn, pieces):
+                game_over = True
+                winner = 'yellow' if turn == 'green' else 'green'
+                
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-                pygame.quit()
-                sys.exit()
+                return 'exit'
             
-            elif event.type == pygame.MOUSEBUTTONDOWN and not game_over and turn == 'green' and not awaiting_capture_choice and not bot_move_pending:
+            elif event.type == pygame.MOUSEBUTTONDOWN and not game_over and turn == 'green' and not bot_move_pending:
                 mouse_pos = pygame.mouse.get_pos()
                 clicked_pos = get_clicked_pos(mouse_pos)
                 piece = get_piece_at_pos(pieces, clicked_pos)
+                
+                if not awaiting_capture_choice:
+                    if selected_piece:
+                        # Try to move to clicked position
+                        if clicked_pos in valid_moves:
+                            # Record human's move
+                            human_move_record = {
+                                'player': 'green',
+                                'piece': selected_piece,
+                                'from_pos': (selected_piece.x, selected_piece.y),
+                                'to_pos': clicked_pos,
+                                'captured_pieces': []
+                            }
+                            # Move the piece
+                            selected_piece.move(clicked_pos[0], clicked_pos[1])
+                            selected_piece.selected = False
 
-                if selected_piece:
-                    # Try to move to clicked position
-                    if clicked_pos in valid_moves:
-                        # Record human's move
-                        human_move_record = {
-                            'player': 'green',
-                            'piece': selected_piece,
-                            'from_pos': (selected_piece.x, selected_piece.y),
-                            'to_pos': clicked_pos,
-                            'captured_pieces': []
-                        }
-
-                        # Move the piece
-                        selected_piece.move(clicked_pos[0], clicked_pos[1])
-                        selected_piece.selected = False
-
-                        # Check for captures
-                        capture_options = find_capture_options(pieces, selected_piece)
-                        if capture_options:
-                            if len(capture_options) == 1:
-                                # Only one capture option, perform it automatically
-                                direction = next(iter(capture_options))
-                                captured = capture_options[direction]
-                                human_move_record['captured_pieces'].extend(captured)
-                                for p in captured:
-                                    p.flip()
-                                # Switch turn after capturing
+                            # Check for captures
+                            capture_options = find_capture_options(pieces, selected_piece)
+                            if capture_options:
+                                if len(capture_options) == 1:
+                                    # Only one capture option, perform it automatically
+                                    direction = next(iter(capture_options))
+                                    captured = capture_options[direction]
+                                    human_move_record['captured_pieces'].extend(captured)
+                                    for p in captured:
+                                        p.flip()
+                                    # Switch turn after capturing
+                                    turn = 'yellow'
+                                    bot_move_pending = True  # Bot's turn is pending
+                                    # Set a timer for the bot's move after 0.2 second
+                                    pygame.time.set_timer(BOT_MOVE_EVENT, 200)
+                                else:
+                                    # Multiple capture options, let the player choose one
+                                    awaiting_capture_choice = True
+                                    moved_piece = selected_piece
+                            else:
+                                # No captures, switch turn
                                 turn = 'yellow'
                                 bot_move_pending = True  # Bot's turn is pending
-                                # Set a timer for the bot's move after 0.5 second
-                                pygame.time.set_timer(BOT_MOVE_EVENT, 500)
-                            else:
-                                # Multiple capture options, let the player choose one
-                                awaiting_capture_choice = True
-                                moved_piece = selected_piece
+                                # Set a timer for the bot's move after 0.2 second
+                                pygame.time.set_timer(BOT_MOVE_EVENT, 200)
+                            move_history.append(human_move_record)
+                            selected_piece = None
+                            valid_moves = []
                         else:
-                            # No captures, switch turn
-                            turn = 'yellow'
-                            bot_move_pending = True  # Bot's turn is pending
-                            # Set a timer for the bot's move after 0.5 second
-                            pygame.time.set_timer(BOT_MOVE_EVENT, 500)
-                        move_history.append(human_move_record)
-                        selected_piece = None
-                        valid_moves = []
-                    else:
-                        selected_piece.selected = False
-                        selected_piece = None
-                        valid_moves = []
-                elif piece:
-                    # Only allow selection if the piece belongs to the current player
-                    if piece.color == turn:
-                        selected_piece = piece
-                        selected_piece.selected = True
-                        valid_moves = get_valid_moves(selected_piece, pieces)
-                        
-                        if not valid_moves:
                             selected_piece.selected = False
                             selected_piece = None
+                            valid_moves = []
+                    elif piece:
+                        # Only allow selection if the piece belongs to the current player
+                        if piece.color == turn:
+                            selected_piece = piece
+                            selected_piece.selected = True
+                            valid_moves = get_valid_moves(selected_piece, pieces)
+                            
+                            if not valid_moves:
+                                selected_piece.selected = False
+                                selected_piece = None
 
-            elif event.type == pygame.MOUSEBUTTONDOWN and awaiting_capture_choice and turn == 'green':
-                mouse_pos = pygame.mouse.get_pos()
-                selected_direction = None
-                min_distance = float('inf')
-                for direction in capture_options.keys():
-                    dir_dx, dir_dy = direction
-                    end_x = moved_piece.x + dir_dx
-                    end_y = moved_piece.y + dir_dy
-                    end_pixel = get_pixel_pos((end_x, end_y))
-                    distance = ((mouse_pos[0] - end_pixel[0]) ** 2 + (mouse_pos[1] - end_pixel[1]) ** 2) ** 0.5
-                    if distance < min_distance:
-                        min_distance = distance
-                        selected_direction = direction
-                if selected_direction:
-                    # Record captured pieces
-                    captured = capture_options[selected_direction]
-                    moved_piece = moved_piece  # Reference to the moved piece
-                    for piece in captured:
-                        piece.flip()
-                    # Record captured pieces in move history
-                    last_move = move_history[-1]
-                    last_move['captured_pieces'].extend(captured)
+                elif awaiting_capture_choice:
+                    min_distance = float('inf')
+                    selected_direction = None
+                    for direction in capture_options.keys():
+                        dir_dx, dir_dy = direction
+                        end_x = moved_piece.x + dir_dx
+                        end_y = moved_piece.y + dir_dy
+                        end_pixel = get_pixel_pos((end_x, end_y))
+                        distance = ((mouse_pos[0] - end_pixel[0]) ** 2 + (mouse_pos[1] - end_pixel[1]) ** 2) ** 0.5
+                        if distance < min_distance:
+                            min_distance = distance
+                            selected_direction = direction
+                    if selected_direction:
+                        # Record captured pieces
+                        captured = capture_options[selected_direction]
+                        moved_piece = moved_piece  # Reference to the moved piece
+                        for piece in captured:
+                            piece.flip()
 
-                    awaiting_capture_choice = False
-                    capture_options = {}
-                    moved_piece = None
-                    # Switch turn after capturing
-                    turn = 'yellow'
-                    bot_move_pending = True  # Bot's turn is pending
-                    # Set a timer for the bot's move after 0.5 second
-                    pygame.time.set_timer(BOT_MOVE_EVENT, 500)
+                        # Record captured pieces in move history
+                        last_move = move_history[-1]
+                        last_move['captured_pieces'].extend(captured)
+
+                        awaiting_capture_choice = False
+                        capture_options = {}
+                        moved_piece = None
+                        # Switch turn after capturing
+                        turn = 'yellow'
+                        bot_move_pending = True  # Bot's turn is pending
+                        # Set a timer for the bot's move after 0.2 second
+                        pygame.time.set_timer(BOT_MOVE_EVENT, 200)
 
             elif event.type == BOT_MOVE_EVENT and bot_move_pending:
                 # Bot's turn to move
@@ -712,16 +639,10 @@ def bot_AI():
                 bot_move_pending = False
                 # Disable the timer
                 pygame.time.set_timer(BOT_MOVE_EVENT, 0)
-
+            
             # Handle SoundButton and UndoButton events
             sound_button.handle_event(event)
             undo_button.handle_event(event)
-
-        # Check if the current player can move or has any pieces
-        if not game_over:
-            if not any(p.color == turn for p in pieces) or not has_available_moves(turn, pieces):
-                game_over = True
-                winner = 'yellow' if turn == 'green' else 'green'
 
         draw_board(WIN, pieces)
 
@@ -739,8 +660,24 @@ def bot_AI():
 
         # Display turn information or game over message
         if game_over:
-            game_over_screen(winner)
-            run = False
+            result = await game_over_screen(winner, bot_AI)
+            if result == "restart":
+                # Reset game
+                pieces = create_pieces()
+                selected_piece = None
+                valid_moves = []
+                game_over = False
+                winner = None
+                turn = 'green'  # Green pieces go first (human)
+                awaiting_capture_choice = False
+                capture_options = {}
+                moved_piece = None
+                bot_move_pending = False  # Flag to handle bot's turn
+                continue  # Begin loop while True
+
+            elif result == "exit":
+                run = False
+                return 'menu'
         else:
             turn_text = FONT.render(f"{turn.capitalize()}'s Turn", True, TEXT_COLOR)
             WIN.blit(turn_text, (10, 50))  # Adjusted position to avoid overlapping with buttons
@@ -748,8 +685,12 @@ def bot_AI():
         # Draw SoundButton and UndoButton
         sound_button.draw(WIN)
         undo_button.draw(WIN)
-
+        
+        # Draw SoundButton and UndoButton
         pygame.display.update()
+        await asyncio.sleep(0)
 
     pygame.quit()
 
+if __name__ == "__main__":
+    asyncio.run(bot_AI())
