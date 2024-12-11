@@ -1,8 +1,7 @@
 import pygame
 import os
 import sys
-
-pygame.font.init()
+import asyncio
 
 def resource_path(relative_path):
     """
@@ -27,10 +26,15 @@ def resource_path(relative_path):
 
     return os.path.join(base_path, relative_path)
 
+pygame.font.init()
 font_path = resource_path('assets/fonts/Roboto-Bold.ttf')
 FONT = pygame.font.Font(font_path, 36)
-
 WHITE = (255, 255, 255)
+WIN = pygame.display.set_mode((800, 800))
+WIDTH,HEIGHT = 800, 800
+HIGHLIGHT_COLOR = (255, 215, 0)  # Gold
+BLACK = (0, 0, 0)
+
 class Button:
     def __init__(self, text, pos, size, callback):
         self.text = text
@@ -39,6 +43,9 @@ class Button:
         self.callback = callback
         self.rect = pygame.Rect(pos, size)
         self.hovered = False
+        self.font = pygame.font.Font(None, 36)
+        self.color = (70, 130, 180) if self.hovered else (65, 105, 225)  # Steel Blue or Royal Blue
+
 
     def draw(self, win):
         color = (70, 130, 180) if self.hovered else (65, 105, 225)  # Steel Blue or Royal Blue
@@ -51,8 +58,10 @@ class Button:
         if event.type == pygame.MOUSEMOTION:
             self.hovered = self.rect.collidepoint(event.pos)
         elif event.type == pygame.MOUSEBUTTONDOWN and self.hovered:
-            self.callback()
-            
+            if self.rect.collidepoint(event.pos):
+                return self.callback
+        return None
+    
 def is_vertex(pos):
     return pos[0] % 1 == 0 and pos[1] % 1 == 0
 
@@ -68,4 +77,37 @@ def get_piece_at_pos(pieces, pos):
         except:
             continue
     return None
+
+async def game_over_screen(winner, player=None):
+    # GAME_OVER_SOUND.play()
+    running = True
+
+    # Create buttons
+    restart_button = Button('Restart Game', (WIDTH // 2 - 120, HEIGHT // 2 + 20), (240, 50), player)
+    exit_button = Button('Exit', (WIDTH // 2 - 120, HEIGHT// 2 + 90), (240, 50), sys.exit)
+
+    over_text = FONT.render(f'{winner.capitalize()} Wins!', True, HIGHLIGHT_COLOR)
+    over_rect = over_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 100))
+    while running:
+        WIN.fill(BLACK)
+        WIN.blit(over_text, over_rect)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+                sys.exit()
+            
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if restart_button.rect.collidepoint(event.pos):
+                    return "restart"  # Trả về "restart" nếu nhấn nút Restart
+                elif exit_button.rect.collidepoint(event.pos):
+                    return "exit"  # Trả về "exit" nếu nhấn nút Exit
+            restart_button.handle_event(event)
+            exit_button.handle_event(event)
+
+        restart_button.draw(WIN)
+        exit_button.draw(WIN)
+
+        pygame.display.update()
+        await asyncio.sleep(0)
 
