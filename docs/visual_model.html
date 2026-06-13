@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Cờ Trận — Hướng dẫn trực quan (chế độ 2 người)</title>
+<style>
+  :root {
+    --bg: #faf8f3;
+    --grid: #c8c0a8;
+    --vertex-cell: #a89e7a;
+    --center-cell: #d0c8a8;
+    --green-d: #1b5e20;
+    --green-l: #66bb6a;
+    --yellow-d: #b07700;
+    --yellow-l: #fbc02d;
+    --accent: #1a3a52;
+    --danger: #c62828;
+    --ink: #222;
+  }
+  html { color-scheme: light; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    max-width: 980px;
+    margin: 2rem auto;
+    padding: 0 1.5rem 4rem;
+    line-height: 1.65;
+    color: var(--ink);
+    background: #fff;
+  }
+  h1, h2, h3 { color: var(--accent); font-weight: 700; }
+  h1 { font-size: 1.9rem; border-bottom: 3px solid var(--accent); padding-bottom: 0.6rem; }
+  h2 { font-size: 1.4rem; margin-top: 3rem; border-bottom: 1px solid #ddd; padding-bottom: 0.3rem; }
+  h3 { font-size: 1.1rem; margin-top: 1.5rem; }
+  code {
+    background: #f0efe6;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 0.9em;
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+  }
+  .lead {
+    background: #eef3f7;
+    border-left: 4px solid var(--accent);
+    padding: 1rem 1.2rem;
+    border-radius: 4px;
+    margin: 1rem 0 1.5rem;
+  }
+  .axiom {
+    background: #fff5dd;
+    border-left: 4px solid #d97706;
+    padding: 0.9rem 1.2rem;
+    border-radius: 4px;
+    margin: 1.2rem 0;
+  }
+  .note {
+    background: #f6f6f6;
+    border-left: 3px solid #999;
+    padding: 0.7rem 1rem;
+    border-radius: 3px;
+    font-size: 0.95em;
+    font-style: italic;
+    color: #555;
+    margin: 1rem 0;
+  }
+  ol, ul { padding-left: 1.4rem; }
+  ol li, ul li { margin: 0.3rem 0; }
+  table {
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.95em;
+  }
+  th, td {
+    border: 1px solid #ddd;
+    padding: 0.5rem 1rem;
+    text-align: left;
+  }
+  th { background: #eef3f7; }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.2rem;
+    align-items: center;
+    margin: 0.5rem 0 1.5rem;
+    padding: 0.7rem 1rem;
+    background: #fafafa;
+    border-radius: 6px;
+    font-size: 0.9em;
+  }
+  .legend-item { display: flex; align-items: center; gap: 0.4rem; }
+  .sw {
+    display: inline-block;
+    border: 2px solid #222;
+    border-radius: 50%;
+  }
+  .sw.vG { width: 18px; height: 18px; background: var(--green-d); }
+  .sw.cG { width: 12px; height: 12px; background: var(--green-l); }
+  .sw.vY { width: 18px; height: 18px; background: var(--yellow-l); border-color: var(--yellow-d); }
+  .sw.cY { width: 12px; height: 12px; background: #ffd970; border-color: var(--yellow-d); }
+  .sw.vEmpty {
+    width: 10px; height: 10px;
+    background: var(--vertex-cell);
+    border: none;
+  }
+  .sw.cEmpty {
+    width: 7px; height: 7px;
+    background: var(--center-cell);
+    border: none;
+  }
+  .frames {
+    display: flex;
+    gap: 1.3rem;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: center;
+    margin: 1.5rem 0;
+  }
+  .frame {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 360px;
+  }
+  .frame .lbl {
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+    text-align: center;
+  }
+  .frame .cap {
+    font-size: 0.85em;
+    color: #555;
+    margin-top: 0.5rem;
+    text-align: center;
+    max-width: 280px;
+  }
+  .arrow-mid {
+    align-self: center;
+    font-size: 1.8rem;
+    color: var(--accent);
+    user-select: none;
+  }
+  .board-host svg { display: block; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  .footer {
+    margin-top: 4rem;
+    border-top: 1px solid #ddd;
+    padding-top: 1rem;
+    font-size: 0.9em;
+    color: #666;
+  }
+</style>
+</head>
+<body>
+
+<h1>Cờ Trận — Hướng dẫn trực quan</h1>
+<p style="color:#777; margin-top:-0.5rem;">Chế độ 2 người · Tài liệu trực quan dùng hình ảnh thật, song hành với <code>docs/formal_model.md</code></p>
+
+<div class="lead">
+Tài liệu này mô tả luật chơi bằng <strong>hình ảnh thật (SVG)</strong> và ví dụ
+cụ thể, không dùng công thức toán. Trọng tâm là cốt lõi của cờ: quân đi theo
+<strong>hướng</strong> nào, và <strong>ăn quân</strong> ra sao.
+</div>
+
+<p>Ba điều cần nhớ xuyên suốt:</p>
+<ol>
+  <li><strong>Trạng thái</strong> — bàn cờ hiện tại + ai cầm lượt.</li>
+  <li><strong>Hành động</strong> — chọn quân đi, đáp xuống đâu, và nếu ăn được thì ăn hướng nào.</li>
+  <li><strong>Phần thưởng</strong> — đúng bằng <strong>số quân ăn được</strong> trong nước đi.</li>
+</ol>
+
+<div class="axiom">
+<strong>Luật vàng:</strong> bàn cờ luôn có đúng <strong>28 quân</strong>
+— ăn quân là <strong>đổi phe</strong> quân ấy, không bao giờ loại bỏ.
+</div>
+
+<div class="legend">
+  <span class="legend-item"><span class="sw vEmpty"></span> ô đỉnh trống</span>
+  <span class="legend-item"><span class="sw cEmpty"></span> ô tâm trống</span>
+  <span class="legend-item"><span class="sw vG"></span> quân đỉnh Xanh</span>
+  <span class="legend-item"><span class="sw cG"></span> quân tâm Xanh</span>
+  <span class="legend-item"><span class="sw vY"></span> quân đỉnh Vàng</span>
+  <span class="legend-item"><span class="sw cY"></span> quân tâm Vàng</span>
+</div>
+
+<!-- ────────────────────────────────────────────────────── -->
+<h2>1. Bàn cờ — 41 ô trên hai lớp</h2>
+
+<div class="frames">
+  <figure class="frame">
+    <span class="lbl">Bàn 4×4 — cấu trúc 41 ô</span>
+    <div class="board-host" data-board='{"w":4,"h":4,"cell":54,"pieces":[]}'></div>
+    <figcaption class="cap">25 ô đỉnh (chấm đậm) + 16 ô tâm (chấm nhạt, nằm giữa 4 ô đỉnh) = 41 ô.</figcaption>
+  </figure>
+</div>
+
+<p>
+<strong>25 ô đỉnh</strong> nằm ở vị trí tọa độ nguyên (vd <code>(0,0)</code>,
+<code>(2,3)</code>). <strong>16 ô tâm</strong> nằm ở vị trí nửa nguyên
+(vd <code>(0.5, 0.5)</code>, <code>(2.5, 1.5)</code>) — mỗi ô tâm nằm chính
+giữa 4 ô đỉnh xung quanh.
+</p>
+<p>Hai phe là <strong>Xanh</strong> và <strong>Vàng</strong>. <strong>Xanh đi trước.</strong></p>
+
+<!-- ────────────────────────────────────────────────────── -->
+<h2>2. 28 quân và Định luật Bảo toàn</h2>
+
+<p>Trò chơi có đúng <strong>28 quân</strong>; mỗi phe <strong>14 quân</strong>
+= <strong>10 quân đỉnh + 4 quân tâm</strong>.</p>
+
+<p>Mỗi quân có ba tính chất:</p>
+<ul>
+  <li><strong>Loại</strong> (đỉnh hay tâm) — <em>không bao giờ đổi</em>: quân đỉnh sống cả đời trên ô đỉnh, quân tâm sống cả đời trên ô tâm.</li>
+  <li><strong>Vị trí</strong> — đổi khi quân nhảy.</li>
+  <li><strong>Phe</strong> (Xanh hay Vàng) — đổi khi quân bị ăn.</li>
+</ul>
+
+<h3>Minh họa: ăn = đổi phe, không xoá</h3>
+
+<div class="frames">
+  <figure class="frame">
+    <span class="lbl">Trước cú ăn</span>
+    <div class="board-host" data-board='{"w":4,"h":4,"cell":50,"pieces":[["G",1,2],["Y",2,2],["G",3,2]]}'></div>
+    <figcaption class="cap">Xanh ở <code>(1,2)</code> sắp ăn <code>Y@(2,2)</code> nhờ kẹp giữa hai G.</figcaption>
+  </figure>
+  <span class="arrow-mid">→</span>
+  <figure class="frame">
+    <span class="lbl">Sau cú ăn</span>
+    <div class="board-host" data-board='{"w":4,"h":4,"cell":50,"pieces":[["G",1,2],["G",2,2],["G",3,2]]}'></div>
+    <figcaption class="cap"><code>Y@(2,2)</code> "đào tẩu" sang Xanh, vẫn ngồi đúng chỗ cũ.</figcaption>
+  </figure>
+</div>
+
+<p>
+<strong>Đếm trước:</strong> 2 Xanh + 1 Vàng = 3 quân.
+<strong>Đếm sau:</strong> 3 Xanh + 0 Vàng = 3 quân. Tổng 3 không đổi — chỉ
+đổi màu. Ở quy mô toàn bàn, ở mọi trạng thái: <strong>Xanh + Vàng = 28.</strong>
+</p>
+
+<!-- ────────────────────────────────────────────────────── -->
+<h2>3. Vị trí xuất phát — trạng thái 0</h2>
+
+<div class="frames">
+  <figure class="frame">
+    <span class="lbl">28 quân ở vị trí xuất phát</span>
+    <div class="board-host" data-board='{"w":4,"h":4,"cell":62,"label":"LƯỢT: Xanh đi trước","pieces":[["G",0,4],["G",1,4],["G",2,4],["G",3,4],["G",4,4],["g",0.5,3.5],["g",1.5,3.5],["g",2.5,3.5],["g",3.5,3.5],["G",0,3],["G",1,3],["G",2,3],["G",3,3],["G",4,3],["Y",0,0],["Y",1,0],["Y",2,0],["Y",3,0],["Y",4,0],["y",0.5,0.5],["y",1.5,0.5],["y",2.5,0.5],["y",3.5,0.5],["Y",0,1],["Y",1,1],["Y",2,1],["Y",3,1],["Y",4,1]]}'></div>
+    <figcaption class="cap">Vàng chiếm 2 hàng dưới (14 quân), Xanh chiếm 2 hàng trên (14 quân), giữa là 3 hàng trống.</figcaption>
+  </figure>
+</div>
+
+<!-- ────────────────────────────────────────────────────── -->
+<h2>4. Trạng thái = bàn cờ + ai cầm lượt</h2>
+
+<p>Một "trạng thái" của ván gồm <strong>hai thứ</strong>:</p>
+<ol>
+  <li><strong>Bàn cờ hiện tại</strong> — ô nào có quân màu gì.</li>
+  <li><strong>Ai đến lượt đi</strong> — Xanh hay Vàng.</li>
+</ol>
+
+<div class="frames">
+  <figure class="frame">
+    <span class="lbl">Một trạng thái giữa ván</span>
+    <div class="board-host" data-board='{"w":4,"h":4,"cell":58,"label":"LƯỢT: Xanh đi","pieces":[["G",1,4],["G",3,4],["G",4,4],["g",1.5,3.5],["g",2.5,3.5],["g",3.5,3.5],["G",0,3],["G",1,3],["Y",2,3],["G",3,3],["G",4,3],["y",1.5,2.5],["Y",2,2],["y",1.5,1.5],["y",2.5,1.5],["y",3.5,1.5],["Y",0,1],["Y",2,1],["Y",3,1],["Y",4,1],["y",0.5,0.5],["y",1.5,0.5],["y",3.5,0.5],["Y",0,0],["Y",1,0],["Y",2,0],["Y",3,0]]}'></div>
+    <figcaption class="cap">Một số quân đã di chuyển; tổng vẫn 28; Xanh đến lượt.</figcaption>
+  </figure>
+</div>
+
+<p>Biết bàn + biết ai đi → biết hết tình thế. <strong>Không có thông tin
+ẩn</strong> (không kiểu úp bài, không lá tay).</p>
+
+<!-- ────────────────────────────────────────────────────── -->
+<h2>5. Hướng đi — quân di chuyển theo hướng nào</h2>
+
+<div class="frames">
+  <figure class="frame">
+    <span class="lbl">Quân đỉnh — 8 hướng</span>
+    <div class="board-host" data-board='{"w":2,"h":2,"cell":85,"showAxis":false,"pieces":[["G",1,1]],"arrows":[[1,1,2,1],[1,1,0,1],[1,1,1,2],[1,1,1,0],[1,1,1.5,1.5],[1,1,0.5,1.5],[1,1,1.5,0.5],[1,1,0.5,0.5]]}'></div>
+    <figcaption class="cap">4 hướng ngang-dọc (bước 1) đi qua ô đỉnh kế; 4 hướng chéo (bước nửa) đi qua ô tâm.</figcaption>
+  </figure>
+  <figure class="frame">
+    <span class="lbl">Quân tâm — 4 hướng chéo</span>
+    <div class="board-host" data-board='{"w":2,"h":2,"cell":85,"showAxis":false,"pieces":[["g",1.5,1.5]],"arrows":[[1.5,1.5,2,2],[1.5,1.5,1,2],[1.5,1.5,2,1],[1.5,1.5,1,1]]}'></div>
+    <figcaption class="cap">Chỉ 4 hướng chéo, mỗi bước đi qua ô đỉnh kế. Không có ngang-dọc.</figcaption>
+  </figure>
+</div>
+
+<p>
+Trực giác cho quân tâm: nó "kẹt" giữa 4 ô đỉnh — đi ngang hoặc dọc 1 ô sẽ
+rơi ra ngoài lớp tâm. Chỉ đi chéo (bước nửa ô) mới giữ được trên lớp tâm.
+</p>
+
+<!-- ────────────────────────────────────────────────────── -->
+<h2>6. Cú nhảy — cách di chuyển duy nhất</h2>
+
+<p>
+Quân <strong>chỉ di chuyển bằng cách nhảy</strong>: bay qua một ô kề
+(có quân làm <em>bệ</em>) và đáp xuống ô tiếp theo.
+</p>
+
+<h3>Ba điều kiện của một cú nhảy hợp lệ</h3>
+<ol>
+  <li><strong>Bệ nhảy có quân</strong> — ô ngay kề (theo hướng đi) phải có quân; phe nào cũng được.</li>
+  <li><strong>Ô đáp trống</strong> — ô cách bệ một bước nữa phải không có quân.</li>
+  <li><strong>Không ra ngoài bàn</strong> — cả bệ và ô đáp phải nằm trong 41 ô.</li>
+</ol>
+<p><strong>Quân bị nhảy qua đứng nguyên</strong> — không xê dịch, không đổi phe.</p>
+
+<h3>Ví dụ 1 — Quân đỉnh nhảy ngang</h3>
+
+<div class="frames">
+  <figure class="frame">
+    <span class="lbl">Trước</span>
+    <div class="board-host" data-board='{"w":4,"h":4,"cell":50,"pieces":[["G",1,2],["Y",2,2]],"highlights":[[3,2]],"arrows":[[1,2,3,2,{"dash":true,"color":"#c62828"}]]}'></div>
+    <figcaption class="cap"><code>G@(1,2)</code> nhảy phải, bệ <code>Y@(2,2)</code>, ô đáp <code>(3,2)</code> trống.</figcaption>
+  </figure>
+  <span class="arrow-mid">→</span>
+  <figure class="frame">
+    <span class="lbl">Sau</span>
+    <div class="board-host" data-board='{"w":4,"h":4,"cell":50,"pieces":[["Y",2,2],["G",3,2]]}'></div>
+    <figcaption class="cap">G đáp <code>(3,2)</code>. <code>Y@(2,2)</code> vẫn ở chỗ cũ, vẫn Vàng (bệ không đổi).</figcaption>
+  </figure>
+</div>
+
+<h3>Ví dụ 2 — Quân đỉnh nhảy chéo</h3>
+
+<div class="frames">
+  <figure class="frame">
+    <span class="lbl">Trước</span>
+    <div class="board-host" data-board='{"w":4,"h":4,"cell":50,"pieces":[["G",1,1],["y",1.5,1.5]],"highlights":[[2,2]],"arrows":[[1,1,2,2,{"dash":true,"color":"#c62828"}]]}'></div>
+    <figcaption class="cap"><code>G@(1,1)</code> nhảy chéo lên-phải, bệ là quân tâm <code>y@(1.5,1.5)</code>, đáp ô đỉnh <code>(2,2)</code>.</figcaption>
+  </figure>
+  <span class="arrow-mid">→</span>
+  <figure class="frame">
+    <span class="lbl">Sau</span>
+    <div class="board-host" data-board='{"w":4,"h":4,"cell":50,"pieces":[["y",1.5,1.5],["G",2,2]]}'></div>
+    <figcaption class="cap">Quân đỉnh đi chéo dùng <strong>ô tâm</strong> làm bệ — vì ô tâm nằm giữa 4 ô đỉnh.</figcaption>
+  </figure>
+</div>
+
+<h3>Ví dụ 3 — Quân tâm nhảy chéo</h3>
+
+<div class="frames">
+  <figure class="frame">
+    <span class="lbl">Trước</span>
+    <div class="board-host" data-board='{"w":4,"h":4,"cell":50,"pieces":[["g",1.5,1.5],["Y",2,2]],"highlights":[[2.5,2.5]],"arrows":[[1.5,1.5,2.5,2.5,{"dash":true,"color":"#c62828"}]]}'></div>
+    <figcaption class="cap"><code>g@(1.5,1.5)</code> nhảy chéo, bệ là quân đỉnh <code>Y@(2,2)</code>, đáp ô tâm <code>(2.5,2.5)</code>.</figcaption>
+  </figure>
+  <span class="arrow-mid">→</span>
+  <figure class="frame">
+    <span class="lbl">Sau</span>
+    <div class="board-host" data-board='{"w":4,"h":4,"cell":50,"pieces":[["Y",2,2],["g",2.5,2.5]]}'></div>
+    <figcaption class="cap">Quân tâm đi chéo dùng <strong>ô đỉnh</strong> làm bệ. Hai lớp đan nhau trên đường chéo.</figcaption>
+  </figure>
+</div>
+
+<!-- ────────────────────────────────────────────────────── -->
+<h2>7. Cách ăn quân — cốt lõi của cờ</h2>
+
+<p>
+<strong>Ý tưởng trong một câu:</strong> <em>đáp xuống đâu, nhìn quanh đó.</em>
+Từ ô đáp, theo từng hướng, nếu thấy một <strong>dãy quân địch liền nhau</strong>
+và <strong>ngay sau dãy là một quân mình</strong>, thì cả dãy bị <strong>kẹp</strong>
+và <strong>đổi phe</strong> theo mình.
+</p>
+
+<h3>Hướng ăn — giống hướng đi</h3>
+<ul>
+  <li>Quân đỉnh xét <strong>8 hướng</strong> ăn (4 ngang-dọc + 4 chéo).</li>
+  <li>Quân tâm xét <strong>4 hướng</strong> ăn chéo.</li>
+</ul>
+
+<h3>Tia ngang-dọc vs tia chéo</h3>
+<ul>
+  <li><strong>Tia ngang-dọc</strong> (bước 1): chỉ đi qua ô đỉnh.</li>
+  <li><strong>Tia chéo</strong> (bước nửa): đi <strong>xen kẽ tâm – đỉnh – tâm – đỉnh – …</strong> → một cú kẹp chéo có thể ăn lẫn cả quân đỉnh và quân tâm.</li>
+</ul>
+
+<h3>Khi nào một hướng KHÔNG ăn được?</h3>
+<p>Tia theo hướng đó, trước khi gặp một quân mình, lại:</p>
+<ul>
+  <li>gặp <strong>ô trống</strong> → đứt mạch;</li>
+  <li><strong>ra ngoài bàn</strong> → đứt mạch;</li>
+  <li>gặp <strong>quân mình đứng sát ngay</strong> (không có quân địch ở giữa) → không có gì để kẹp.</li>
+</ul>
+
+<h3>Tình huống đầy đủ — chọn hướng ăn</h3>
+
+<p>Quân Xanh vừa đáp xuống <code>(1, 2)</code>:</p>
+
+<div class="frames">
+  <figure class="frame">
+    <span class="lbl">Trước khi lật — phát hiện 2 hướng kẹp được</span>
+    <div class="board-host" data-board='{"w":4,"h":4,"cell":68,"pieces":[["G",1,2],["Y",2,2],["G",3,2],["y",1.5,2.5],["Y",2,3],["y",2.5,3.5],["G",3,4]],"highlights":[[1,2]],"rays":[[1,2,3,2,{"color":"#c62828"}],[1,2,3,4,{"color":"#c62828"}]]}'></div>
+    <figcaption class="cap">G vừa đáp <code>(1,2)</code>. Hai tia đỏ chỉ ra 2 hướng ăn được: tia phải (kẹp 1 quân) và tia chéo lên-phải (kẹp 3 quân).</figcaption>
+  </figure>
+</div>
+
+<table>
+  <tr><th>Hướng</th><th>Tia chạy qua</th><th>Số quân kẹp</th></tr>
+  <tr>
+    <td>Tia phải <code>(1,0)</code></td>
+    <td><code>(2,2)=Y</code> → <code>(3,2)=G</code> ✓</td>
+    <td><strong>1</strong></td>
+  </tr>
+  <tr>
+    <td>Tia chéo lên-phải <code>(½,½)</code></td>
+    <td><code>(1.5,2.5)=y</code> → <code>(2,3)=Y</code> → <code>(2.5,3.5)=y</code> → <code>(3,4)=G</code> ✓</td>
+    <td><strong>3</strong> (2 tâm + 1 đỉnh)</td>
+  </tr>
+  <tr>
+    <td>Các hướng khác</td>
+    <td>đứt mạch (gặp ô trống hoặc ra biên)</td>
+    <td>0</td>
+  </tr>
+</table>
+
+<p><strong>Luật chọn:</strong></p>
+<ul>
+  <li><strong>Có kẹp thì PHẢI ăn</strong> — không được bỏ qua.</li>
+  <li><strong>Chọn đúng MỘT hướng</strong> — không ăn cả hai cùng lúc.</li>
+</ul>
+
+<p>Nếu Xanh chọn <strong>tia chéo</strong> (ăn 3 quân):</p>
+
+<div class="frames">
+  <figure class="frame">
+    <span class="lbl">Trước lật</span>
+    <div class="board-host" data-board='{"w":4,"h":4,"cell":58,"pieces":[["G",1,2],["Y",2,2],["G",3,2],["y",1.5,2.5],["Y",2,3],["y",2.5,3.5],["G",3,4]],"highlights":[[1.5,2.5],[2,3],[2.5,3.5]]}'></div>
+    <figcaption class="cap">3 quân Vàng trên tia chéo (viền đỏ đứt) sắp đổi phe.</figcaption>
+  </figure>
+  <span class="arrow-mid">→</span>
+  <figure class="frame">
+    <span class="lbl">Sau lật</span>
+    <div class="board-host" data-board='{"w":4,"h":4,"cell":58,"pieces":[["G",1,2],["Y",2,2],["G",3,2],["g",1.5,2.5],["G",2,3],["g",2.5,3.5],["G",3,4]]}'></div>
+    <figcaption class="cap">3 quân chéo → Xanh. <code>Y@(2,2)</code> của tia ngang <strong>vẫn Vàng</strong> — hướng không chọn thì không lật.</figcaption>
+  </figure>
+</div>
+
+<div class="note">
+Bot thường có chính sách "luôn chọn hướng ăn nhiều nhất". Nhưng đó chỉ là
+một chiến thuật chơi, không phải luật — người chơi có quyền chọn hướng ăn
+ít hơn nếu muốn (ví dụ để giăng bẫy).
+</div>
+
+<!-- ────────────────────────────────────────────────────── -->
+<h2>8. Một nước đi diễn ra thế nào — ba bước</h2>
+
+<table>
+  <tr><th>Bước</th><th>Nội dung</th></tr>
+  <tr><td>1. <strong>Nhảy</strong></td><td>Quân rời ô cũ, đáp xuống ô mới. Ô cũ trống ra.</td></tr>
+  <tr><td>2. <strong>Lật</strong></td><td>Mọi quân trên dãy bị kẹp đổi sang phe mình theo hướng đã chọn. Nếu không có hướng ăn nào → không lật gì.</td></tr>
+  <tr><td>3. <strong>Đổi lượt</strong></td><td>Phe kia đến lượt.</td></tr>
+</table>
+
+<h3>Ví dụ trọn vẹn — ba khung hình</h3>
+
+<div class="frames">
+  <figure class="frame">
+    <span class="lbl">FRAME A — Trước nhảy</span>
+    <div class="board-host" data-board='{"w":4,"h":4,"cell":50,"pieces":[["G",0,2],["Y",1,2],["Y",3,2],["G",4,2]],"highlights":[[2,2]],"arrows":[[0,2,2,2,{"dash":true,"color":"#c62828"}]]}'></div>
+    <figcaption class="cap"><code>G@(0,2)</code> chuẩn bị nhảy phải. Bệ: <code>Y@(1,2)</code>. Ô đáp <code>(2,2)</code> đang trống.</figcaption>
+  </figure>
+  <figure class="frame">
+    <span class="lbl">FRAME B — Sau nhảy, chưa lật</span>
+    <div class="board-host" data-board='{"w":4,"h":4,"cell":50,"pieces":[["Y",1,2],["G",2,2],["Y",3,2],["G",4,2]],"rays":[[2,2,4,2,{"color":"#c62828"}]]}'></div>
+    <figcaption class="cap">G đã đáp <code>(2,2)</code>. Tia đỏ phát hiện kẹp 1 quân (<code>Y@(3,2)</code> giữa G mới và <code>G@(4,2)</code>).</figcaption>
+  </figure>
+  <figure class="frame">
+    <span class="lbl">FRAME C — Sau lật</span>
+    <div class="board-host" data-board='{"w":4,"h":4,"cell":50,"label":"LƯỢT: Vàng đi","pieces":[["Y",1,2],["G",2,2],["G",3,2],["G",4,2]]}'></div>
+    <figcaption class="cap"><code>Y@(3,2)</code> đã đổi sang G. <code>Y@(1,2)</code> (bệ nhảy) <strong>vẫn Vàng</strong>. Đến lượt Vàng.</figcaption>
+  </figure>
+</div>
+
+<!-- ────────────────────────────────────────────────────── -->
+<h2>9. Phần thưởng = số quân ăn được</h2>
+
+<p>Mỗi nước đi, phe đi nhận điểm bằng <strong>số quân ăn được</strong>; phe
+kia nhận đúng số âm tương ứng:</p>
+
+<table>
+  <tr><th>Nước đi</th><th>Phe đi nhận</th><th>Phe kia nhận</th></tr>
+  <tr><td>Không ăn quân nào</td><td>0</td><td>0</td></tr>
+  <tr><td>Ăn 1 quân</td><td>+1</td><td>−1</td></tr>
+  <tr><td>Ăn 3 quân</td><td>+3</td><td>−3</td></tr>
+  <tr><td>Ăn 5 quân</td><td>+5</td><td>−5</td></tr>
+</table>
+
+<h3>Bốn điều thú vị</h3>
+<ol>
+  <li><strong>Tổng-zero từng bước</strong>: phe đi nhận <code>+k</code>, phe kia nhận <code>−k</code> → cộng lại = 0.</li>
+  <li><strong>Chênh lệch quân số tăng gấp đôi</strong>: ăn <code>k</code> quân → mình tăng <code>k</code>, địch giảm <code>k</code> → chênh lệch đổi <strong><code>2k</code></strong>.</li>
+  <li><strong>Tổng luôn 28</strong>: ở mọi lúc, đếm cả bàn vẫn ra đúng 28 quân.</li>
+  <li><strong>Bảng điểm = bàn cờ</strong>: không cần ghi sổ riêng. Đếm quân mình so với 14 ban đầu:
+    <ul>
+      <li>Hiện 17 quân → đã ăn được tổng cộng 3 quân.</li>
+      <li>Hiện 10 quân → đã mất tổng cộng 4 quân.</li>
+    </ul>
+  </li>
+</ol>
+
+<h3>Phần thưởng kết cuộc</h3>
+<p>
+Khi ván kết thúc, phe <strong>thắng</strong> nhận phần thưởng lớn dương,
+phe <strong>thua</strong> nhận phần thưởng lớn âm. Cụ thể bao nhiêu là chuyện
+cài đặt — quan trọng là <strong>thắng &gt; thua</strong>.
+</p>
+
+<!-- ────────────────────────────────────────────────────── -->
+<h2>10. Khi nào ván kết thúc</h2>
+
+<p>Một phe <strong>còn sống</strong> khi đồng thời:</p>
+<ol>
+  <li><strong>Còn ít nhất 1 quân</strong> trên bàn, VÀ</li>
+  <li><strong>Còn ít nhất 1 nước nhảy hợp lệ</strong>.</li>
+</ol>
+
+<div class="axiom">
+<strong>Luật kết cuộc:</strong> đến lượt phe nào mà phe đó không còn sống
+→ <strong>phe đó THUA NGAY</strong>, phe kia THẮNG.
+</div>
+
+<p>Có <strong>hai cách thua</strong>:</p>
+
+<h3>(a) Hết quân — bàn cờ một màu</h3>
+
+<div class="frames">
+  <figure class="frame">
+    <span class="lbl">Vàng đã thua sạch</span>
+    <div class="board-host" data-board='{"w":4,"h":4,"cell":58,"label":"Đến lượt Vàng → THUA (không còn quân)","pieces":[["G",0,4],["G",1,4],["G",2,4],["G",3,4],["G",4,4],["g",0.5,3.5],["g",1.5,3.5],["g",2.5,3.5],["g",3.5,3.5],["G",0,3],["G",1,3],["G",2,3],["G",3,3],["G",4,3],["g",0.5,2.5],["g",1.5,2.5],["g",2.5,2.5],["g",3.5,2.5],["G",0,2],["G",1,2],["G",2,2],["G",3,2],["G",4,2],["g",0.5,1.5],["g",1.5,1.5],["g",2.5,1.5],["g",3.5,1.5],["G",0,1]]}'></div>
+    <figcaption class="cap">Tất cả 28 quân thuộc Xanh. Đến lượt Vàng → không có quân để đi → THUA.</figcaption>
+  </figure>
+</div>
+
+<h3>(b) Bị phong tỏa — còn quân nhưng không nhảy được</h3>
+
+<div class="frames">
+  <figure class="frame">
+    <span class="lbl">Vàng bị phong tỏa</span>
+    <div class="board-host" data-board='{"w":4,"h":4,"cell":58,"label":"Đến lượt Vàng → THUA (dù còn 14 quân)","pieces":[["G",0,4],["G",1,4],["G",2,4],["G",3,4],["G",4,4],["g",0.5,3.5],["g",1.5,3.5],["g",2.5,3.5],["g",3.5,3.5],["G",0,3],["G",1,3],["G",2,3],["G",3,3],["G",4,3],["g",0.5,2.5],["g",1.5,2.5],["g",2.5,2.5],["g",3.5,2.5],["G",0,2],["G",1,2],["G",2,2],["G",3,2],["G",4,2],["Y",0,1],["Y",2,1],["Y",4,1],["Y",1,0],["Y",3,0]]}'></div>
+    <figcaption class="cap">Quân Vàng còn 5 quân nhưng mọi ô đáp đều bị Xanh chiếm hoặc ra ngoài bàn. (Ví dụ minh họa rút gọn.)</figcaption>
+  </figure>
+</div>
+
+<h3>Tới lượt mới xét</h3>
+<p>
+Một phe <strong>tạm hết nước</strong> khi chưa đến lượt mình thì chưa thua —
+luật chỉ xét đúng vào đầu lượt. Có khi đối thủ vô tình "mở khóa" cho mình
+bằng nước đi của họ (ví dụ làm trống một ô đáp).
+</p>
+<p><strong>Chế độ 2 người không có hòa.</strong></p>
+
+<!-- ────────────────────────────────────────────────────── -->
+<h2>Mục tiêu của ván</h2>
+<p>
+Mỗi phe cố gắng: <strong>ăn quân càng nhiều càng tốt, và trên hết — thắng</strong>
+(làm đối thủ hết quân hoặc bị phong tỏa).
+</p>
+
+<!-- ────────────────────────────────────────────────────── -->
+<h2>Tác nhân — ai là người quyết định?</h2>
+
+<p>Có hai cách đọc, cùng mô tả một trò chơi:</p>
+
+<p><strong>Cách 1 — hai người chơi là tác nhân.</strong> Mỗi lượt, một
+trong hai người chơi ra quyết định: chọn quân nào đi, đáp xuống đâu, ăn
+hướng nào. 28 quân là <strong>28 thực thể bền vững</strong> — loại không
+đổi, vị trí và phe thay đổi, không bao giờ biến mất khỏi bàn.</p>
+
+<p><strong>Cách 2 — 28 quân là 28 tác nhân, chia hai đội.</strong> Mỗi quân
+là một "chiến sĩ". Khi bị ăn = <strong>"đào tẩu" sang đội đối phương</strong>
+— đội cũ không mất tác nhân (tổng vẫn 28), chỉ mất lòng trung thành của
+chiến sĩ ấy. Người chơi khi đó là <strong>chính sách chung của đội</strong>,
+mỗi lượt cử một quân đi.</p>
+
+<p>Cách 1 chuẩn theo lý thuyết trò chơi; cách 2 bám sát tinh thần "luôn 28
+quân, ăn là đổi phe".</p>
+
+<div class="footer">
+  Bản hình ảnh trực quan của <code>docs/formal_model.md</code>. Ai cần đặc
+  tả toán chính xác (ký hiệu tập hợp, hàm chuyển <em>T</em>, biểu thức
+  phần thưởng), xem tài liệu toán.
+</div>
+
+<script>
+// ──────────────────────────────────────────────────────
+// Board renderer — biến spec JSON thành SVG hình ảnh thật
+// ──────────────────────────────────────────────────────
+function renderBoard(host, spec) {
+  const {
+    w = 4, h = 4, cell = 50, pad = 28,
+    pieces = [],
+    arrows = [],
+    highlights = [],
+    rays = [],
+    label = '',
+    showAxis = true,
+  } = spec;
+
+  const W = w * cell + 2 * pad;
+  const H = h * cell + 2 * pad + (label ? 22 : 0);
+  const X = gx => pad + gx * cell;
+  const Y = gy => pad + (h - gy) * cell;
+
+  const parts = [];
+
+  // background
+  parts.push(`<rect x="0" y="0" width="${W}" height="${H}" fill="#faf8f3" rx="5"/>`);
+
+  // grid lines (vertex grid)
+  for (let i = 0; i <= h; i++) {
+    parts.push(`<line x1="${X(0)}" y1="${Y(i)}" x2="${X(w)}" y2="${Y(i)}" stroke="#c8c0a8" stroke-width="1.3"/>`);
+  }
+  for (let i = 0; i <= w; i++) {
+    parts.push(`<line x1="${X(i)}" y1="${Y(0)}" x2="${X(i)}" y2="${Y(h)}" stroke="#c8c0a8" stroke-width="1.3"/>`);
+  }
+
+  // empty vertex cell markers
+  for (let x = 0; x <= w; x++) {
+    for (let y = 0; y <= h; y++) {
+      parts.push(`<circle cx="${X(x)}" cy="${Y(y)}" r="3.5" fill="#a89e7a"/>`);
+    }
+  }
+
+  // empty center cell markers
+  for (let x = 0; x < w; x++) {
+    for (let y = 0; y < h; y++) {
+      parts.push(`<circle cx="${X(x + 0.5)}" cy="${Y(y + 0.5)}" r="2.5" fill="#d0c8a8"/>`);
+    }
+  }
+
+  // rays (drawn behind pieces)
+  for (const r of rays) {
+    const [x1, y1, x2, y2, opts = {}] = r;
+    const color = opts.color || '#c62828';
+    parts.push(`<line x1="${X(x1)}" y1="${Y(y1)}" x2="${X(x2)}" y2="${Y(y2)}" stroke="${color}" stroke-width="2.5" opacity="0.55" stroke-linecap="round"/>`);
+  }
+
+  // pieces
+  for (const p of pieces) {
+    const [kind, x, y] = p;
+    const isVertex = (kind === 'G' || kind === 'Y');
+    const r = isVertex ? Math.round(cell * 0.36) : Math.round(cell * 0.23);
+    const isGreen = (kind === 'G' || kind === 'g');
+    const fill = isGreen ? (isVertex ? '#1b5e20' : '#66bb6a') : (isVertex ? '#fbc02d' : '#ffd86b');
+    const stroke = isGreen ? '#0d3010' : '#7a5500';
+    const sw = isVertex ? 2 : 1.6;
+    parts.push(`<circle cx="${X(x)}" cy="${Y(y)}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`);
+  }
+
+  // highlights (dashed red ring around a cell)
+  for (const hl of highlights) {
+    const [x, y] = hl;
+    const isVertexPos = (x === Math.floor(x) && y === Math.floor(y));
+    const r = isVertexPos ? Math.round(cell * 0.42) : Math.round(cell * 0.32);
+    parts.push(`<circle cx="${X(x)}" cy="${Y(y)}" r="${r}" fill="none" stroke="#c62828" stroke-width="2.5" stroke-dasharray="5 3"/>`);
+  }
+
+  // arrows
+  for (const a of arrows) {
+    const [x1, y1, x2, y2, opts = {}] = a;
+    const color = opts.color || '#1a3a52';
+    const dash = opts.dash ? ' stroke-dasharray="6 3"' : '';
+    const markerId = 'arr-' + color.replace('#', '');
+    parts.push(`<defs><marker id="${markerId}" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><polygon points="0 0, 8 4, 0 8" fill="${color}"/></marker></defs>`);
+    // shorten arrow slightly so head doesn't overlap target piece
+    const dx = X(x2) - X(x1), dy = Y(y2) - Y(y1);
+    const len = Math.sqrt(dx*dx + dy*dy);
+    const trim = Math.min(len * 0.15, 18);
+    const tx = X(x2) - (dx/len) * trim;
+    const ty = Y(y2) - (dy/len) * trim;
+    parts.push(`<line x1="${X(x1)}" y1="${Y(y1)}" x2="${tx}" y2="${ty}" stroke="${color}" stroke-width="2.5"${dash} marker-end="url(#${markerId})" stroke-linecap="round"/>`);
+  }
+
+  // axis labels
+  if (showAxis) {
+    for (let x = 0; x <= w; x++) {
+      parts.push(`<text x="${X(x)}" y="${Y(0) + 17}" text-anchor="middle" font-size="10" fill="#999" font-family="ui-monospace,monospace">${x}</text>`);
+    }
+    for (let y = 0; y <= h; y++) {
+      parts.push(`<text x="${X(0) - 7}" y="${Y(y) + 3}" text-anchor="end" font-size="10" fill="#999" font-family="ui-monospace,monospace">${y}</text>`);
+    }
+  }
+
+  // bottom label (turn indicator etc.)
+  if (label) {
+    parts.push(`<text x="${W/2}" y="${H - 5}" text-anchor="middle" font-size="12" font-weight="600" fill="#1a3a52">${label}</text>`);
+  }
+
+  host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">${parts.join('')}</svg>`;
+}
+
+// Render all boards declared via data-board
+document.querySelectorAll('[data-board]').forEach(el => {
+  try {
+    const spec = JSON.parse(el.dataset.board);
+    renderBoard(el, spec);
+  } catch (err) {
+    el.innerHTML = '<pre style="color:red">Board spec error: ' + err.message + '</pre>';
+  }
+});
+</script>
+</body>
+</html>

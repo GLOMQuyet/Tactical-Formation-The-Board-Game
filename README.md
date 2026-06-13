@@ -1,2 +1,112 @@
-# Tactical-Formation-The-Board-Game
-Engage in epic battles with 2, 3, or 4 players!Tactical Formation challenges you to master the art of strategic deployment and outmaneuver your opponents in a dynamic and engaging board game.Command your unique forces, anticipate your rivals' moves, and dominate the battlefield to claim victory.
+# Tactical Formation — The Board Game
+
+Engage in epic battles with 2, 3, or 4 players! Tactical Formation challenges you to master the art of strategic deployment and outmaneuver your opponents in a dynamic and engaging board game. Command your unique forces, anticipate your rivals' moves, and dominate the battlefield to claim victory.
+
+> Full game rules and strategy guide: [study.md](./study.md)
+
+---
+
+## Quick Start
+
+### Requirements
+
+- Python 3.10+
+
+### Installation
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/quyetops/Tactical-Formation-The-Board-Game.git
+cd Tactical-Formation-The-Board-Game
+
+# 2. Create and activate the virtual environment
+python3 -m venv .venv
+
+source .venv/bin/activate        # Linux/macOS
+# .venv\Scripts\activate         # Windows
+
+# 3. Install dependencies
+pip install -r requirements.txt
+```
+
+### Run
+
+```bash
+# Make sure the virtual environment is active first!
+source .venv/bin/activate        # Linux/macOS (skip if already active)
+
+python main.py
+```
+
+> **Common mistake**: running `python3 main.py` with the system Python (which has no pygame) instead of the venv Python. Always activate the venv first, or call `.venv/bin/python main.py` directly.
+
+A 800×800 window will open with the main menu.
+
+### Run without activating venv
+
+```bash
+.venv/bin/python main.py          # Linux/macOS
+.venv\Scripts\python main.py      # Windows
+```
+
+### Run in Browser (optional)
+
+```bash
+.venv/bin/python -m pygbag main.py
+```
+
+Then open `http://localhost:8000` in your browser.
+
+---
+
+## Game Modes
+
+| Menu Button | Mode | Description |
+|---|---|---|
+| **Play 2** | 2 players, same machine | Yellow vs Green, take turns with the mouse |
+| **Bot AI** | 1 player vs Bot | You (Green) vs Minimax AI depth=6 (Yellow) |
+| **Play 3** | 3 players (2 bots + 1 human) | You (Green) vs 2 MCTS bots (Purple + Yellow) |
+| **Play 4** | 4 players (3 bots + 1 human) | You (Green) vs 3 MCTS bots (Blue + Purple + Yellow) |
+
+---
+
+## How to Play (Quick Rules)
+
+1. **Move** — click a piece, then click a highlighted dot to jump over an adjacent piece
+2. **Capture** — after landing, any opponent pieces sandwiched between your pieces flip to your color
+3. **Win** — eliminate all opponent pieces or leave them with no legal moves
+
+See [study.md](./study.md) for the full rulebook, board diagrams, and strategy tips.
+
+---
+
+## Project Structure
+
+```
+Tactical-Formation-The-Board-Game/
+├── main.py                 # Entry point
+├── requirements.txt
+├── study.md                # Full rulebook & guide
+├── human_two/
+│   ├── play_2.py           # 2-player (human vs human)
+│   └── bot_AI.py           # Minimax bot (human vs bot)
+├── human_three/
+│   ├── play_3.py           # 3-player mode
+│   └── bot_AI_3.py         # MCTS bot for 3-player
+├── human_four/
+│   ├── play_4.py           # 4-player mode
+│   └── bot_AI_4.py         # MCTS bot for 4-player
+├── assets/                 # Images, fonts, sounds
+└── utils/
+    └── utils.py            # Shared utilities
+```
+
+---
+
+## Troubleshooting
+
+| Error | Fix |
+|---|---|
+| `ModuleNotFoundError: pygame` | Run `pip install -r requirements.txt` |
+| `ImportError` on startup | Run from the project root directory (where `main.py` lives) |
+| Black screen on Linux | Try `export SDL_VIDEODRIVER=x11` before running |

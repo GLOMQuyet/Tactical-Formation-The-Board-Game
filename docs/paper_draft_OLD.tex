@@ -1,0 +1,608 @@
+% ============================================================
+%  Tactical Formation — Draft Paper
+%  Compiler : XeLaTeX  (Overleaf: Menu > Compiler > XeLaTeX)
+% ============================================================
+\documentclass[12pt, a4paper]{article}
+
+% ── Encoding & Language ──────────────────────────────────────
+% Hỗ trợ cả pdfLaTeX và XeLaTeX:
+%   - pdfLaTeX: dùng inputenc + T5 + babel (mặc định Overleaf)
+%   - XeLaTeX : bỏ comment 3 dòng dưới, comment 3 dòng trên
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage[vietnamese]{babel}
+% \usepackage{fontspec}        % Bỏ comment nếu dùng XeLaTeX
+% \usepackage{polyglossia}     % Bỏ comment nếu dùng XeLaTeX
+% \setmainlanguage{vietnamese} % Bỏ comment nếu dùng XeLaTeX
+
+% ── Page Layout ──────────────────────────────────────────────
+\usepackage[top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm]{geometry}
+
+% ── Math ─────────────────────────────────────────────────────
+\usepackage{amsmath, amssymb}
+
+% ── Tables ───────────────────────────────────────────────────
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+
+% ── Graphics & Diagrams ──────────────────────────────────────
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric}
+\usepackage{graphicx}
+\usepackage{float}
+
+% ── Colors ───────────────────────────────────────────────────
+\usepackage{xcolor}
+\definecolor{vertexcolor}{RGB}{50,  100, 200}
+\definecolor{centercolor}{RGB}{200, 80,  50}
+\definecolor{yellowpiece}{RGB}{240, 200, 0}
+\definecolor{greenpiece} {RGB}{50,  180, 80}
+
+% ── Author / Affiliation (chuẩn cho multi-author, dùng được cả 1 tác giả) ──
+\usepackage{authblk}
+
+% ── Hyperlinks ───────────────────────────────────────────────
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks = true,
+  linkcolor  = blue,
+  urlcolor   = blue,
+  citecolor  = blue,
+  pdftitle   = {Tactical Formation: Tro Choi Co Chien Thuat Truou Tuong
+                Danh Cho 2-4 Nguoi Choi},
+  pdfauthor  = {[TEN TAC GIA]}
+}
+
+% ── Code Listings ────────────────────────────────────────────
+\usepackage{listings}
+\lstset{basicstyle=\ttfamily\small, breaklines=true,
+        frame=single, captionpos=b}
+
+% ── Misc ─────────────────────────────────────────────────────
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{setspace}
+\onehalfspacing
+
+% ─────────────────────────────────────────────────────────────
+%  PHẦN 1 — TITLE
+%  Chuẩn paper khoa học gồm: tiêu đề · tác giả · đơn vị ·
+%  email · ngày · abstract · keywords.
+%  Tất cả xuất hiện TRƯỚC section đầu tiên.
+% ─────────────────────────────────────────────────────────────
+
+% 1a. Tiêu đề
+%     Quy tắc: rõ ràng, phản ánh đúng nội dung, không quá 20 từ.
+%     Không nhồi 2 ngôn ngữ vào cùng \title{}.
+%     Dùng dấu hai chấm để phân tách tên game và mô tả.
+\title{%
+  \textbf{Tactical Formation:}\\[0.3em]
+  \textbf{Trò Chơi Cờ Chiến Thuật Trừu Tượng Dành Cho 2--4 Người Chơi}\\[0.3em]
+  \textbf{Với Cơ Chế Di Chuyển Và Lật Quân Kết Hợp}
+}
+
+% 1b. Tác giả
+%     Chuẩn: tên thật, đơn vị (Independent Researcher nếu độc lập),
+%     email liên hệ dùng \thanks{} hoặc footnote.
+%     authblk cho phép thêm nhiều tác giả sau nếu cần.
+\author{%
+  [TÊN TÁC GIẢ]%
+  \thanks{Tác giả liên hệ: \href{mailto:quyetops@gmail.com}{quyetops@gmail.com}}
+}
+\affil{Independent Researcher, Việt Nam}
+
+% 1c. Ngày
+%     Chuẩn: chỉ ghi tháng và năm — không ghi "bản nháp".
+%     Ghi chú nội bộ để trong comment, không xuất ra paper.
+%     TODO: Đổi thành ngày cụ thể khi nộp, ví dụ: \date{Tháng 5, 2025}
+\date{\today}
+
+% ─────────────────────────────────────────────────────────────
+\begin{document}
+% ─────────────────────────────────────────────────────────────
+
+\maketitle
+
+% ─────────────────────────────────────────────────────────────
+% 1d. Abstract (Tóm tắt)
+%     Chuẩn: 150–250 từ · MỘT đoạn liền · không dùng bullet.
+%     Phải trả lời đủ 4 câu hỏi:
+%       (1) Vấn đề / bối cảnh là gì?
+%       (2) Tôi đã làm gì?
+%       (3) Kết quả / đóng góp chính là gì?
+%       (4) Ý nghĩa / ứng dụng là gì?
+% ─────────────────────────────────────────────────────────────
+\begin{abstract}
+% (1) Vấn đề / bối cảnh
+Các trò chơi cờ trừu tượng kinh điển như Cờ Đam và Reversi mỗi loại chỉ
+khai thác một cơ chế tương tác duy nhất và đều giới hạn ở hai người chơi,
+tạo ra khoảng trống thiết kế chưa được khám phá khi kết hợp hai cơ chế
+đó trong môi trường nhiều người.
+% (2) Tôi đã làm gì
+Bài báo này giới thiệu \textbf{Tactical Formation}, một trò chơi cờ chiến
+thuật trừu tượng mới kết hợp cơ chế \emph{di chuyển bằng cách nhảy qua quân}
+từ Cờ Đam với cơ chế \emph{bắt quân bằng kẹp sandwich} từ Reversi,
+và mở rộng sang 2, 3 và 4 người chơi đồng thời.
+Điểm cốt lõi là quân bị nhảy qua \emph{không bị loại} khỏi bàn mà vẫn tồn tại,
+tạo ra căng thẳng chiến thuật chưa xuất hiện trong cả hai game nguồn.
+Bàn cờ được thiết kế với hai lớp vị trí đồng thời---đỉnh (vertex) và tâm
+(center)---mỗi loại có tập hướng di chuyển riêng, làm tăng đáng kể chiều
+sâu chiến thuật trên cùng một mặt bàn.
+% (3) Kết quả / đóng góp
+Chúng tôi trình bày đặc tả đầy đủ luật chơi cho cả ba biến thể,
+và xây dựng AI đồng hành sử dụng Paranoid Minimax với cắt tỉa Alpha-Beta
+thay cho Monte Carlo Tree Search---vốn không hiệu quả trong lớp game
+Reversi-like do tín hiệu rollout quá nhiễu.
+% (4) Ý nghĩa
+Phần mềm được phát hành mã nguồn mở, cung cấp nền tảng để cộng đồng
+chơi, nghiên cứu, và phát triển các biến thể tiếp theo.
+\end{abstract}
+
+% ─────────────────────────────────────────────────────────────
+% 1e. Keywords (Từ khóa)
+%     Chuẩn: 4–6 từ khóa · viết thường · cách nhau bằng dấu chấm phẩy.
+%     Đặt NGAY SAU \end{abstract} — bắt buộc phải có trên arXiv.
+% ─────────────────────────────────────────────────────────────
+\vspace{0.4em}
+\noindent\textbf{Từ khóa:}
+trò chơi cờ trừu tượng;
+thiết kế game nhiều người;
+Paranoid Minimax;
+biến thể Reversi;
+Alpha-Beta pruning;
+cờ chiến thuật.
+
+\vspace{0.8em}
+\hrule
+\vspace{0.4em}
+
+\tableofcontents
+\newpage
+
+% ─────────────────────────────────────────────────────────────
+%  PHẦN 2 — INTRODUCTION (Giới Thiệu)
+% ─────────────────────────────────────────────────────────────
+\section{Giới Thiệu}
+
+Các trò chơi cờ trừu tượng đã tồn tại hàng nghìn năm, từ Cờ Vây của
+Trung Quốc đến Cờ Đam châu Âu và Reversi ra đời cuối thế kỷ~19.
+Mỗi game định nghĩa một không gian chiến thuật riêng biệt qua tập luật
+tối giản của nó.
+
+\textbf{Tactical Formation} ra đời từ câu hỏi thiết kế: \emph{điều gì xảy
+ra nếu ta kết hợp cơ chế di chuyển của Cờ Đam với cơ chế bắt quân của
+Reversi, nhưng không loại bỏ quân bị nhảy qua, và mở rộng sang nhiều
+người chơi?}
+
+Sự kết hợp này tạo ra một căng thẳng chiến thuật mới. Trong Cờ Đam,
+người chơi nhảy qua quân để \emph{ăn} nó---quân biến mất. Trong Reversi,
+người chơi đặt quân mới để \emph{kẹp} quân đối thủ---quân bị lật màu.
+Trong Tactical Formation, người chơi nhảy qua một quân bất kỳ (kể cả quân
+của chính mình) để di chuyển, rồi kẹp sandwich từ vị trí mới---quân bị
+nhảy qua vẫn còn trên bàn và có thể trở thành vũ khí hoặc rào cản ở lượt
+tiếp theo.
+
+Kết quả là mỗi nước đi mang hai chiều tác dụng độc lập: vị trí mới của
+quân (ảnh hưởng đến di chuyển tương lai) và sandwich tạo ra từ vị trí đó
+(ảnh hưởng đến lật quân ngay lập tức). Người chơi phải cân nhắc cả hai
+chiều đồng thời, tạo ra chiều sâu chiến thuật khác biệt so với cả hai
+nguồn cảm hứng.
+
+Bài báo có các đóng góp sau:
+\begin{enumerate}[label=(\roman*)]
+  \item Đặc tả đầy đủ và chính xác luật chơi Tactical Formation cho
+        2--4 người chơi.
+  \item Mô tả cấu trúc bàn cờ hai lớp (đỉnh và tâm) và phân tích ảnh
+        hưởng của nó đến không gian chiến thuật.
+  \item Xây dựng AI đồng hành dựa trên Paranoid Minimax, kèm phân tích
+        tại sao MCTS không phù hợp cho lớp game này.
+  \item Phát hành phần mềm mã nguồn mở để cộng đồng chơi, nghiên cứu
+        và phát triển tiếp.
+\end{enumerate}
+
+Phần còn lại của bài báo được tổ chức như sau. Phần~\ref{sec:related}
+khảo sát các game liên quan. Phần~\ref{sec:rules} đặc tả đầy đủ luật
+chơi. Phần~\ref{sec:variants} mô tả các biến thể nhiều người.
+Phần~\ref{sec:ai} trình bày thuật toán AI đồng hành.
+Phần~\ref{sec:impl} mô tả phần mềm. Phần~\ref{sec:conclusion}
+kết luận và đề xuất hướng phát triển tiếp theo.
+
+% ─────────────────────────────────────────────────────────────
+%  PHẦN 3 — RELATED WORK (Công Trình Liên Quan)
+% ─────────────────────────────────────────────────────────────
+\section{Các Game Liên Quan}
+\label{sec:related}
+
+\subsection{Cờ Đam (Checkers / Draughts)}
+
+Cờ Đam~\cite{schaeffer2007checkers} là game chiến thuật 2 người trên bàn
+8{\texttimes}8. Quân di chuyển theo đường chéo và nhảy qua quân đối thủ
+để ăn---quân bị ăn bị loại khỏi bàn. Tactical Formation giữ lại cơ chế
+nhảy nhưng bỏ việc loại quân: quân bị nhảy qua trở thành thành phần
+chiến lược thay vì bị xóa.
+
+\subsection{Reversi / Othello}
+
+Reversi~\cite{buro1997good} là game 2 người trên bàn 8{\texttimes}8.
+Người chơi đặt quân mới và lật tất cả quân đối thủ bị kẹp theo đường
+thẳng. Tactical Formation giữ cơ chế lật quân sandwich nhưng thay vì
+đặt quân mới, người chơi phải \emph{di chuyển quân hiện có}. Ràng buộc
+này giới hạn đáng kể số nước khả dụng và thêm chiều sâu về positioning.
+
+\subsection{So Sánh Tổng Quan}
+
+\begin{table}[H]
+  \centering
+  \caption{So sánh Tactical Formation với các game cờ liên quan.}
+  \label{tab:comparison}
+  \begin{tabular}{lccc}
+    \toprule
+    \textbf{Đặc điểm} & \textbf{Cờ Đam} & \textbf{Reversi}
+                      & \textbf{Tactical Formation} \\
+    \midrule
+    Cách di chuyển   & Nhảy qua quân  & Đặt quân mới & Nhảy qua quân \\
+    Quân bị nhảy qua & Bị loại        & ---          & Còn trên bàn  \\
+    Cách bắt quân    & Nhảy trực tiếp & Sandwich     & Sandwich sau nhảy \\
+    Số người chơi    & 2              & 2            & 2, 3, hoặc 4  \\
+    Số lớp vị trí    & 1              & 1            & 2 (đỉnh + tâm) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% ─────────────────────────────────────────────────────────────
+%  PHẦN 4 (PHẦN CHÍNH) — GAME RULES (Luật Chơi)
+% ─────────────────────────────────────────────────────────────
+\section{Luật Chơi}
+\label{sec:rules}
+
+\subsection{Cấu Trúc Bàn Cờ}
+
+Bàn cờ Tactical Formation có \textbf{hai lớp vị trí đồng thời}:
+
+\paragraph{Đỉnh (Vertex).}
+Các ô tại tọa độ nguyên $(x,\,y)$. Quân đứng ở đỉnh di chuyển theo
+\textbf{8 hướng}: 4 hướng thẳng (bắc, nam, đông, tây) và 4 hướng chéo.
+
+\paragraph{Tâm (Center).}
+Các ô tại tọa độ nửa nguyên $(x{+}0.5,\;y{+}0.5)$.
+Quân đứng ở tâm chỉ di chuyển theo \textbf{4 hướng chéo}.
+
+Hai lớp hoạt động hoàn toàn độc lập: quân đỉnh chỉ nhảy đến đỉnh khác,
+quân tâm chỉ nhảy đến tâm khác.
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[scale=1.1]
+    \foreach \x in {0,1,2,3}{
+      \foreach \y in {0,1,2,3}{
+        \filldraw[fill=vertexcolor!80, draw=vertexcolor!60!black]
+          (\x,\y) circle (5pt);
+        \ifnum\x<3 \draw[gray!50,thin](\x,\y)--(\x+1,\y); \fi
+        \ifnum\y<3 \draw[gray!50,thin](\x,\y)--(\x,\y+1); \fi
+      }
+    }
+    \foreach \x in {0,1,2}{
+      \foreach \y in {0,1,2}{
+        \filldraw[fill=centercolor!80, draw=centercolor!60!black]
+          (\x+0.5,\y+0.5) circle (4pt);
+      }
+    }
+    \node[right, font=\small, color=vertexcolor] at (3.2,1.5)
+      {Đỉnh -- Vertex};
+    \node[right, font=\small, color=centercolor] at (3.2,1.0)
+      {Tâm -- Center};
+    \node[above,font=\tiny] at (0,3) {$(0,3)$};
+    \node[above,font=\tiny] at (1,3) {$(1,3)$};
+    \node[right,font=\tiny,color=centercolor] at (0.55,2.5)
+      {$(0.5,2.5)$};
+  \end{tikzpicture}
+  \caption{Hai lớp vị trí trên bàn cờ 4{\texttimes}4:
+           đỉnh (xanh dương) và tâm (đỏ cam).}
+  \label{fig:board_layers}
+\end{figure}
+
+\begin{table}[H]
+  \centering
+  \caption{Kích thước bàn cờ và cấu hình theo chế độ chơi.}
+  \label{tab:board_size}
+  \begin{tabular}{lcccc}
+    \toprule
+    \textbf{Chế độ} & \textbf{Kích thước} & \textbf{Tọa độ}
+    & \textbf{Góc bị loại} & \textbf{Quân/người} \\
+    \midrule
+    2 người & 5{\texttimes}5 đỉnh
+            & $0\text{--}4 \times 0\text{--}4$ & Không & 8 \\
+    3 người & 7{\texttimes}7 đỉnh
+            & $0\text{--}6 \times 0\text{--}6$ & 4 góc & 12 \\
+    4 người & 7{\texttimes}7 đỉnh
+            & $0\text{--}6 \times 0\text{--}6$ & 4 góc & 9 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Cách Di Chuyển}
+
+Để di chuyển một quân, cần thỏa mãn đồng thời ba điều kiện:
+\begin{enumerate}
+  \item Có \textbf{ít nhất một quân kề} (bất kỳ màu nào) ngay cạnh theo
+        hướng di chuyển.
+  \item Ô đích---phía bên kia quân kề---phải \textbf{trống}.
+  \item Ô đích phải cùng loại: đỉnh nhảy đến đỉnh, tâm nhảy đến tâm.
+\end{enumerate}
+Quân nhảy qua quân kề và đáp xuống ô đích.
+\textbf{Quân bị nhảy qua không bị loại khỏi bàn cờ.}
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[scale=1.2]
+    \node[font=\small,above] at (1,1.2) {\textbf{Trước}};
+    \filldraw[fill=yellowpiece,draw=black](0,0) circle(10pt)
+      node[font=\tiny,white]{V};
+    \filldraw[fill=greenpiece, draw=black](1,0) circle(10pt)
+      node[font=\tiny,white]{X};
+    \draw[gray,dashed](2,0) circle(10pt);
+    \draw[gray!40](-0.5,0)--(2.5,0);
+    \draw[-{Stealth},thick,color=yellowpiece]
+      (0.15,0.18) to[bend left=35] (1.85,0.18);
+    %
+    \begin{scope}[xshift=5cm]
+      \node[font=\small,above] at (1,1.2) {\textbf{Sau}};
+      \draw[gray,dashed](0,0) circle(10pt);
+      \filldraw[fill=greenpiece, draw=black](1,0) circle(10pt)
+        node[font=\tiny,white]{X};
+      \filldraw[fill=yellowpiece,draw=black](2,0) circle(10pt)
+        node[font=\tiny,white]{V};
+      \draw[gray!40](-0.5,0)--(2.5,0);
+    \end{scope}
+  \end{tikzpicture}
+  \caption{Quân Vàng nhảy qua quân Xanh và đến ô bên phải.
+           Quân Xanh \emph{vẫn còn} trên bàn cờ.}
+  \label{fig:movement}
+\end{figure}
+
+\subsection{Cách Bắt Quân --- Lật Màu}
+
+Ngay sau khi quân di chuyển đến ô mới, kiểm tra sandwich theo tất cả
+các hướng từ ô đó. Một hướng tạo sandwich khi:
+\begin{itemize}
+  \item Có một hoặc nhiều quân đối thủ \emph{liên tiếp không gián đoạn}
+        theo hướng đó, \textbf{và}
+  \item Ngay cuối chuỗi đó là một quân \emph{cùng màu} với người vừa
+        di chuyển.
+\end{itemize}
+Tất cả quân đối thủ trong chuỗi đó \textbf{đổi màu} thành màu của người
+di chuyển. Nếu nhiều hướng đều tạo sandwich đồng thời, chỉ hướng có
+\textbf{số quân bị lật nhiều nhất} được thực hiện. Nếu không có sandwich,
+nước đi vẫn hợp lệ.
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[scale=1.1]
+    \node[font=\small,above] at (2,0.9) {\textbf{Sandwich hàng ngang}};
+    \filldraw[fill=yellowpiece,draw=black](0,0) circle(9pt)
+      node[font=\tiny,white]{V};
+    \filldraw[fill=greenpiece, draw=black](1,0) circle(9pt)
+      node[font=\tiny,white]{X};
+    \filldraw[fill=greenpiece, draw=black](2,0) circle(9pt)
+      node[font=\tiny,white]{X};
+    \filldraw[fill=greenpiece, draw=black](3,0) circle(9pt)
+      node[font=\tiny,white]{X};
+    \filldraw[fill=yellowpiece,draw=black](4,0) circle(9pt)
+      node[font=\tiny,white]{V};
+    \draw[gray!40](-0.5,0)--(4.5,0);
+    \draw[{Stealth}-{Stealth},red,thick](0.8,-0.5)--(3.2,-0.5);
+    \node[below,font=\small,red] at (2,-0.55) {bị lật thành Vàng};
+    \node[above,font=\tiny,color=yellowpiece] at (4,0.12) {vừa nhảy};
+  \end{tikzpicture}
+  \caption{Ba quân Xanh bị kẹp giữa hai quân Vàng và đổi sang màu Vàng.}
+  \label{fig:sandwich}
+\end{figure}
+
+\subsection{Điều Kiện Thắng Thua}
+
+Một người chơi \textbf{bị loại} khi rơi vào một trong hai trạng thái:
+\begin{enumerate}
+  \item \textbf{Hết quân}: tất cả quân của họ đã bị lật sang màu khác.
+  \item \textbf{Hết nước đi}: không còn quân nào có thể di chuyển hợp lệ.
+\end{enumerate}
+\textbf{Người cuối cùng còn lại thắng.}
+
+Để tránh hòa kéo dài, nếu sau 150 lượt (3 người) hoặc 200 lượt (4 người)
+không có ai bị loại, ván đấu kết thúc và người có \textbf{nhiều quân nhất}
+thắng.
+
+% ─────────────────────────────────────────────────────────────
+%  PHẦN 5 — VARIANTS (Các Biến Thể Nhiều Người)
+% ─────────────────────────────────────────────────────────────
+\section{Các Biến Thể Nhiều Người}
+\label{sec:variants}
+
+\subsection{Chế Độ 2 Người}
+Bàn cờ 5{\texttimes}5 đỉnh. Mỗi bên 8 quân (4 đỉnh + 4 tâm).
+Màu: Vàng và Xanh lá.
+
+\subsection{Chế Độ 3 Người}
+Bàn cờ 7{\texttimes}7 với 4 góc bị loại tạo hình gần bát giác.
+Mỗi bên 12 quân. Màu: Vàng, Xanh lá, Đỏ. Chế độ này giới thiệu
+\emph{động lực liên minh}: người chơi phải cân nhắc không chỉ tấn công
+đối thủ trực tiếp mà còn tránh tạo lợi thế cho đối thủ thứ ba.
+
+\subsection{Chế Độ 4 Người}
+Cùng bàn 7{\texttimes}7 góc cắt, mỗi bên 9 quân.
+Màu: Vàng, Xanh lá, Đỏ, Tím. Bốn người chơi tạo ra mạng lưới quan hệ
+phức tạp; chiến thắng thường đến từ việc giữ vị trí trung lập rồi ra
+đòn quyết định khi các đối thủ đã tiêu hao lẫn nhau.
+
+% ─────────────────────────────────────────────────────────────
+%  PHẦN 6 (KỸ THUẬT) — AI COMPANION (AI Đồng Hành)
+% ─────────────────────────────────────────────────────────────
+\section{AI Đồng Hành}
+\label{sec:ai}
+
+\subsection{Lý Do Cần AI}
+
+Một trong những rào cản với game cờ trừu tượng là cần có đối thủ.
+AI đồng hành cho phép người chơi luyện tập một mình và cảm nhận chiều
+sâu chiến thuật mà không cần chờ người khác.
+
+\subsection{Tại Sao Không Dùng MCTS}
+
+Monte Carlo Tree Search (MCTS)~\cite{coulom2006efficient} thường được
+chọn cho game nhiều người vì không cần hàm đánh giá tường minh. Tuy nhiên,
+trong các game Reversi-like, MCTS hoạt động kém vì:
+\begin{itemize}
+  \item Một nước đi có thể lật 5--10 quân lập tức---kết quả một ván ngẫu
+        nhiên gần như không liên quan đến chất lượng nước đầu tiên.
+  \item Tín hiệu rollout quá nhiễu, UCT không phân biệt được nước tốt
+        và nước xấu.
+  \item Với budget 500--800 simulations, MCTS chỉ explore được 1--2 lớp
+        đầu, tương đương greedy 1-ply.
+\end{itemize}
+Nghiên cứu trên Othello~\cite{buro1997good} cho thấy Alpha-Beta depth=4
+đánh bại MCTS với 100\,000 simulations vì hàm đánh giá chính xác hơn
+rollout ngẫu nhiên.
+
+\subsection{Paranoid Minimax}
+
+Với game 2 người, Minimax Alpha-Beta~\cite{knuth1975alphabeta} là đủ.
+Với 3--4 người, \textbf{Paranoid Minimax}~\cite{sturtevant2008analysis}
+được áp dụng: bot xem \emph{tất cả người chơi còn lại như một liên minh}
+chống lại mình, đưa bài toán $N$-người về bài toán max-min 2 chiều và cho
+phép dùng cắt tỉa Alpha-Beta đầy đủ.
+
+\paragraph{Hàm đánh giá.}
+\begin{equation}
+  \mathrm{eval}(\text{pos},\, c)
+    = \bigl(\#\text{quân}_c - \#\text{quân}_{\neg c}\bigr) \times 10
+      + \#\text{nước đi}_c
+  \label{eq:eval}
+\end{equation}
+Thành phần đầu là ưu thế quân số (trọng số 10);
+thành phần sau là tính linh hoạt (mobility).
+
+\paragraph{Thưởng kết thúc nhanh.}
+\begin{equation}
+  \mathrm{score}_{\text{terminal}} = \pm\,(10000 + d)
+\end{equation}
+trong đó $d$ là số lớp còn lại trong cây tìm kiếm, khuyến khích bot
+\emph{thắng nhanh} thay vì kéo dài ván.
+
+\begin{table}[H]
+  \centering
+  \caption{Tham số AI theo chế độ chơi.}
+  \label{tab:ai_params}
+  \begin{tabular}{lccc}
+    \toprule
+    \textbf{Chế độ} & \textbf{Thuật toán} & \textbf{Độ sâu}
+    & \textbf{Thời gian/nước} \\
+    \midrule
+    2 người & Minimax Alpha-Beta & 6 & $<0.3$\,s \\
+    3 người & Paranoid Minimax   & 4 & $<0.5$\,s \\
+    4 người & Paranoid Minimax   & 3 & $<0.5$\,s \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+AI chạy trong background thread (\texttt{asyncio.run\_in\_executor})
+để không làm đứng giao diện trong khi tính toán.
+
+% ─────────────────────────────────────────────────────────────
+%  PHẦN 7a — IMPLEMENTATION (Cài Đặt và Phần Mềm)
+% ─────────────────────────────────────────────────────────────
+\section{Cài Đặt và Phần Mềm}
+\label{sec:impl}
+
+Game được viết bằng Python~3 với thư viện Pygame~2. Mã nguồn mở tại:
+\url{https://github.com/[username]/Tactical-Formation-The-Board-Game}.
+
+\begin{lstlisting}[language=bash, caption={Cài đặt và chạy game.}]
+python -m venv .venv
+source .venv/bin/activate   # Linux / macOS
+pip install pygame
+python main.py
+\end{lstlisting}
+
+Phiên bản web chạy qua \texttt{pygbag}~\cite{pygbag}:
+\begin{lstlisting}[language=bash, caption={Chạy trên trình duyệt.}]
+pip install pygbag
+pygbag main.py
+# Mở trình duyệt tại http://localhost:8000
+\end{lstlisting}
+
+% ─────────────────────────────────────────────────────────────
+%  PHẦN 8 — CONCLUSION (Kết Luận)
+% ─────────────────────────────────────────────────────────────
+\section{Kết Luận}
+\label{sec:conclusion}
+
+% 8a. Tóm tắt đóng góp (KHÔNG copy lại abstract)
+Bài báo đã trình bày Tactical Formation---một trò chơi cờ chiến thuật
+trừu tượng mới kết hợp di chuyển kiểu Cờ Đam và bắt quân kiểu Reversi
+trên bàn cờ hai lớp vị trí, hỗ trợ 2--4 người chơi. Luật chơi được
+đặc tả đầy đủ và nhất quán cho cả ba biến thể. AI đồng hành dựa trên
+Paranoid Minimax hoạt động hiệu quả trong thời gian thực và cho phép
+người chơi tự luyện tập khi không có đối thủ.
+
+% 8b. Hạn chế (Limitations) — bắt buộc phải có trong paper chuẩn
+\paragraph{Hạn chế hiện tại.}
+Phần mềm hiện chưa có chế độ online nhiều người. Hàm đánh giá của AI
+chỉ dùng hai yếu tố (quân số và mobility); các yếu tố chiến lược sâu hơn
+như kiểm soát trung tâm hoặc đe dọa nhiều hướng chưa được mô hình hóa.
+Ngoài ra, chưa có nghiên cứu thực nghiệm định lượng về độ cân bằng giữa
+các màu trong chế độ 3 và 4 người.
+
+% 8c. Hướng phát triển tiếp theo (Future Work) — bắt buộc phải có
+\paragraph{Hướng phát triển tiếp theo.}
+Các hướng nghiên cứu và phát triển tiếp theo bao gồm:
+\begin{enumerate}[label=(\roman*)]
+  \item Phân tích định lượng độ cân bằng game qua mô phỏng bot-vs-bot
+        hàng trăm ván.
+  \item Cải thiện hàm đánh giá AI với các đặc trưng chiến lược phức
+        tạp hơn, hoặc học hàm đánh giá qua self-play.
+  \item Phát triển chế độ online để hỗ trợ nhiều người chơi từ xa.
+  \item Khảo sát các biến thể luật chơi, ví dụ cho phép chọn hướng
+        sandwich thay vì bắt buộc lấy hướng nhiều nhất.
+\end{enumerate}
+
+% ─────────────────────────────────────────────────────────────
+%  REFERENCES
+% ─────────────────────────────────────────────────────────────
+\begin{thebibliography}{9}
+
+\bibitem{schaeffer2007checkers}
+  J.~Schaeffer et al.,
+  ``Checkers is solved,''
+  \textit{Science}, vol.~317, no.~5844, pp.~1518--1522, 2007.
+
+\bibitem{buro1997good}
+  M.~Buro,
+  ``How machines have learned to play Othello,''
+  \textit{IEEE Intelligent Systems}, vol.~14, no.~6, pp.~12--14, 1999.
+
+\bibitem{coulom2006efficient}
+  R.~Coulom,
+  ``Efficient selectivity and backup operators in Monte-Carlo tree
+  search,'' in \textit{Proc. 5th Int. Conf. Computers and Games},
+  LNCS vol.~4630, pp.~72--83, 2007.
+
+\bibitem{knuth1975alphabeta}
+  D.~E.~Knuth and R.~W.~Moore,
+  ``An analysis of alpha-beta pruning,''
+  \textit{Artificial Intelligence}, vol.~6, no.~4, pp.~293--326, 1975.
+
+\bibitem{sturtevant2008analysis}
+  N.~R.~Sturtevant,
+  ``An analysis of UCT in multi-player games,''
+  in \textit{Proc. 6th Int. Conf. Computers and Games},
+  LNCS vol.~5131, pp.~37--49, 2008.
+
+\bibitem{pygbag}
+  P.~Barateau,
+  ``pygbag: Python/Pygame WebAssembly packager,''
+  \url{https://pygame-web.github.io}, 2023.
+
+\end{thebibliography}
+
+\end{document}

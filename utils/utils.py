@@ -26,14 +26,23 @@ def resource_path(relative_path):
 
     return os.path.join(base_path, relative_path)
 
-pygame.font.init()
-font_path = resource_path('assets/fonts/Roboto-Bold.ttf')
-FONT = pygame.font.Font(font_path, 36)
 WHITE = (255, 255, 255)
-WIN = pygame.display.set_mode((800, 800))
-WIDTH,HEIGHT = 800, 800
+WIDTH, HEIGHT = 800, 800
 HIGHLIGHT_COLOR = (255, 215, 0)  # Gold
 BLACK = (0, 0, 0)
+
+# Deferred — initialised after pygame.init() is called by the entry point
+FONT = None
+WIN  = None
+
+def _ensure_utils_init():
+    global FONT, WIN
+    if FONT is None:
+        pygame.font.init()
+        font_path = resource_path('assets/fonts/Roboto-Bold.ttf')
+        FONT = pygame.font.Font(font_path, 36)
+    if WIN is None:
+        WIN = pygame.display.get_surface()
 
 class Button:
     def __init__(self, text, pos, size, callback):
@@ -48,6 +57,7 @@ class Button:
 
 
     def draw(self, win):
+        _ensure_utils_init()
         color = (70, 130, 180) if self.hovered else (65, 105, 225)  # Steel Blue or Royal Blue
         pygame.draw.rect(win, color, self.rect)
         text_surf = FONT.render(self.text, True, WHITE)
@@ -80,12 +90,11 @@ def get_piece_at_pos(pieces, pos):
     return None
 
 async def game_over_screen(winner, player=None):
-    # GAME_OVER_SOUND.play()
+    _ensure_utils_init()
     running = True
 
-    # Create buttons
     restart_button = Button('Restart Game', (WIDTH // 2 - 120, HEIGHT // 2 + 20), (240, 50), player)
-    exit_button = Button('Exit', (WIDTH // 2 - 120, HEIGHT// 2 + 90), (240, 50), sys.exit)
+    exit_button = Button('Exit', (WIDTH // 2 - 120, HEIGHT // 2 + 90), (240, 50), sys.exit)
 
     over_text = FONT.render(f'{winner.capitalize()} Wins!', True, HIGHLIGHT_COLOR)
     over_rect = over_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 100))

@@ -171,3 +171,18 @@ cython_debug/
 # .idea/
 tactical/
 
+# LaTeX build artifacts (paper/)
+paper/build/
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.log
+paper/*.out
+paper/*.toc
+paper/*.synctex.gz
+paper/*.fdb_latexmk
+paper/*.fls
+paper/sections/*.aux
+paper/figures/*.aux
+paper/
+
