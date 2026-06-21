@@ -1,0 +1,6 @@
+python,3.12.3
+platform,Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.39
+machine,x86_64
+cpu,AMD Ryzen 7 6800H with Radeon Graphics
+cpu_count,16
+ram_gb,7.4

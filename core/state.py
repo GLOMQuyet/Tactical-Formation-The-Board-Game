@@ -1,6 +1,6 @@
 """Game state — Board + turn cursor + active-players list."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List
 
 from core.board import Board
@@ -13,6 +13,10 @@ class GameState:
     active_players: List[str]
     turn_index: int
     mode: object  # core.modes.Mode
+    # Zobrist hashes of every board position that has actually occurred this
+    # game. The AI uses it to avoid shuffling a piece back into a position it
+    # already created (anti-repetition) — see ai.minimax.best_move.
+    position_history: List[int] = field(default_factory=list)
 
     @classmethod
     def new(cls, mode):
@@ -36,6 +40,10 @@ class GameState:
 
     def advance_turn(self):
         """Move to next still-alive player. Eliminate dead ones if mode allows."""
+        # Record the position the just-completed move produced. The live board's
+        # incremental _hash is intentionally stale (see Board docstring), so
+        # recompute it fresh — cheap, once per real move.
+        self.position_history.append(self.board._compute_hash())
         if not self.active_players:
             return
         mode = self.mode

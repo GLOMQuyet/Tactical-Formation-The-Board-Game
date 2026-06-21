@@ -1,0 +1,54 @@
+% !TeX root = ../main.tex
+\section{Giới Thiệu}
+\label{sec:intro}
+
+Các trò chơi cờ trừu tượng đã tồn tại hàng nghìn năm, từ Cờ Vây của
+Trung Quốc đến Cờ Đam châu Âu và Reversi ra đời cuối thế kỷ~19.
+Mỗi game định nghĩa một không gian chiến thuật riêng biệt qua tập luật
+tối giản của nó.
+
+\textbf{Tactical Formation} ra đời từ câu hỏi thiết kế: \emph{điều gì xảy
+ra nếu ta kết hợp cơ chế di chuyển của Cờ Đam với cơ chế bắt quân của
+Reversi, nhưng không loại bỏ quân bị nhảy qua, và mở rộng sang nhiều
+người chơi?}
+
+Sự kết hợp này tạo ra một căng thẳng chiến thuật mới. Trong Cờ Đam,
+người chơi nhảy qua quân để \emph{ăn} nó---quân biến mất. Trong Reversi,
+người chơi đặt quân mới để \emph{kẹp} quân đối thủ---quân bị lật màu.
+Trong Tactical Formation, người chơi nhảy qua một quân bất kỳ (kể cả quân
+của chính mình) để di chuyển, rồi kẹp sandwich từ vị trí mới---quân bị
+nhảy qua vẫn còn trên bàn và có thể trở thành vũ khí hoặc rào cản ở lượt
+tiếp theo.
+
+Kết quả là mỗi nước đi mang hai chiều tác dụng độc lập: vị trí mới của
+quân (ảnh hưởng đến di chuyển tương lai) và sandwich tạo ra từ vị trí đó
+(ảnh hưởng đến lật quân ngay lập tức). Người chơi phải cân nhắc cả hai
+chiều đồng thời, tạo ra chiều sâu chiến thuật khác biệt so với cả hai
+nguồn cảm hứng.
+
+Bài báo có các đóng góp sau:
+\begin{enumerate}[label=(\roman*)]
+  \item Đặc tả đầy đủ, nhất quán luật chơi Tactical Formation cho
+        2--4 người chơi (cấu hình xuất phát 3 người hiện chưa cân đối---xem
+        Mục~\ref{sec:limitations}).
+  \item Mô tả cấu trúc bàn cờ hai lớp (đỉnh và tâm) và phân tích ảnh
+        hưởng của nó đến không gian chiến thuật.
+  \item Mô hình toán học hình thức cho chế độ 2 người chơi, kèm
+        \emph{Định luật Bảo toàn 28 quân} cô đọng tinh thần \emph{ăn = đổi phe}.
+  \item Xây dựng AI đồng hành dựa trên Paranoid Minimax, kèm phân tích
+        tại sao MCTS không phù hợp cho lớp game này.
+  \item Đánh giá thực nghiệm trò chơi và AI qua branching factor (2--4
+        người), giải đấu bot-vs-bot (chế độ 2 người) và hiệu năng thời
+        gian thực.
+  \item Phát hành phần mềm mã nguồn mở để cộng đồng chơi, nghiên cứu
+        và phát triển tiếp.
+\end{enumerate}
+
+Phần còn lại của bài báo được tổ chức như sau. Mục~\ref{sec:related}
+khảo sát các game liên quan. Mục~\ref{sec:rules} đặc tả đầy đủ luật chơi
+bằng hình ảnh bàn cờ. Mục~\ref{sec:variants} mô tả các biến thể nhiều
+người. Mục~\ref{sec:ai} trình bày thuật toán AI đồng hành.
+Mục~\ref{sec:impl} mô tả phần mềm. Mục~\ref{sec:eval} đánh giá thực
+nghiệm. Mục~\ref{sec:limitations} nêu hạn chế, và
+Mục~\ref{sec:conclusion} kết luận. Mô hình toán học hình thức cho chế độ
+2 người được trình bày đầy đủ ở Phụ lục~\ref{app:formal}.

@@ -1,0 +1,283 @@
+% !TeX root = ../main.tex
+\section{AI Đồng Hành}
+\label{sec:ai}
+
+\subsection{Lý Do Cần AI}
+
+Một trong những rào cản với game cờ trừu tượng là cần có đối thủ.
+AI đồng hành cho phép người chơi luyện tập một mình và cảm nhận chiều
+sâu chiến thuật mà không cần chờ người khác.
+
+\subsection{Tại Sao Không Dùng MCTS Rollout Ngẫu Nhiên}
+
+Monte Carlo Tree Search (MCTS)~\citep{coulom2006efficient,browne2012survey}
+thường được chọn cho game nhiều người vì không cần hàm đánh giá tường minh.
+Lập luận dưới đây nhắm vào \emph{MCTS với rollout ngẫu nhiên thuần} (vanilla
+UCT)---không phải MCTS nói chung: biến thể MCTS dẫn hướng bằng mạng nơ-ron
+kiểu AlphaZero~\citep{silver2018alphazero} thay rollout ngẫu nhiên bằng một
+hàm giá trị học được và chơi rất mạnh ngay trong lớp Reversi-like, nên nó nằm
+ngoài phạm vi phản biện này (và được nêu lại ở hướng phát triển). Với rollout
+ngẫu nhiên thuần và ngân sách tính toán nhỏ, MCTS hoạt động kém trong
+Tactical Formation vì:
+\begin{itemize}
+  \item Một nước đi có thể lật 5--10 quân lập tức---kết quả một ván ngẫu
+        nhiên gần như không liên quan đến chất lượng nước đầu tiên.
+  \item Tín hiệu rollout quá nhiễu, UCT không phân biệt được nước tốt
+        và nước xấu.
+  \item Với budget 500--800 simulations, MCTS chỉ explore được 1--2 lớp
+        đầu, tương đương greedy 1-ply.
+\end{itemize}
+Điều này tương phản với Hex, nơi MCTS rollout lại hiệu quả hơn vì tín hiệu
+rollout ít nhiễu hơn~\citep{arneson2010hex}: mức độ phù hợp của rollout ngẫu
+nhiên phụ thuộc mạnh vào độ tin cậy của nó trong từng lớp game. Trong
+Reversi-like, một hàm đánh giá tường minh dựa trên quân số và mobility---đúng
+theo tinh thần các hàm đánh giá học được cho Othello~\citep{buro1999how}---phân
+biệt chất lượng nước đi tốt hơn rollout ngẫu nhiên.
+
+\subsection{Tìm Kiếm Đối Kháng}
+\label{ssec:search}
+
+Bot dùng \emph{hai} thuật toán tách biệt tuỳ số người chơi---cùng họ
+Minimax với cắt tỉa Alpha-Beta nhưng khác nhau ở hàm đánh giá và cách xử
+lý kết cuộc. Ký hiệu $N_c$ là số quân và $M_c$ là số nước đi hợp lệ
+(mobility) của phe $c$.
+
+\paragraph{Chế độ 2 người---Minimax Alpha-Beta.} Hai phe đối kháng hoàn
+toàn nên bot dùng Minimax cổ điển~\citep{knuth1975alphabeta}
+(Thuật toán~\ref{alg:minimax}): phe mình cực đại, đối thủ cực tiểu, luân
+phiên qua cờ \textsc{max}. Hàm đánh giá được thiết kế để \emph{nghĩ như người chơi}---vừa thích ăn
+quân, vừa muốn bóp không gian đi của đối thủ---bằng cách chuẩn hoá cả hai
+số hạng về $[-1,1]$ rồi gán trọng số $0.7$ và $0.3$
+(xem lý do ở Mục~\ref{ssec:pitfalls}):
+\begin{equation}
+\mathrm{eval}_2(b,c)=0.7\,\frac{N_c-N_{\bar c}}{N_c+N_{\bar c}}
++0.3\,\frac{M_c-M_{\bar c}}{M_c+M_{\bar c}}\ \in[-1,1].
+\label{eq:eval}
+\end{equation}
+Khi một phe không còn sống, điểm kết cuộc kèm thưởng thắng nhanh
+\begin{equation}
+\mathrm{score}^{2}_{\text{term}}=\pm(10000+d)
+\label{eq:term2}
+\end{equation}
+($+$ nếu đối thủ thua, $-$ nếu mình thua; $d$ là độ sâu còn lại). Giá trị
+kết cuộc áp đảo mọi điểm eval $\in[-1,1]$, nên việc thu nhỏ thang đo không
+làm bot bỏ lỡ nước thắng/thua thực sự.
+
+\begin{algorithm}[H]
+\caption{Minimax Alpha-Beta (chế độ 2 người)}
+\label{alg:minimax}
+\begin{algorithmic}[1]
+\Function{Minimax}{$s,\ d,\ \alpha,\ \beta,\ \textsc{max},\ \textsc{me},\ \textsc{opp}$}
+  \If{$s$ kết thúc} \State \Return $\pm(10000+d)$ \Comment{theo \eqref{eq:term2}} \EndIf
+  \If{$d=0$} \State \Return $\mathrm{eval}_2(s,\textsc{me})$ \EndIf
+  \State $c \gets \textsc{me}$ nếu \textsc{max}, ngược lại $\textsc{opp}$
+  \State $\mathit{moves} \gets \mathcal A(c,s)$
+  \If{$\mathit{moves}=\varnothing$} \State \Return $\mathrm{eval}_2(s,\textsc{me})$ \EndIf
+  \If{\textsc{max}} \Comment{lượt mình: cực đại}
+    \State $v \gets -\infty$
+    \For{$a \in \mathit{moves}$}
+      \State $v \gets \max\bigl(v,\ \textsc{Minimax}(T(s,a),\,d{-}1,\,\alpha,\,\beta,\,\textsf{false},\,\textsc{me},\,\textsc{opp})\bigr)$
+      \State $\alpha \gets \max(\alpha, v)$
+      \If{$\alpha \ge \beta$} \textbf{break} \Comment{cắt tỉa $\beta$} \EndIf
+    \EndFor
+  \Else \Comment{lượt đối thủ: cực tiểu}
+    \State $v \gets +\infty$
+    \For{$a \in \mathit{moves}$}
+      \State $v \gets \min\bigl(v,\ \textsc{Minimax}(T(s,a),\,d{-}1,\,\alpha,\,\beta,\,\textsf{true},\,\textsc{me},\,\textsc{opp})\bigr)$
+      \State $\beta \gets \min(\beta, v)$
+      \If{$\alpha \ge \beta$} \textbf{break} \Comment{cắt tỉa $\alpha$} \EndIf
+    \EndFor
+  \EndIf
+  \State \Return $v$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\paragraph{Chế độ 3--4 người---Paranoid Minimax.} Với $\ge 3$ phe, điểm
+số không còn đối nghịch hoàn toàn nên cắt tỉa khó
+hơn~\citep{korf1991multiplayer,sturtevant2000pruning}. Bot áp dụng
+\textbf{Paranoid Minimax}~\citep{sturtevant2003comparison,sturtevant2008analysis}
+(Thuật toán~\ref{alg:paranoid}): phe đang xét cực đại, \emph{mọi phe còn
+lại bị coi như một liên minh} cùng cực tiểu, quy bài toán $N$-người về
+max--min hai chiều để dùng Alpha-Beta đầy đủ. Giữ nguyên trọng số $0.7/0.3$
+và số hạng quân số chuẩn hoá về $[-1,1]$ như chế độ 2 người, nhưng vì các
+đối thủ bị gộp thành một liên minh, số hạng mobility được làm \emph{bất đối
+xứng}: chỉ đo mobility $M_c$ của riêng phe đang xét (không trừ mobility đối
+thủ) và chuẩn hoá theo tổng quân $T$ để giữ trong $[0,1)$:
+\begin{equation}
+\mathrm{eval}_{\text{par}}(b,c)=0.7\,\frac{N_c-N_{\bar c}}{T}
++0.3\,\frac{M_c}{M_c+T},\qquad T=N_c+N_{\bar c},
+\label{eq:evalpar}
+\end{equation}
+với $N_{\bar c}$ là tổng quân của \emph{tất cả} đối thủ. Khác với
+\eqref{eq:eval}, số hạng mobility ở đây không bao giờ âm và không so trực
+tiếp với đối thủ; nó chỉ thưởng phe còn nhiều nước đi (tránh bị phong
+toả)---một lựa chọn thực dụng vì mobility của một liên minh gộp không phản
+ánh rõ mối đe doạ từ từng đối thủ riêng lẻ. Khi chỉ còn một
+phe sống, điểm kết cuộc kèm thưởng thắng nhanh
+\begin{equation}
+\mathrm{score}^{\text{par}}_{\text{term}}=\pm(10000+d),
+\label{eq:termpar}
+\end{equation}
+trong đó $d$ là độ sâu còn lại---khuyến khích bot kết liễu sớm thay vì
+kéo dài ván. Một lựa chọn thay thế mạnh là Best Reply
+Search~\citep{schadd2011brs}, thường vượt Paranoid trong nhiều game 4
+người; chúng tôi chọn Paranoid vì đơn giản và đủ tốt trong ngân sách
+tính toán thời gian thực, để dành so sánh với Best Reply Search cho hướng
+phát triển.
+
+\begin{algorithm}[H]
+\caption{Paranoid Minimax (chế độ 3--4 người)}
+\label{alg:paranoid}
+\begin{algorithmic}[1]
+\Function{Paranoid}{$s,\ d,\ \alpha,\ \beta,\ \textsc{me}$}
+  \If{chỉ còn một phe sống} \State \Return $\pm(10000+d)$ \Comment{theo \eqref{eq:termpar}} \EndIf
+  \If{$d=0$} \State \Return $\mathrm{eval}_{\text{par}}(s,\textsc{me})$ \EndIf
+  \State $c \gets \textsc{turn}(s)$;\quad $\mathit{moves} \gets \mathcal A(c,s)$
+  \If{$\mathit{moves}=\varnothing$} \State \Return \textsc{Paranoid}(loại $c$, đổi lượt) \Comment{phe bị phong toả bị bỏ qua} \EndIf
+  \If{$c = \textsc{me}$} \Comment{lớp cực đại}
+    \State $v \gets -\infty$
+    \For{$a \in \mathit{moves}$}
+      \State $v \gets \max\bigl(v,\ \textsc{Paranoid}(T(s,a),\,d{-}1,\,\alpha,\,\beta,\,\textsc{me})\bigr)$
+      \State $\alpha \gets \max(\alpha, v)$
+      \If{$\alpha \ge \beta$} \textbf{break} \EndIf
+    \EndFor
+  \Else \Comment{mọi phe khác: liên minh cực tiểu}
+    \State $v \gets +\infty$
+    \For{$a \in \mathit{moves}$}
+      \State $v \gets \min\bigl(v,\ \textsc{Paranoid}(T(s,a),\,d{-}1,\,\alpha,\,\beta,\,\textsc{me})\bigr)$
+      \State $\beta \gets \min(\beta, v)$
+      \If{$\alpha \ge \beta$} \textbf{break} \EndIf
+    \EndFor
+  \EndIf
+  \State \Return $v$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\begin{table}[H]
+  \centering
+  \caption{Tham số AI theo chế độ chơi.}
+  \label{tab:ai_params}
+  \begin{tabular}{lccc}
+    \toprule
+    \textbf{Chế độ} & \textbf{Thuật toán} & \textbf{Độ sâu}
+    & \textbf{Thời gian/nước} \\
+    \midrule
+    2 người & Minimax Alpha-Beta & 6 & $<0.3$\,s \\
+    3 người & Paranoid Minimax   & 4 & $<0.5$\,s \\
+    4 người & Paranoid Minimax   & 3 & $<0.5$\,s \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+AI chạy trong background thread (\texttt{asyncio.run\_in\_executor})
+để không làm đứng giao diện trong khi tính toán.
+
+\subsection{Hiệu quả cắt tỉa và sắp thứ tự nước đi}
+\label{ssec:ordering}
+
+Hiệu quả của cắt tỉa Alpha-Beta phụ thuộc mạnh vào thứ tự duyệt nước đi.
+Với hệ số phân nhánh $b$ và độ sâu $d$, số nút lá trong trường hợp xấu
+nhất là $O(b^{d})$---không hơn tìm kiếm vét cạn---nhưng nếu nước tốt nhất
+luôn được duyệt trước, con số này giảm còn $O(b^{d/2})$, tức
+\emph{nhân đôi} được độ sâu khả thi trong cùng ngân sách thời
+gian~\citep{knuth1975alphabeta}. Do đó thứ tự nước đi là đòn bẩy chính
+để đẩy độ sâu trong Bảng~\ref{tab:ai_params}.
+
+Tactical Formation cho một heuristic sắp xếp rẻ và tự nhiên: vì mỗi hành
+động \emph{thấy trước} số quân ăn được $|a|=|F_\delta|$
+(Mục~\ref{ssec:capture}), bot duyệt các nước theo $|a|$ \emph{giảm dần}.
+Nước ăn nhiều quân thường mạnh nên hay là nước tốt nhất, giúp việc cắt
+tỉa kích hoạt sớm. Khi $|a|$ bằng nhau, ưu tiên nước làm tăng mobility
+theo Phương trình~\eqref{eq:eval}. Để khai thác triệt để thứ tự này, cả hai
+engine dùng \emph{cập nhật/hoàn-tác nước} (make/unmake) thay cho việc sao
+chép trạng thái ở mỗi nút. Riêng engine 2 người còn dùng một \textbf{bảng
+băm chuyển vị} (transposition table) khoá theo băm Zobrist---lưu cận
+trên/dưới/đúng theo Alpha-Beta và ưu tiên duyệt nước tốt nhất đã ghi---để
+tránh tính lại các dãy nước dẫn về cùng một trạng thái; engine Paranoid
+chưa dùng bảng chuyển vị vì khoá trạng thái (kèm tập phe còn sống và con
+trỏ lượt) phức tạp hơn, để dành cho bản sau. Tìm kiếm tăng dần độ sâu
+(iterative deepening) chưa được cài đặt và để dành cho hướng phát triển.
+
+\subsection{Bốn nhược điểm thiết kế và cách khắc phục}
+\label{ssec:pitfalls}
+
+Khi thử nghiệm bot, chúng tôi phát hiện bốn nhược điểm \emph{không} phải lỗi
+cài đặt mà bắt nguồn từ việc áp một thuật toán tổng quát lên một luật chơi
+đặc thù: quân được bảo toàn (ăn $=$ đổi phe, Mục~\ref{ssec:capture}) và
+điều kiện thắng thực chất là \emph{phong toả} đối thủ chứ không phải tiêu
+diệt. Mỗi nhược điểm phản ánh một giả định ngầm sai trong sự khớp đó. Ba
+nhược điểm đầu (\#1--\#3) có cách khắc phục cụ thể áp dụng cho cả hai engine
+(2 người và Paranoid); nhược điểm thứ tư (\#4) là cố hữu của mọi tìm kiếm
+giới hạn độ sâu và được bàn riêng ở cuối.
+
+\paragraph{Nhược điểm \#1 --- Tham ăn cực đại (greedy capture).}
+\emph{Nguyên nhân.} Hàm sinh nước đi mặc định, khi một nước tạo nhiều
+hướng kẹp, chỉ giữ hướng lật \emph{nhiều quân nhất} ($\arg\max_\delta
+|F_\delta|$). Bot không bao giờ xét nước ăn ít hơn, kể cả khi nước ăn to
+mở ra phản đòn kẹp lại. Vì quân bảo toàn, một nước ăn 5 quân có thể bị
+đối thủ lật lại $\ge 6$ quân ngay lượt sau---đúng kiểu ``nhử mồi'' mà luật
+sandwich cho phép.
+\emph{Khắc phục.} Thay tập hành động $\mathcal A(c,s)$ bằng tập \emph{mở
+rộng} $\mathcal A^{+}$: mỗi ô đáp có $k\ge 2$ hướng kẹp sinh ra $k$ hành
+động riêng, mỗi hành động ứng với một hướng. Bot do đó cân nhắc cả nước
+ăn ít; chính cây tìm kiếm (qua eval ở các lớp sau) quyết định ăn bao nhiêu
+là có lợi, thay vì một quy tắc tham lam cố định.
+
+\paragraph{Nhược điểm \#2 --- Sai trọng tâm hàm đánh giá.}
+\emph{Nguyên nhân.} Hàm đánh giá ban đầu, $10(N_c-N_{\bar c})+(M_c-M_{\bar
+c})$, đặt trọng số quân số gấp mười lần mobility. Nhưng vì quân bảo toàn,
+``ăn sạch'' gần như bất khả; đường thắng thực tế là bóp cho đối thủ hết
+nước đi. Bot vì thế tối ưu sai mục tiêu---gom quân thay vì phong toả.
+Ngoài ra hai số hạng khác đơn vị (đếm quân so với đếm nước đi) nên tỉ số
+trọng số $10\!:\!1$ không mang ý nghĩa rõ ràng.
+\emph{Khắc phục.} Chuẩn hoá cả hai số hạng về $[-1,1]$ rồi gán trọng số
+phản ánh trực giác người chơi: $0.7$ cho ăn quân, $0.3$ cho chặn nước đi
+đối thủ (Phương trình~\eqref{eq:eval} và~\eqref{eq:evalpar}). Trọng số nhỏ
+hơn cho mobility nhưng \emph{cùng thang đo} khiến nó thực sự định hướng về
+phong toả khi ưu thế quân số đã bão hoà.
+
+\paragraph{Nhược điểm \#3 --- Tất định và lặp nước.}
+\emph{Nguyên nhân (hai tầng).} (i)~\emph{Tất định}: phép $\arg\max$ luôn
+trả nước tốt nhất đầu tiên, nên với cùng một thế cờ bot luôn đi y hệt---tìm
+được một đường thắng là thắng lại vô hạn. (ii)~\emph{Dao động}: vì eval là
+số thực liên tục nên hầu như không bao giờ có hai nước bằng điểm tuyệt
+đối, khiến chiến lược ``ngẫu nhiên khi hoà điểm'' vô hiệu. Tệ hơn, do quân
+bảo toàn, bot thường đẩy một quân đi rồi kéo về đúng thế cũ
+($A\!\to\!B\!\to\!A$), tạo vòng lặp. Đo trên 40 ván tự đánh ở độ sâu~2
+(tổng 5040 lượt đi), \textbf{37{,}3\%} số thế cờ là một thế \emph{đã từng}
+xuất hiện trong ván---cho thấy vòng dao động này phổ biến đến mức nào khi
+không can thiệp. Điểm mấu chốt:
+nhược điểm này \emph{không} sửa được bằng can thiệp vào tìm kiếm---Alpha-Beta,
+sắp thứ tự nước, hay bảng chuyển vị chỉ đổi \emph{tốc độ} chứ không đổi
+\emph{nước được chọn}---nên phải sửa ở khâu chọn nước.
+\emph{Khắc phục (hai cơ chế).}
+\begin{itemize}
+  \item \textbf{Phạt lặp thế (anti-repetition).} Ván cờ lưu một lịch sử
+        $\mathcal H$ gồm băm Zobrist của \emph{mọi} thế đã thực sự xảy ra.
+        Ở gốc cây, một nước dẫn tới thế $b'$ đã thuộc $\mathcal H$ bị trừ
+        điểm tỉ lệ với số lần lặp:
+        $\mathrm{eval}'(a)=\mathrm{eval}(a)-\lambda\cdot\#\{b'\in\mathcal
+        H\}$ với $\lambda=0.5$. Vì $\lambda$ lớn hơn nhiều khoảng cách eval
+        giữa các nước hợp lý, bot từ bỏ vòng dao động, nhưng vẫn chấp nhận
+        lặp nếu đó là nước duy nhất không dẫn tới thua.
+  \item \textbf{Ngẫu nhiên trong biên $\varepsilon$.} Thay cho ``hoà điểm
+        tuyệt đối'', mọi nước nằm trong biên $\varepsilon=0.02$ quanh nước
+        tốt nhất được coi là tương đương và chọn ngẫu nhiên đều. Điều này
+        tạo đa dạng giữa các ván mà không hi sinh chất lượng---các nước
+        kém hơn quá $\varepsilon$ vẫn bị loại.
+\end{itemize}
+Sau khắc phục, lặp lại đúng thí nghiệm 40 ván nói trên cho tỉ lệ lặp thế
+\textbf{0{,}0\%} (0 thế lặp trên 4069 lượt đi)---vòng dao động bị loại bỏ
+hoàn toàn. Lưu ý lịch sử $\mathcal H$ chỉ chứa các thế \emph{đã} xảy ra
+nên không làm tăng chi phí tìm kiếm theo cấp số nhân; nó chỉ là một tra cứu
+băm $O(1)$ tại gốc.
+
+\paragraph{Nhược điểm \#4 --- Hiệu ứng chân trời (horizon effect).}
+Một nhược điểm thứ tư trong nhật ký phát triển---\emph{horizon
+effect}, nơi mối nguy bị đẩy ra ngoài độ sâu tìm kiếm---là bản chất của
+mọi tìm kiếm giới hạn độ sâu, không riêng game
+này. Với bàn $5\times5$ và độ sâu 6, không gian trạng thái đủ nhỏ để hiệu
+ứng này không đáng kể, nên chúng tôi giữ nguyên thay vì thêm quiescence
+search; đây là một hướng phát triển tự nhiên nếu mở rộng kích thước bàn.

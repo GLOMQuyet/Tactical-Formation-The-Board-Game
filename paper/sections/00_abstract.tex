@@ -1,0 +1,86 @@
+% !TeX root = ../main.tex
+% ─────────────────────────────────────────────────────────────
+%  Abstract — song ngữ Tiếng Việt + Tiếng Anh (yêu cầu IRON RULE
+%  của skill academic-paper). Mỗi bản 150–300 từ, trả lời 4 câu
+%  hỏi: vấn đề / đã làm / kết quả / ý nghĩa.
+% ─────────────────────────────────────────────────────────────
+
+\begin{abstract}
+% (1) Vấn đề / bối cảnh
+Các trò chơi cờ trừu tượng kinh điển như Cờ Đam và Reversi mỗi loại chỉ
+khai thác một cơ chế tương tác duy nhất và đều giới hạn ở hai người chơi,
+tạo ra khoảng trống thiết kế chưa được khám phá khi kết hợp hai cơ chế
+đó trong môi trường nhiều người.
+% (2) Tôi đã làm gì
+Bài báo này giới thiệu \textbf{Tactical Formation}, một trò chơi cờ chiến
+thuật trừu tượng mới kết hợp cơ chế \emph{di chuyển bằng cách nhảy qua quân}
+từ Cờ Đam với cơ chế \emph{bắt quân bằng kẹp sandwich} từ Reversi,
+và mở rộng sang 2, 3 và 4 người chơi đồng thời.
+Điểm cốt lõi là quân bị nhảy qua \emph{không bị loại} khỏi bàn mà vẫn tồn tại,
+tạo ra căng thẳng chiến thuật chưa xuất hiện trong cả hai game nguồn.
+Bàn cờ được thiết kế với hai lớp vị trí đồng thời---đỉnh (vertex) và tâm
+(center)---mỗi loại có tập hướng di chuyển riêng, làm tăng đáng kể chiều
+sâu chiến thuật trên cùng một mặt bàn.
+% (3) Kết quả / đóng góp
+Chúng tôi trình bày đặc tả đầy đủ luật chơi cho cả ba biến thể, một
+mô hình toán học khẳng định \emph{Định luật Bảo toàn 28 quân} (ăn = đổi
+phe, không loại bỏ), và xây dựng AI đồng hành dựa trên tìm kiếm
+Minimax với cắt tỉa Alpha-Beta (biến thể Paranoid cho chế độ nhiều
+người) thay cho Monte Carlo Tree Search với rollout ngẫu nhiên
+thuần---vốn cho tín hiệu quá nhiễu trong lớp game Reversi-like. Đánh giá
+thực nghiệm qua giải đấu bot-vs-bot (chế độ 2 người) xác nhận tìm kiếm sâu
+hơn thắng ổn định, cùng số đo branching factor và thời gian suy nghĩ mỗi
+nước.
+% (4) Ý nghĩa
+Phần mềm được phát hành mã nguồn mở, cung cấp nền tảng để cộng đồng
+chơi, nghiên cứu, và phát triển các biến thể tiếp theo.
+\end{abstract}
+
+\vspace{0.4em}
+\noindent\textbf{Từ khoá:}
+trò chơi cờ trừu tượng;
+thiết kế game nhiều người;
+Paranoid Minimax;
+biến thể Reversi;
+Alpha-Beta pruning;
+cờ chiến thuật.
+
+% ── English abstract (song ngữ — IRON RULE) ──────────────────────
+\vspace{1.0em}
+\begin{abstract}
+% (1) Problem
+Classic abstract board games such as Checkers and Reversi each exploit a
+single interaction mechanic and are limited to two players, leaving an
+unexplored design gap when the two mechanics are combined in a
+multiplayer setting.
+% (2) What we did
+This paper introduces \textbf{Tactical Formation}, a new abstract
+strategy game that hybridises the \emph{jump-over-a-piece} movement of
+Checkers with the \emph{sandwich capture} of Reversi, and extends play to
+two, three, and four players. Its core idea is that a jumped-over piece is
+\emph{not} removed: it persists on the board, creating tactical tension
+absent from either source game. The board carries two simultaneous
+position layers---vertices and centres---each with its own move set,
+substantially deepening play on a single surface.
+% (3) Results
+We give a complete rule specification for all three variants, a formal
+mathematical model establishing a \emph{28-piece conservation law}
+(capture $=$ change of side, never removal), and a companion AI built on
+Minimax/Alpha-Beta search (Paranoid variant for the multiplayer modes)
+rather than Monte Carlo Tree Search with plain random rollouts, whose
+signal is too noisy in this Reversi-like class. A two-player bot-vs-bot
+tournament confirms that deeper search wins consistently, alongside
+measured branching factors and per-move think time.
+% (4) Significance
+The software is released open source as a platform for the community to
+play, study, and extend.
+\end{abstract}
+
+\vspace{0.4em}
+\noindent\textbf{Keywords:}
+abstract board game;
+multiplayer game design;
+Paranoid Minimax;
+Reversi variant;
+Alpha-Beta pruning;
+tactical strategy game.

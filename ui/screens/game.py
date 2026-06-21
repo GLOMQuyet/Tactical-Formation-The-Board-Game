@@ -84,6 +84,8 @@ async def run(win, mode):
             for enemy_piece, original_color in rec.captured:
                 enemy_piece.color = original_color
             state.board.move_piece(rec.piece, rec.from_pos)
+            if state.position_history:
+                state.position_history.pop()  # forget the position we undid
         state.turn_index = 0  # back to human (green) in bot_2 mode
 
     undo_button = None
@@ -129,18 +131,21 @@ async def run(win, mode):
                         active_players=list(state.active_players),
                         turn_index=state.turn_index,
                         mode=mode,
+                        position_history=state.position_history,
                     )
                     loop = asyncio.get_event_loop()
                     bot_task = loop.run_in_executor(None, compute_move, snap_state)
                 elif bot_task is not None and bot_task.done():
-                    best = bot_task.result()
+                    result = bot_task.result()
                     bot_thinking = False
                     bot_task = None
-                    if best is None:
+                    if result is None:
                         # already handled by alive check on next iter
                         pass
                     else:
-                        _apply_human_or_bot_move(state, best, sprites, mode, move_history)
+                        move, capture_direction = result
+                        _apply_human_or_bot_move(state, move, sprites, mode,
+                                                 move_history, capture_direction)
                         stalemate_count += 1
                         state.advance_turn()
             elif mode.ai_engine == 'minimax':
@@ -164,10 +169,13 @@ async def run(win, mode):
                     active_players=list(state.active_players),
                     turn_index=state.turn_index,
                     mode=mode,
+                    position_history=state.position_history,
                 )
-                best = compute_move(snap_state)
-                if best is not None:
-                    _apply_human_or_bot_move(state, best, sprites, mode, move_history)
+                result = compute_move(snap_state)
+                if result is not None:
+                    move, capture_direction = result
+                    _apply_human_or_bot_move(state, move, sprites, mode,
+                                             move_history, capture_direction)
                     state.advance_turn()
                 continue
 
@@ -263,8 +271,13 @@ async def run(win, mode):
         await asyncio.sleep(0)
 
 
-def _apply_human_or_bot_move(state, move, sprites, mode, move_history):
-    """Apply a complete move (including auto-picked capture) and animate it."""
+def _apply_human_or_bot_move(state, move, sprites, mode, move_history,
+                             capture_direction=None):
+    """Apply a complete move (including its capture) and animate it.
+
+    `capture_direction` honours the bot's chosen sandwich ray (which may be a
+    smaller, non-greedy capture); falls back to the greediest ray when None.
+    """
     fx, fy, tx, ty = move
     piece = state.board.piece_at((fx, fy))
     if piece is None:
@@ -275,7 +288,10 @@ def _apply_human_or_bot_move(state, move, sprites, mode, move_history):
     state.board.move_piece(piece, (tx, ty))
     captures = rules.find_captures(piece, state.board, mode)
     if captures:
-        direction = max(captures.keys(), key=lambda d: len(captures[d]))
+        if capture_direction is not None and capture_direction in captures:
+            direction = capture_direction
+        else:
+            direction = max(captures.keys(), key=lambda d: len(captures[d]))
         for enemy in captures[direction]:
             rec.captured.append((enemy, enemy.color))
             enemy.color = piece.color

@@ -1,0 +1,316 @@
+% !TeX root = ../main.tex
+\section{Mô Hình Toán Học Hình Thức (Chế Độ 2 Người)}
+\label{app:formal}
+
+Phụ lục này đặc tả Tactical Formation bằng toán học, \emph{độc lập với mọi
+cách cài đặt phần mềm}, bổ sung cho phần trình bày chính bằng hình ảnh bàn
+cờ thật ở Mục~\ref{sec:rules} (đủ để nắm luật chơi). Trọng tâm đặt
+vào cốt lõi của cờ: quân đi theo \textbf{hướng} nào và \textbf{ăn quân}
+ra sao. Mô hình dựng trên ba trụ cột---\textbf{trạng thái}, \textbf{hành
+động}, \textbf{phần thưởng}---và một tiên đề xuyên suốt: \emph{bàn cờ
+luôn có đúng 28 quân; ăn quân là đổi phe, không bao giờ loại bỏ}. Phần
+mở rộng cho chế độ 3--4 người được nêu ở Mục~\ref{sec:variants}; bảng tra
+ký hiệu đầy đủ ở Phụ lục~\ref{app:notation}.
+
+\subsection{Bàn cờ và 28 quân}
+\label{ssec:board}
+
+Bàn cờ chế độ 2 người gồm 41 ô trên hai lớp:
+\begin{align}
+\mathcal{B}_{\mathsf V}
+  &= \{(i,j)\in\mathbb Z^2 : 0\le i,j\le 4\}
+  && \text{(25 ô đỉnh)}, \label{eq:vert}\\
+\mathcal{B}_{\mathsf C}
+  &= \{(i{+}\tfrac12,\,j{+}\tfrac12) : 0\le i,j\le 3\}
+  && \text{(16 ô tâm)}, \label{eq:cent}\\
+\mathcal{B}
+  &= \mathcal{B}_{\mathsf V}\sqcup\mathcal{B}_{\mathsf C},
+  && |\mathcal{B}|=41. \label{eq:board}
+\end{align}
+Mỗi ô tâm nằm chính giữa bốn ô đỉnh bao quanh. Hàm loại
+$\kappa(x)\in\{\mathsf V,\mathsf C\}$ cho biết ô $x$ là đỉnh hay tâm.
+Hai phe là $\mathcal C=\{\mathrm Y,\mathrm G\}$ (Vàng, Xanh); đối thủ của
+$c$ viết là $\bar c$; ô trống ký hiệu $\varnothing$. \textbf{Xanh đi
+trước.}
+
+Trò chơi có đúng \textbf{28 quân}; mỗi phe xuất phát với 14 quân
+($=10$ quân đỉnh $+\,4$ quân tâm). Mỗi quân $p$ mang ba thuộc tính:
+\begin{itemize}[noitemsep,topsep=2pt]
+  \item \textbf{loại} $\kappa(p)\in\{\mathsf V,\mathsf C\}$---\emph{bất
+        biến suốt ván}: quân đỉnh sống cả đời trên ô đỉnh, quân tâm trên
+        ô tâm;
+  \item \textbf{vị trí} $x_p$---đổi khi quân nhảy;
+  \item \textbf{phe} $c_p\in\{\mathrm Y,\mathrm G\}$---đổi khi quân bị ăn.
+\end{itemize}
+
+\begin{quote}
+\textbf{Định luật Bảo toàn 28 quân.} Không quân nào được thêm vào hay
+bị loại khỏi bàn; ăn quân là \emph{đổi phe} một quân có sẵn. Do đó tại
+mọi trạng thái
+\begin{equation}
+N_{\mathrm Y}(s)+N_{\mathrm G}(s)=28,
+\label{eq:conservation}
+\end{equation}
+trong đó $N_c(s)$ là số quân phe $c$.
+\end{quote}
+
+Cần nói rõ địa vị của khẳng định này: đây là một \emph{bất biến hệ quả
+trực tiếp của định nghĩa}---vì bắt quân được định nghĩa là \emph{lật màu}
+một quân có sẵn (không thêm, không loại), tổng số quân hiển nhiên không
+đổi---chứ không phải một định lý sâu cần chứng minh công phu. Giá trị của
+nó nằm ở \emph{hệ quả thiết kế}: ván cờ không bao giờ suy biến thành tàn
+cuộc thưa quân, toàn bộ 28 quân luôn là tài nguyên chiến thuật sống.
+
+Bất biến~\eqref{eq:conservation} phân biệt Tactical Formation với cả Cờ
+Đam (ăn $=$ loại) lẫn Reversi (số quân tăng theo lượt đặt). Vị trí xuất
+phát (trạng thái $0$) gồm hai khối quân đối xứng:
+\begin{align}
+P^{\mathrm Y}_0 &= \{(i,0)\}_{i=0}^{4}\cup\{(i{+}\tfrac12,\tfrac12)\}_{i=0}^{3}\cup\{(i,1)\}_{i=0}^{4},
+\label{eq:starty}\\
+P^{\mathrm G}_0 &= \{(i,4)\}_{i=0}^{4}\cup\{(i{+}\tfrac12,\tfrac72)\}_{i=0}^{3}\cup\{(i,3)\}_{i=0}^{4}.
+\label{eq:startg}
+\end{align}
+
+\subsection{Trạng thái}
+\label{ssec:state}
+
+Trạng thái trò chơi là cặp
+\begin{equation}
+\boxed{\;s=(b,\mathrm{turn}),\qquad
+b:\mathcal B\to\{\mathrm Y,\mathrm G,\varnothing\},\qquad
+\mathrm{turn}\in\{\mathrm Y,\mathrm G\}.\;}
+\label{eq:state}
+\end{equation}
+$b$ là \emph{cấu hình bàn} (ô nào mang màu gì), $\mathrm{turn}$ là phe
+đến lượt. Biết vị trí và phe của cả 28 quân cộng với ai đang đi là biết
+toàn bộ trạng thái---trò chơi \emph{thông tin hoàn hảo}, không có thông
+tin ẩn. Trạng thái xuất phát là $s_0=(b_0,\mathrm G)$ với $b_0$ đặt theo
+\eqref{eq:starty}--\eqref{eq:startg}. Hàm đếm quân $N_c(s)$ thoả
+$N_{\mathrm Y}(s_0)=N_{\mathrm G}(s_0)=14$ và bất biến~\eqref{eq:conservation}.
+
+\subsection{Hướng đi và cú nhảy}
+\label{ssec:action}
+
+Tập hướng đi phụ thuộc loại quân:
+\begin{equation}
+D_{\mathsf V} = \underbrace{\{(\pm1,0),(0,\pm1)\}}_{\text{4 ngang--dọc, bước }1}
+  \cup \underbrace{\{(\pm\tfrac12,\pm\tfrac12)\}}_{\text{4 chéo, bước }\frac12},
+\qquad
+D_{\mathsf C} = \{(\pm\tfrac12,\pm\tfrac12)\}.
+\label{eq:dirs}
+\end{equation}
+Quân đỉnh có 8 hướng; quân tâm chỉ 4 hướng chéo (đi ngang--dọc một ô sẽ
+rơi khỏi lớp tâm). Quân tại ô $x$ đi theo $d\in D_{\kappa(x)}$ bằng cách
+nhảy \emph{qua} ô kề $x+d$ và \emph{đáp} xuống $x+2d$. Cú nhảy hợp lệ khi
+và chỉ khi
+\begin{equation}
+\underbrace{x{+}d,\ x{+}2d\in\mathcal B}_{\text{không ra ngoài bàn}},
+\qquad
+\underbrace{b(x{+}d)\neq\varnothing}_{\text{bệ nhảy có quân (phe nào cũng được)}},
+\qquad
+\underbrace{b(x{+}2d)=\varnothing}_{\text{ô đáp trống}}.
+\label{eq:jump}
+\end{equation}
+Vì $2d$ là vectơ nguyên nên ô đáp tự động cùng loại với $x$ (đỉnh về
+đỉnh, tâm về tâm). \textbf{Quân làm bệ nhảy đứng nguyên}---không đổi chỗ,
+không đổi phe. Tập ô đáp hợp lệ và tập nước di chuyển là
+\begin{equation}
+\begin{aligned}
+\mathrm{Jumps}(x,b)&=\{x{+}2d : d\in D_{\kappa(x)},\ \eqref{eq:jump}\ \text{thoả}\},\\
+\mathcal A_{\mathrm{move}}(s)&=\{(x,x') : b(x)=\mathrm{turn},\ x'\in\mathrm{Jumps}(x,b)\}.
+\end{aligned}
+\label{eq:moves}
+\end{equation}
+Bệ nhảy của quân đỉnh đi chéo là một ô \emph{tâm}; bệ của quân tâm là một
+ô \emph{đỉnh}---hai lớp đan nhau qua đường chéo (xem minh hoạ ở
+Hình~\ref{fig:jumps}).
+
+\subsection{Cách ăn quân---cốt lõi của cờ}
+\label{ssec:capture}
+
+Ý tưởng trong một câu: \emph{đáp xuống đâu, nhìn quanh đó}---từ ô đáp,
+theo từng hướng, nếu thấy một dãy quân địch liền nhau mà ngay sau dãy là
+một quân mình, thì cả dãy bị \emph{kẹp} và \emph{đổi phe} theo mình.
+Hướng ăn dùng cùng tập hướng với hướng đi: quân đỉnh xét
+$\Delta_{\mathsf V}=D_{\mathsf V}$ (8 hướng), quân tâm xét
+$\Delta_{\mathsf C}=D_{\mathsf C}$ (4 hướng chéo). \emph{Tia} theo hướng
+$\delta$ từ ô đáp $x'$ là dãy ô $x'+\delta,\ x'+2\delta,\ x'+3\delta,\dots$;
+tia ngang--dọc chỉ đi qua ô đỉnh, còn tia chéo đi xen kẽ tâm--đỉnh--tâm
+nên một cú kẹp chéo có thể ăn lẫn cả quân đỉnh và quân tâm.
+
+Gọi $b'$ là bàn ngay sau cú nhảy (đã nhảy, chưa lật) và $c=\mathrm{turn}$.
+Hướng $\delta$ \textbf{ăn được} khi tồn tại số nguyên $m\ge 1$ sao cho
+\begin{equation}
+\underbrace{b'(x'+k\delta)=\bar c,\quad k=1,\dots,m}_{m\ \text{quân địch đứng liền nhau}},
+\qquad
+\underbrace{b'(x'+(m{+}1)\delta)=c}_{\text{ngay sau dãy là quân mình}}.
+\label{eq:clamp}
+\end{equation}
+Khi đó tập lật của hướng $\delta$ là $F_\delta=\{x'+k\delta : 1\le k\le m\}$.
+Hướng $\delta$ \emph{không} ăn được (quy ước $F_\delta=\varnothing$) nếu
+tia---trước khi gặp quân mình---gặp ô trống, ra ngoài bàn, hoặc gặp ngay
+một quân mình (chưa có quân địch nào ở giữa). Tập hướng ăn được của nước
+$(x,x')$ là $\Delta(s,x,x')=\{\delta : F_\delta\neq\varnothing\}$.
+
+\paragraph{Hành động đầy đủ.} Một hành động là bộ ba
+\begin{equation}
+\boxed{\;a=(x,\ x',\ \delta)\;}
+\qquad
+\delta\in
+\begin{cases}
+\Delta(s,x,x') & \text{nếu có hướng ăn được},\\
+\{\varnothing\} & \text{nếu không (không lật gì)},
+\end{cases}
+\label{eq:action}
+\end{equation}
+với $(x,x')\in\mathcal A_{\mathrm{move}}(s)$. \textbf{Luật:} có kẹp thì
+\emph{phải ăn}, và người đi chọn \emph{đúng một hướng}---các hướng ăn
+được khác không bị lật. Mọi $F_\delta$ tính được ngay từ bàn-sau-cú-nhảy
+nên người đi luôn thấy trước mỗi lựa chọn ăn được bao nhiêu quân.
+\paragraph{Ví dụ.} \emph{Quy ước ký hiệu trong ví dụ:} chữ HOA
+$\mathrm Y,\mathrm G$ chỉ quân \emph{đỉnh}, chữ thường $\mathrm y,\mathrm g$
+chỉ quân \emph{tâm} (cùng màu Vàng/Xanh); đây chỉ là cách viết gọn để nhìn
+thấy lớp của từng quân---hàm bàn $b$ ở~\eqref{eq:state} vẫn chỉ trả màu, còn
+lớp là thuộc tính $\kappa(x)$ của ô. Quân Xanh ($c=\mathrm G$) vừa đáp xuống
+$x'=(1,2)$ với cấu hình quanh đó: $b'(2,2)=\mathrm Y$, $b'(3,2)=\mathrm G$ trên tia
+ngang; và $b'(1.5,2.5)=\mathrm y$, $b'(2,3)=\mathrm Y$,
+$b'(2.5,3.5)=\mathrm y$, $b'(3,4)=\mathrm G$ trên tia chéo. Hai hướng ăn
+được:
+\begin{align}
+\delta_1=(1,0):\quad & F_{\delta_1}=\{(2,2)\}, && |{\cdot}|=1, \label{eq:ex1}\\
+\delta_2=(\tfrac12,\tfrac12):\quad & F_{\delta_2}=\{(1.5,2.5),(2,3),(2.5,3.5)\}, && |{\cdot}|=3. \label{eq:ex2}
+\end{align}
+Tia chéo~\eqref{eq:ex2} ăn lẫn cả quân tâm và quân đỉnh (2 tâm $+$ 1
+đỉnh), minh hoạ việc tia chéo đi xen kẽ hai lớp. Người đi chọn đúng một
+hướng; chọn $\delta_2$ thì ba quân Vàng trên tia chéo đổi sang Xanh, còn
+$Y@(2,2)$ của tia ngang \emph{vẫn Vàng}. Tình huống này được minh hoạ
+trực quan ở Hình~\ref{fig:capture} và Bảng~\ref{tab:capture_rays}.
+
+\subsection{Phần thưởng}
+\label{ssec:reward}
+
+Cỡ của hành động là số quân nó ăn, $|a|:=|F_\delta|$ (bằng $0$ nếu
+$\delta=\varnothing$). Phần thưởng từng bước là tổng-zero:
+\begin{equation}
+\boxed{\;r_c(s,a)=+|a|,\qquad r_{\bar c}(s,a)=-|a|\;}
+\qquad (c=\mathrm{turn}).
+\label{eq:reward}
+\end{equation}
+Bốn hệ quả ``kế toán''---tất cả đều là hệ quả của \emph{ăn $=$ đổi phe}:
+\begin{enumerate}[label=(\arabic*),noitemsep,topsep=2pt]
+  \item \textbf{Tổng-zero từng bước:} $r_{\mathrm Y}(s,a)+r_{\mathrm G}(s,a)=0$.
+  \item \textbf{Ăn $k$ quân đổi chênh lệch quân số $2k$:} mình $+k$,
+        địch $-k$ cùng lúc.
+  \item \textbf{Tổng luôn là 28:} bất biến~\eqref{eq:conservation} ở mọi
+        trạng thái.
+  \item \textbf{Bảng điểm chính là bàn cờ:} dọc ván
+        $s_0,a_0,s_1,\dots,s_t$,
+        \begin{equation}
+        N_c(s_t)=14+\sum_{k=0}^{t-1} r_c(s_k,a_k);
+        \label{eq:scoreboard}
+        \end{equation}
+        đếm quân mỗi phe tại bất kỳ lúc nào là đọc được tổng phần thưởng
+        tích luỹ của phe đó.
+\end{enumerate}
+Khi ván kết thúc, phe thắng nhận $+W$, phe thua $-W$ với $W>0$ là hằng số
+trừu tượng (giá trị cụ thể do từng cài đặt chọn); tổng phần thưởng cả ván
+của hai phe luôn bằng $0$.
+
+\subsection{Hàm chuyển $T$}
+\label{ssec:transition}
+
+Cho $s=(b,\mathrm{turn})$, $a=(x,x',\delta)$, $c=\mathrm{turn}$. Một
+nước đi diễn ra theo ba bước.
+
+\noindent\textbf{Bước 1---nhảy.} Quân rời $x$, đáp $x'$:
+\begin{equation}
+b'(y)=\begin{cases}\varnothing & y=x,\\ c & y=x',\\ b(y) & \text{ô khác}.\end{cases}
+\label{eq:t1}
+\end{equation}
+\textbf{Bước 2---lật theo hướng đã chọn.} Mọi quân trong $F_\delta$ đổi
+sang màu $c$ (nếu $\delta=\varnothing$ thì không lật gì):
+\begin{equation}
+b''(y)=\begin{cases}c & y\in F_\delta,\\ b'(y) & \text{ô khác}.\end{cases}
+\label{eq:t2}
+\end{equation}
+\textbf{Bước 3---đổi lượt.}
+\begin{equation}
+\boxed{\;T(s,a)=(b'',\,\bar c).\;}
+\label{eq:t3}
+\end{equation}
+$T$ là hàm \emph{tất định}---không có yếu tố ngẫu nhiên nào trong cờ này.
+
+\subsection{Điều kiện kết thúc}
+\label{ssec:terminal}
+
+Phe $c$ \emph{sống} ở trạng thái $s$ khi còn ít nhất một quân còn nước
+nhảy:
+\begin{equation}
+\mathrm{alive}(c,s)\iff \exists\,x:\ b(x)=c\ \wedge\ \mathrm{Jumps}(x,b)\neq\varnothing.
+\label{eq:alive}
+\end{equation}
+\begin{equation}
+\boxed{\;\text{Đến lượt phe nào mà phe đó không còn sống}
+\ \Rightarrow\ \text{phe đó thua ngay, phe kia thắng.}\;}
+\label{eq:terminal}
+\end{equation}
+Hai cách thua tương ứng (Hình~\ref{fig:endgame}): \textbf{hết quân} (cả
+14 quân gốc lẫn quân từng ăn được đều đã bị đổi phe) hoặc \textbf{bị phong
+toả} (còn quân nhưng không quân nào nhảy được). Một phe tạm hết nước khi
+\emph{chưa} tới lượt mình thì chưa thua---chỉ xét đúng lúc đến lượt. Chế
+độ 2 người \emph{không có hoà}.
+
+\subsection{Chặn trên độ phức tạp}
+\label{ssec:complexity}
+
+Định luật Bảo toàn~\eqref{eq:conservation} cho phép chặn kích thước không
+gian trạng thái khá gọn. Loại quân bất biến nên luôn có đúng 20 quân đỉnh
+(trên 25 ô đỉnh) và 8 quân tâm (trên 16 ô tâm); mỗi quân mang một trong
+hai màu. Bỏ qua tính khả đạt, số cấu hình bàn bị chặn bởi
+\begin{equation}
+|\mathcal S| \;\le\; 2\cdot
+\underbrace{\binom{25}{20}2^{20}}_{\text{lớp đỉnh}}\cdot
+\underbrace{\binom{16}{8}\,2^{8}}_{\text{lớp tâm}}
+\;\approx\; 3.7\times10^{17},
+\label{eq:statespace}
+\end{equation}
+(thừa số $2$ cho lượt đi). Đây là chặn trên lỏng---nhỏ hơn nhiều bậc so
+với Cờ Đam ($\sim5\times10^{20}$, đã giải~\citep{schaeffer2007checkers})
+---cho thấy chế độ 2 người nằm trong tầm tìm kiếm heuristic mà không cần
+học sâu.
+
+Về \emph{branching factor}, một hành động là bộ ba $(x,x',\delta)$. Mỗi
+phe có tối đa 14 quân; quân đỉnh có $\le 8$ ô đáp, quân tâm $\le 4$; mỗi
+ô đáp cho $\le 8$ hướng ăn nhưng chỉ chọn một (hoặc không ăn). Do đó số
+hành động ở một trạng thái bị chặn lỏng bởi
+\begin{equation}
+|\mathcal A(s)| \;\le\; 14\cdot 8\cdot(8+1) \;=\; 1008 .
+\label{eq:branchbound}
+\end{equation}
+Ràng buộc cú nhảy~\eqref{eq:jump} (cần bệ \emph{và} ô đáp trống) khiến
+branching factor thực tế nhỏ hơn nhiều; giá trị đo đạc được báo cáo ở
+Mục~\ref{sec:eval}.
+
+\subsection{Trò chơi trong một dòng}
+\label{ssec:onelinerule}
+
+Gộp lại, mô hình hoàn chỉnh là bộ
+\begin{equation}
+\boxed{\;\mathcal G=\big(\mathcal S,\ \mathcal A,\ T,\ r,\ R,\ s_0\big)\;}
+\label{eq:game}
+\end{equation}
+---một trò chơi \emph{hai người, tổng-zero, thông tin hoàn hảo, lượt thay
+phiên, tất định}: trạng thái~\eqref{eq:state}, hành động $=$ nhảy $+$
+hướng ăn~\eqref{eq:action}, phần thưởng $=$ số quân ăn~\eqref{eq:reward},
+hàm chuyển~\eqref{eq:t3}, kết thúc~\eqref{eq:terminal}, xuất phát từ $s_0$.
+Mỗi phe tối đa hoá $\sum_t r_c(s_t,a_t)+(\pm W)$---ăn càng nhiều quân càng
+tốt, và trên hết là thắng.
+
+\paragraph{Hai cách đọc tác nhân.} Có thể coi \emph{hai người chơi} là
+tác nhân ra quyết định (chuẩn lý thuyết trò chơi), khi đó 28 quân là 28
+\emph{thực thể bền vững}: loại không đổi, vị trí và phe thay đổi, không bao
+giờ biến mất. Hoặc đọc theo kiểu \emph{28 quân là 28 tác nhân chia hai
+đội}---bị ăn nghĩa là một quân \emph{đào tẩu} sang đội đối phương; đội
+không mất tác nhân nào, chỉ mất lòng trung thành của quân ấy, và tổng hai
+đội vẫn là 28. Hai cách đọc mô tả cùng một $\mathcal G$; cách thứ hai nhấn
+mạnh đúng tinh thần ``luôn 28 quân, ăn là đổi phe''.

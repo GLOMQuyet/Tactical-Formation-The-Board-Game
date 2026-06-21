@@ -1,0 +1,2 @@
+depth,games,first_mover_wins,second_mover_wins,draws,first_winrate_pct,ci95_lo,ci95_hi
+2,100,36,60,4,38.0,28.5,47.5

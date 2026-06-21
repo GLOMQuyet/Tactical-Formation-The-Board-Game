@@ -1,0 +1,200 @@
+% !TeX root = ../main.tex
+% ─────────────────────────────────────────────────────────────
+%  ĐÁNH GIÁ THỰC NGHIỆM — số liệu thật từ experiments/run_eval.py
+%  CSV nguồn: experiments/results/{branching,tournament,elo,timing,antirep}.csv
+% ─────────────────────────────────────────────────────────────
+\section{Đánh Giá Thực Nghiệm}
+\label{sec:eval}
+
+Mục này định lượng ba khía cạnh của Tactical Formation: (i) độ phức tạp
+không gian trạng thái qua \emph{branching factor}, (ii) sức mạnh tương
+đối của AI qua giải đấu bot-vs-bot, và (iii) hiệu năng thời gian thực.
+Mục tiêu là xác nhận không gian nước đi \emph{đủ rộng và không suy biến}
+(branching factor), và rằng độ sâu tìm kiếm \emph{thực sự chuyển hoá thành
+sức mạnh chơi} (độ sâu lớn hơn thắng độ sâu nhỏ hơn một cách ổn định)---chính
+sự phân tách theo kỹ năng này, chứ không phải branching factor, mới là bằng
+chứng cho chiều sâu chiến thuật.
+
+\subsection{Thiết Lập Thí Nghiệm}
+\label{sec:eval_setup}
+
+Mọi thí nghiệm chạy trên CPU AMD Ryzen~7 6800H (16 luồng, 7{,}4\,GB RAM),
+Python~3.12 trên Linux (WSL2); tìm kiếm AI chạy đơn luồng. Mã đo đạc nằm ở
+\texttt{experiments/} trong kho mã nguồn mở, mọi seed ngẫu nhiên cố định để
+tái lập. Mỗi cặp đấu gồm 50 ván; để khử lợi thế tay đi đầu, hai bot luân
+phiên đi đầu (mỗi bên đi đầu 25 ván). Bot dùng cùng hàm đánh giá
+ở Phương trình~\eqref{eq:eval}, chỉ khác độ sâu tìm kiếm. Do mỗi nước ở độ
+sâu~6 tốn vài giây trên thông dịch Python thuần (xem
+Mục~\ref{sec:eval_timing}), số ván được chọn ở mức 50/cặp---đủ để chênh lệch
+do độ sâu hiện ra rõ ràng mà vẫn nằm trong ngân sách tính toán.
+
+\subsection{Branching Factor và Không Gian Trạng Thái}
+\label{sec:eval_branching}
+
+Bảng~\ref{tab:branching} báo cáo số nước đi hợp lệ trung bình (branching
+factor), trên hơn $11{,}5$ nghìn thế cờ mẫu mỗi chế độ, phân theo giai
+đoạn ván (đầu/giữa/cuối theo phần ba độ dài ván). Các thế cờ mẫu được sinh
+bằng \emph{lối chơi ngẫu nhiên hợp lệ} (mỗi lượt chọn đều một nước trong
+tập nước hợp lệ); do đó các con số phản ánh phân phối thế cờ dưới lối chơi
+ngẫu nhiên, có thể lệch nhẹ so với phân phối thế cờ xuất hiện giữa hai bot
+mạnh, nhưng cho ước lượng không thiên vị về bề rộng cây trò chơi.
+
+\begin{table}[H]
+  \centering
+  \caption{Branching factor trung bình (số nước di chuyển hợp lệ) theo giai
+  đoạn và chế độ chơi. Tính cả lựa chọn hướng kẹp, số \emph{hành động} đầy
+  đủ chỉ cao hơn không đáng kể (2 người $\approx 11{,}5$; 3 người
+  $\approx 14{,}2$; 4 người $\approx 12{,}1$).}
+  \label{tab:branching}
+  \begin{tabular}{lccc}
+    \toprule
+    \textbf{Giai đoạn} & \textbf{2 người} & \textbf{3 người} & \textbf{4 người} \\
+    \midrule
+    Đầu ván  & 11.2 & 13.7 & 11.9 \\
+    Giữa ván & 11.2 & 14.1 & 11.8 \\
+    Cuối ván & 11.1 & 14.1 & 11.7 \\
+    \midrule
+    \textbf{Trung bình ván} & 11.2 & 13.9 & 11.8 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\noindent Branching factor trung bình ($\approx 11$--$14$) cao hơn Cờ Đam
+($\approx 8$) và ngang hoặc nhỉnh hơn Reversi ($\approx 10$), và đáng chú ý
+là khá \emph{ổn định} qua các giai đoạn ván---hệ quả của bất biến bảo toàn
+quân số: số quân (và do đó số nước nhảy tiềm năng) không cạn dần như ở các
+game có loại quân. Chế độ 3 người có branching cao nhất do bàn rộng hơn và
+ba phe cùng sinh nước. Các giá trị này nằm xa dưới chặn trên giải tích
+$|\mathcal A(s)|\le 1008$ (Phụ lục~\ref{app:formal}), xác nhận ràng buộc cú
+nhảy thắt chặt không gian nước đi thực tế. Cần nhấn mạnh: branching factor
+đo \emph{bề rộng} của cây trò chơi, không trực tiếp đo \emph{chiều sâu}
+chiến thuật; nó chỉ cho thấy không gian nước đi đủ phong phú và không suy
+biến về cuối ván. Bằng chứng cho chiều sâu chiến thuật---rằng các quyết
+định thực sự có ý nghĩa---đến từ giải đấu ở Mục~\ref{sec:eval_tournament}.
+
+\subsection{Giải Đấu Bot-vs-Bot}
+\label{sec:eval_tournament}
+
+Để kiểm tra AI khai thác được độ sâu tìm kiếm, chúng tôi cho các bot
+khác độ sâu đấu đối kháng (Bảng~\ref{tab:tournament}).
+
+\begin{table}[H]
+  \centering
+  \caption{Kết quả bot-vs-bot, chế độ 2 người (A là bên độ sâu cao hơn;
+  mỗi cặp 50 ván, luân phiên đi đầu 25/25). Khoảng tin cậy 95\% của
+  win-rate tính theo phương pháp Wilson. Không có ván hòa nào trong cả ba
+  cặp.}
+  \label{tab:tournament}
+  \begin{tabular}{lcccccc}
+    \toprule
+    \textbf{Cặp đấu (độ sâu)} & \textbf{Số ván} & \textbf{Thắng A}
+      & \textbf{Hòa} & \textbf{Thắng B} & \textbf{Win-rate A}
+      & \textbf{CI 95\%} \\
+    \midrule
+    d=6 vs d=2 & 50 & 50 & 0 & 0 & 100.0\,\% & [92.9,\,100.0] \\
+    d=6 vs d=4 & 50 & 43 & 0 & 7 & 86.0\,\% & [73.8,\,93.0] \\
+    d=4 vs d=2 & 50 & 45 & 0 & 5 & 90.0\,\% & [78.6,\,95.7] \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Ước lượng Elo.}
+Từ win-rate $p$ của bên mạnh, chênh lệch Elo ước lượng theo
+$\Delta\mathrm{Elo} = -400\,\log_{10}(1/p - 1)$. Lấy bot độ sâu~2 làm
+mốc 1000 Elo, ta thu được thang Elo tương đối trong Bảng~\ref{tab:elo}.
+Cặp d=4 vs d=2 (90{,}0\%) cho $\Delta\mathrm{Elo}\approx{+}382$, còn cặp
+d=6 vs d=4 (86{,}0\%) cho ${+}315$; ghép chuỗi, bot độ sâu~6 cao hơn độ
+sâu~2 khoảng ${+}697$ Elo.\footnote{Cặp d=6 vs d=2 thắng tuyệt đối
+(100\%) khiến công thức logistic phân kỳ ($p\to1$ làm
+$\Delta\mathrm{Elo}\to\infty$), nên chỉ cho \emph{cận dưới} chứ không phải
+một giá trị Elo hữu hạn; vì vậy chúng tôi ước lượng Elo của độ sâu~6 qua
+chuỗi d=2\,$\to$\,d=4\,$\to$\,d=6 đáng tin hơn.}
+
+\begin{table}[H]
+  \centering
+  \caption{Thang Elo tương đối của AI theo độ sâu (chế độ 2 người).}
+  \label{tab:elo}
+  \begin{tabular}{lc}
+    \toprule
+    \textbf{Cấu hình bot} & \textbf{Elo ước lượng} \\
+    \midrule
+    Độ sâu 2 (mốc) & 1000 \\
+    Độ sâu 4        & 1382 \\
+    Độ sâu 6        & $\approx 1697$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Lợi thế tay đi đầu.}
+Để dò một khía cạnh cân bằng cơ bản của chế độ 2 người, chúng tôi cho hai
+bot \emph{cùng độ sâu} ($d{=}2$) tự đánh 100 ván (seed cố định). Kết quả
+đáng chú ý: bên đi \emph{sau} (Vàng) thắng 60 ván, bên đi \emph{trước}
+(Xanh) thắng 36 ván, 4 hòa---tỉ lệ thắng của bên đi trước chỉ
+$38{,}0\%$ (khoảng tin cậy Wilson 95\% trên các ván phân thắng
+$[28{,}5,\,47{,}5]$, nằm trọn dưới $50\%$). Như vậy ở độ sâu 2, \emph{đi
+sau có lợi thế} một cách có ý nghĩa thống kê---trực giác hợp lý cho một
+game kẹp-lật, nơi đi sau cho phép phản đòn sau khi đối thủ đã lộ thế. Đây
+là quan sát ở \emph{một} độ sâu cố định; lợi thế này có thể thay đổi theo
+độ sâu và là hướng khảo sát cân bằng tiếp theo.
+
+\subsection{Hiệu Năng Thời Gian Thực}
+\label{sec:eval_timing}
+
+Bảng~\ref{tab:timing} báo cáo thời gian suy nghĩ mỗi nước đo thực tế,
+bổ sung cho các mục tiêu thiết kế ở Bảng~\ref{tab:ai_params}.
+
+\begin{table}[H]
+  \centering
+  \caption{Thời gian mỗi nước đo thực tế (giây), $n=30$ nước mỗi cấu hình.}
+  \label{tab:timing}
+  \begin{tabular}{lccc}
+    \toprule
+    \textbf{Chế độ (độ sâu)} & \textbf{Trung vị} & \textbf{Bách phân vị 95}
+      & \textbf{Tối đa} \\
+    \midrule
+    2 người (d=6) & 3.76 & 5.90 & 6.98 \\
+    3 người (d=4) & 0.49 & 0.90 & 0.95 \\
+    4 người (d=3) & 0.07 & 0.13 & 0.17 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Thảo Luận Kết Quả}
+\label{sec:eval_discussion}
+
+Ba quan sát nổi lên từ các số đo trên.
+
+\textbf{(1) Không gian nước đi rộng và không suy biến.} Branching factor
+$\approx 11$--$14$ (Bảng~\ref{tab:branching}) cho thấy mỗi lượt có nhiều
+lựa chọn ý nghĩa, đồng thời \emph{ổn định} qua các giai đoạn ván---hệ quả
+trực tiếp của bất biến bảo toàn quân số, khác hẳn các game có loại quân nơi
+branching cạn dần về cuối ván. Trò chơi vì vậy không bị suy biến thành tàn
+cuộc đơn giản. Bản thân branching không chứng minh chiều sâu chiến thuật;
+nó đặt điều kiện cần (không gian không tầm thường), còn bằng chứng đủ đến
+từ quan sát (2).
+
+\textbf{(2) Độ sâu tìm kiếm chuyển hoá thành sức mạnh chơi (bằng chứng cho
+chiều sâu chiến thuật).} Win-rate xếp hạng đơn điệu theo độ sâu---d=6 thắng
+d=2 tuyệt đối (100\%), d=4 thắng d=2 (90\%), và d=6 thắng d=4 (86\%)
+(Bảng~\ref{tab:tournament})---với \emph{không một ván hòa nào}, và các
+khoảng tin cậy 95\% đều nằm trên $50\%$ một cách rõ rệt. Việc nhìn xa hơn
+mang lại lợi thế hệ thống chứng tỏ các quyết định trong Tactical Formation
+\emph{có hệ quả dài hạn}---dấu hiệu của chiều sâu chiến thuật---và hàm đánh
+giá kết hợp tìm kiếm Minimax là ``có nghĩa'', không phải nhiễu ngẫu nhiên.
+Thang Elo (Bảng~\ref{tab:elo}) định lượng khoảng cách: mỗi hai bậc độ sâu
+tương ứng $\approx 300$--$380$ Elo. Cần lưu ý đây là thang \emph{nội tại}
+(neo tương đối giữa các bot cùng engine), không phải Elo neo theo người
+chơi hay một đối thủ ngoài; nó chứng minh sức mạnh \emph{tương đối} tăng
+theo độ sâu, chứ không khẳng định chất lượng tuyệt đối của AI.
+
+\textbf{(3) Hiệu năng thời gian thực.} Chế độ 3 và 4 người đạt dưới
+$1$~giây mỗi nước (trung vị $0{,}49$\,s và $0{,}07$\,s), thoải mái cho
+tương tác. Tuy nhiên chế độ 2 người ở độ sâu~6 tốn trung vị $3{,}76$\,s và
+tối đa gần $7$\,s mỗi nước trên thông dịch Python thuần đơn luồng---vượt
+ngưỡng phản hồi tức thì. Đây là một đánh đổi sức mạnh--tốc độ mà chúng tôi
+thảo luận ở Mục~\ref{sec:limitations}, cùng các hướng giảm thiểu (hạ độ
+sâu thích ứng, tìm kiếm theo thời gian, hoặc cài đặt biên dịch).
+
+Tóm lại, thực nghiệm xác nhận cả hai mục tiêu đặt ra ở đầu mục: trò chơi
+\emph{có} chiều sâu chiến thuật đo được và AI \emph{chơi hợp lý}, với chi
+phí thời gian rõ ràng cho cấu hình tìm kiếm sâu nhất.

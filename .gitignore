@@ -184,5 +184,10 @@ paper/*.fdb_latexmk
 paper/*.fls
 paper/sections/*.aux
 paper/figures/*.aux
-paper/
+paper/*.pdf
+paper/*.xdv
+
+# Experiment run logs (keep the CSVs, drop the noisy logs)
+experiments/results/*.log
+experiments/results_full.log
 

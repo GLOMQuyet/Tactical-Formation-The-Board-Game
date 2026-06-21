@@ -1,0 +1,32 @@
+% !TeX root = ../main.tex
+\section{Hạn Chế}
+\label{sec:limitations}
+
+Phần mềm hiện chưa có chế độ online nhiều người chơi từ xa. Hàm đánh
+giá của AI chỉ dùng hai yếu tố (quân số và mobility); các yếu tố chiến
+lược sâu hơn như kiểm soát trung tâm, đe dọa nhiều hướng, hay giá trị
+vị trí (positional value) chưa được mô hình hóa.
+
+Mô hình toán học hình thức ở Phụ lục~\ref{app:formal} chỉ đầy đủ cho chế
+độ 2 người. Phần mở rộng sang 3 và 4 người chỉ được đặc tả ở mức cấu hình
+(kích thước bàn, vị trí xuất phát---Phụ lục~\ref{app:notation}) chứ chưa
+được phân tích lý thuyết, đặc biệt là các tính chất cân bằng của ván nhiều
+người. Đáng chú ý, cấu hình xuất phát hiện tại của chế độ 3 người
+\emph{không cân đối}: hai phe có 13 quân còn phe thứ ba có 14 quân---một
+bất đối xứng cần được khảo sát và có thể hiệu chỉnh trong nghiên cứu cân
+bằng tương lai.
+
+Giải đấu bot-vs-bot ở Mục~\ref{sec:eval} mới chỉ so các độ sâu tìm kiếm
+trong chế độ 2 người. Phép đo lợi thế tay đi đầu
+(Mục~\ref{sec:eval_tournament}) cũng chỉ ở chế độ 2 người và tại một độ
+sâu cố định ($d{=}2$, nơi bên đi sau tỏ ra có lợi thế); chưa có nghiên cứu
+định lượng về độ cân bằng giữa các màu trong chế độ 3 và 4 người---câu hỏi
+liệu màu đi trước/đi sau có lợi thế hệ thống ở các độ sâu khác, hay chiến
+lược liên minh ngầm có ổn định, còn để mở.
+
+Về điều kiện kết thúc, chế độ 2 người \emph{không} có luật hoà do lặp thế:
+trên lý thuyết hai phe có thể chơi vô hạn mà không phe nào bị phong toả
+(cài đặt đặt \texttt{max\_stalemate} cho riêng chế độ 3--4 người). Cơ chế
+phạt lặp thế của AI (Mục~\ref{ssec:pitfalls}) làm điều này hiếm trong thực
+tế nhưng không loại trừ về mặt luật; một luật hoà do lặp thế là hướng bổ
+sung tự nhiên.

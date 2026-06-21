@@ -1,0 +1,56 @@
+% ============================================================
+%  Tactical Formation — Cờ Trận
+%  Entry point — chỉ \input các module
+%  Compile: xelatex main && bibtex main && xelatex main && xelatex main
+% ============================================================
+
+\input{preamble}
+
+% ── Title block ──────────────────────────────────────────────
+\title{%
+  \textbf{Tactical Formation:}\\[0.3em]
+  \textbf{Trò Chơi Cờ Chiến Thuật Trừu Tượng Dành Cho 2--4 Người Chơi}\\[0.3em]
+  \textbf{Với Cơ Chế Di Chuyển Và Lật Quân Kết Hợp}
+}
+\author{%
+  Trương Văn Quyết%
+  \thanks{Tác giả liên hệ: \href{mailto:quyetops@gmail.com}{quyetops@gmail.com}}
+}
+\affil{Independent Researcher, Việt Nam}
+\date{\today}
+
+% ─────────────────────────────────────────────────────────────
+\begin{document}
+% ─────────────────────────────────────────────────────────────
+
+\maketitle
+
+\input{sections/00_abstract}
+
+\vspace{0.8em}
+\hrule
+\vspace{0.4em}
+
+\tableofcontents
+\newpage
+
+\input{sections/01_introduction}
+\input{sections/02_related_work}
+\input{sections/04_rules}
+\input{sections/05_variants}
+\input{sections/06_ai}
+\input{sections/07_implementation}
+\input{sections/075_evaluation}
+\input{sections/08_limitations}
+\input{sections/09_conclusion}
+
+% ── Phụ lục ──────────────────────────────────────────────────────
+\appendix
+\input{sections/03_formal_model}
+\input{sections/11_appendix}
+
+\input{sections/10_disclosures}
+
+\bibliography{references}
+
+\end{document}

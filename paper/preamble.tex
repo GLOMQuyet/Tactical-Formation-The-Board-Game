@@ -1,0 +1,92 @@
+% !TeX root = main.tex
+% ============================================================
+%  Tactical Formation — Preamble
+%  Compile (XeLaTeX, mặc định):
+%    xelatex main && bibtex main && xelatex main && xelatex main
+%  Để dùng pdfLaTeX: comment block "XeLaTeX" và bỏ comment block "pdfLaTeX".
+% ============================================================
+
+\documentclass[12pt, a4paper]{article}
+
+% ── Encoding & Language (tự nhận engine) ─────────────────────
+% Tự phát hiện trình biên dịch: chạy được với CẢ pdfLaTeX (mặc định
+% Overleaf) lẫn XeLaTeX/LuaLaTeX. Không cần đổi gì khi chuyển engine.
+\usepackage{iftex}
+\ifPDFTeX
+  % pdfLaTeX: tiếng Việt qua T5 + babel
+  \usepackage[utf8]{inputenc}
+  \usepackage[T5]{fontenc}
+  \usepackage{lmodern}
+  \usepackage[english,main=vietnamese]{babel}
+\else
+  % XeLaTeX / LuaLaTeX: tiếng Việt qua fontspec + polyglossia
+  \usepackage{fontspec}
+  \usepackage{polyglossia}
+  \setdefaultlanguage{vietnamese}
+  \setotherlanguage{english}
+  % Font Latin Modern có đủ dấu tiếng Việt; nếu hệ không có, thay
+  % bằng `\setmainfont{TeX Gyre Termes}` hoặc `\setmainfont{Noto Serif}`.
+  \setmainfont{Latin Modern Roman}
+\fi
+
+% ── Page Layout ──────────────────────────────────────────────
+\usepackage[top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm]{geometry}
+
+% ── Math ─────────────────────────────────────────────────────
+\usepackage{amsmath, amssymb}
+
+% ── Tables ───────────────────────────────────────────────────
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+
+% ── Graphics & Diagrams ──────────────────────────────────────
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric}
+\usepackage{graphicx}
+\usepackage{float}
+
+% ── Colors ───────────────────────────────────────────────────
+\usepackage{xcolor}
+\definecolor{vertexcolor}{RGB}{50,  100, 200}
+\definecolor{centercolor}{RGB}{200, 80,  50}
+\definecolor{yellowpiece}{RGB}{240, 200, 0}
+\definecolor{greenpiece} {RGB}{50,  180, 80}
+
+% ── Author / Affiliation ─────────────────────────────────────
+\usepackage{authblk}
+
+% ── Bibliography (APA 7 qua natbib) ──────────────────────────
+\usepackage[round]{natbib}
+\bibliographystyle{apalike}
+
+% ── Hyperlinks ───────────────────────────────────────────────
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks = true,
+  linkcolor  = blue,
+  urlcolor   = blue,
+  citecolor  = blue,
+  pdftitle   = {Tactical Formation: Tro Choi Co Chien Thuat Truou Tuong
+                Danh Cho 2-4 Nguoi Choi},
+  pdfauthor  = {[TEN TAC GIA]}
+}
+
+% ── Pseudocode ───────────────────────────────────────────────
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+% ── Code Listings ────────────────────────────────────────────
+\usepackage{listings}
+\lstset{basicstyle=\ttfamily\small, breaklines=true,
+        frame=single, captionpos=b}
+
+% ── Misc ─────────────────────────────────────────────────────
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{setspace}
+\onehalfspacing
+
+% ── Macro vẽ bàn cờ (figures/board.tex) ──────────────────────
+\input{figures/board}

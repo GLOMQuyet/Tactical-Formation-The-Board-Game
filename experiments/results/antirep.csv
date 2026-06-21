@@ -1,0 +1,3 @@
+config,games,repeated_positions,total_plies,repeat_rate_pct
+no_antirep,40,1880,5040,37.3
+with_antirep,40,0,4069,0.0

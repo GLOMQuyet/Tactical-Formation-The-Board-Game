@@ -1,0 +1,23 @@
+% !TeX root = ../main.tex
+% Figure: Cơ chế nhảy — trước và sau khi quân Vàng nhảy qua quân Xanh
+\begin{tikzpicture}[scale=1.2]
+  \node[font=\small,above] at (1,1.2) {\textbf{Trước}};
+  \filldraw[fill=yellowpiece,draw=black](0,0) circle(10pt)
+    node[font=\tiny,white]{V};
+  \filldraw[fill=greenpiece, draw=black](1,0) circle(10pt)
+    node[font=\tiny,white]{X};
+  \draw[gray,dashed](2,0) circle(10pt);
+  \draw[gray!40](-0.5,0)--(2.5,0);
+  \draw[-{Stealth},thick,color=yellowpiece]
+    (0.15,0.18) to[bend left=35] (1.85,0.18);
+  %
+  \begin{scope}[xshift=5cm]
+    \node[font=\small,above] at (1,1.2) {\textbf{Sau}};
+    \draw[gray,dashed](0,0) circle(10pt);
+    \filldraw[fill=greenpiece, draw=black](1,0) circle(10pt)
+      node[font=\tiny,white]{X};
+    \filldraw[fill=yellowpiece,draw=black](2,0) circle(10pt)
+      node[font=\tiny,white]{V};
+    \draw[gray!40](-0.5,0)--(2.5,0);
+  \end{scope}
+\end{tikzpicture}

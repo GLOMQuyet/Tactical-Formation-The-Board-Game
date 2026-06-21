@@ -1,0 +1,72 @@
+% !TeX root = ../main.tex
+\section{Các Game Liên Quan}
+\label{sec:related}
+
+\subsection{Cờ Đam (Checkers / Draughts)}
+
+Cờ Đam~\citep{schaeffer2007checkers} là game chiến thuật 2 người trên bàn
+8{\texttimes}8. Quân di chuyển theo đường chéo và nhảy qua quân đối thủ
+để ăn---quân bị ăn bị loại khỏi bàn. Tactical Formation giữ lại cơ chế
+nhảy nhưng bỏ việc loại quân: quân bị nhảy qua trở thành thành phần
+chiến lược thay vì bị xóa.
+
+\subsection{Reversi / Othello}
+
+Reversi là game 2 người trên bàn 8{\texttimes}8; chương trình Logistello
+của \citet{buro1997othello} từng đánh bại nhà vô địch thế giới và đánh
+dấu cột mốc AI cho game này. Người chơi đặt quân mới và lật tất cả quân
+đối thủ bị kẹp theo đường thẳng. Tactical Formation giữ cơ chế lật quân
+sandwich nhưng thay vì đặt quân mới, người chơi phải \emph{di chuyển quân
+hiện có}. Ràng buộc này giới hạn đáng kể số nước khả dụng và thêm chiều
+sâu về bố trí quân (positioning).
+
+\subsection{Thiết Kế Game Cờ Trừu Tượng Mới}
+
+Việc đề xuất một game cờ trừu tượng mới kèm phân tích bằng AI là một
+dòng nghiên cứu đã có tiền lệ. Hệ thống \emph{Ludi} của
+\citet{browne2010evolutionary} sinh tự động các luật game cờ trừu tượng
+mới qua tiến hóa và đánh giá chất lượng game; một trong các kết quả của
+nó---\emph{Yavalath}---kết hợp hai cơ chế cổ điển (xếp hàng để thắng và
+phản-thắng) và đã được xuất bản thương mại~\citep{browne2012yavalath}.
+Tuy nhiên, theo hiểu biết của chúng tôi, chưa có công trình nào lai cơ
+chế \emph{nhảy} của Cờ Đam với cơ chế \emph{kẹp lật} của Reversi, cũng
+như mở rộng lớp game Reversi-like sang nhiều người chơi---khoảng trống
+mà bài báo này hướng tới.
+
+\subsection{Các Game Di Chuyển Quân Khác}
+
+Hai game cờ trừu tượng khác làm rõ vị trí của Tactical Formation trong
+phổ thiết kế. \emph{Lines of Action}---game 2 người trên bàn
+8{\texttimes}8 do Claude Soucie thiết kế, được mô tả trong tuyển tập của
+\citet{sackson1969gamut}---cũng \emph{di chuyển quân hiện có} thay vì đặt
+quân mới, và lấy việc \emph{kết nối bố trí} quân làm mục tiêu thắng; trò
+chơi này đã được nghiên cứu sâu bằng tìm kiếm cây Monte
+Carlo~\citep{winands2010loa}. Tuy nhiên, quân bị bắt trong Lines of Action
+vẫn bị \emph{loại} khỏi bàn như ở Cờ Đam. \emph{Focus} (còn gọi
+\emph{Domination}) của Sid Sackson~\citep{sackson1969gamut} lại gần với
+Tactical Formation ở một điểm khác: quân bị bắt \emph{không bị xóa vĩnh
+viễn} mà được giữ lại và có thể quay trở lại bàn cờ---một tiền lệ thiết kế
+cho ý tưởng ``bắt quân là chuyển hóa, không phải loại bỏ''. Tactical
+Formation hợp nhất hai nét này---di chuyển quân hiện có \emph{và} bảo toàn
+quân số---rồi bổ sung cơ chế kẹp-lật kiểu Reversi và mở rộng lên tới 4
+người chơi.
+
+\subsection{So Sánh Tổng Quan}
+
+\begin{table}[H]
+  \centering
+  \caption{So sánh Tactical Formation với các game cờ liên quan.}
+  \label{tab:comparison}
+  \begin{tabular}{lccc}
+    \toprule
+    \textbf{Đặc điểm} & \textbf{Cờ Đam} & \textbf{Reversi}
+                      & \textbf{Tactical Formation} \\
+    \midrule
+    Cách di chuyển   & Nhảy qua quân  & Đặt quân mới & Nhảy qua quân \\
+    Quân bị nhảy qua & Bị loại        & ---          & Còn trên bàn  \\
+    Cách bắt quân    & Nhảy trực tiếp & Sandwich     & Sandwich sau nhảy \\
+    Số người chơi    & 2              & 2            & 2, 3, hoặc 4  \\
+    Số lớp vị trí    & 1              & 1            & 2 (đỉnh + tâm) \\
+    \bottomrule
+  \end{tabular}
+\end{table}

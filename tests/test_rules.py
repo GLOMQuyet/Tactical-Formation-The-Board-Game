@@ -168,5 +168,90 @@ class TestMissingCells(unittest.TestCase):
         self.assertEqual(MODE_PLAY_2.missing_cells, ())
 
 
+class TestMakeUnmake(unittest.TestCase):
+    def test_round_trip_restores_board_and_hash(self):
+        import random as _r
+        rng = _r.Random(123)
+        s = _make(MODE_PLAY_2)
+        board = s.board
+        before_state = sorted((p.x, p.y, p.color) for p in board.pieces)
+        before_hash = board._hash
+
+        color = 'green'
+        tokens = []
+        for _ in range(8):
+            moves = rules.expanded_moves(color, board, MODE_PLAY_2)
+            if not moves:
+                break
+            move, cd, _n = rng.choice(moves)
+            tokens.append(rules.make_move(board, move, MODE_PLAY_2, cd))
+            color = 'yellow' if color == 'green' else 'green'
+
+        # hash actually changed mid-sequence (sanity: we did something)
+        self.assertTrue(tokens)
+
+        for tok in reversed(tokens):
+            rules.unmake_move(board, tok)
+
+        after_state = sorted((p.x, p.y, p.color) for p in board.pieces)
+        self.assertEqual(before_state, after_state)
+        self.assertEqual(before_hash, board._hash)
+        # index stays consistent with piece positions
+        self.assertEqual(len(board._index), len(board.pieces))
+        for p in board.pieces:
+            self.assertIs(board.piece_at((p.x, p.y)), p)
+
+    def test_apply_move_returns_moved_and_flipped_list(self):
+        # green at (4,0) jumps left over (3,0) onto (2,0); at (2,0) it sandwiches
+        # yellow@(1,0) against green@(0,0) -> one flip.
+        pieces = [
+            Piece(0, 0, 'green'),   # anchor
+            Piece(1, 0, 'yellow'),  # to be flipped
+            Piece(3, 0, 'green'),   # jumped over
+            Piece(4, 0, 'green'),   # mover
+        ]
+        board = Board(pieces)
+        moved, flipped = rules.apply_move(board, (4, 0, 2, 0), MODE_PLAY_2)
+        self.assertIs(moved, board.piece_at((2, 0)))
+        self.assertEqual([f.color for f in flipped], ['green'])
+        self.assertIsNone(board.piece_at((4, 0)))
+        self.assertEqual(board.piece_at((1, 0)).color, 'green')
+
+
+class TestExpandedMoves(unittest.TestCase):
+    def test_multi_ray_landing_yields_one_entry_per_ray(self):
+        # green mover at (4,2) jumps left over (3,2) onto (2,2); from (2,2) it
+        # sandwiches yellow@(1,2)->green@(0,2)  AND  yellow@(2,1)->green@(2,0).
+        pieces = [
+            Piece(4, 2, 'green'),   # mover
+            Piece(3, 2, 'yellow'),  # jumped over (not captured)
+            Piece(1, 2, 'yellow'),  # flipped by left ray
+            Piece(0, 2, 'green'),   # left anchor
+            Piece(2, 1, 'yellow'),  # flipped by up ray
+            Piece(2, 0, 'green'),   # up anchor
+        ]
+        board = Board(pieces)
+        moves = rules.expanded_moves('green', board, MODE_PLAY_2)
+        entries = [m for m in moves if m[0] == (4, 2, 2, 2)]
+        self.assertEqual(len(entries), 2)
+        self.assertEqual({cd for (_mv, cd, _n) in entries}, {(-1, 0), (0, -1)})
+        # expanding must not corrupt the board (temp move is restored)
+        self.assertIs(board.piece_at((4, 2)), pieces[0])
+        self.assertIsNone(board.piece_at((2, 2)))
+
+
+class TestBestMoveContract(unittest.TestCase):
+    def test_minimax_returns_move_and_capture_direction(self):
+        from ai import minimax
+        s = _make(MODE_BOT_2)
+        result = minimax.best_move(s.board, 'yellow', MODE_BOT_2, depth=2)
+        self.assertIsNotNone(result)
+        move, cd = result
+        self.assertEqual(len(move), 4)
+        legal = {(fx, fy, tx, ty) for (fx, fy, tx, ty) in
+                 rules.all_moves('yellow', s.board, MODE_BOT_2)}
+        self.assertIn(move, legal)
+
+
 if __name__ == '__main__':
     unittest.main()

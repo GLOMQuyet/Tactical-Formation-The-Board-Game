@@ -1,0 +1,4 @@
+# Overleaf đọc file này để chọn trình biên dịch.
+# 5 = xelatex (chất lượng tiếng Việt tốt nhất). Preamble vẫn fallback
+# pdfLaTeX qua iftex nếu cần, nên đổi giá trị này là an toàn.
+$pdf_mode = 5;

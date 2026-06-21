@@ -74,7 +74,7 @@ MODE_BOT_2 = Mode(
     bot_delay_ms=200,
     grid_rows=4, grid_cols=4, square_size=150,
     ai_engine='minimax',
-    ai_depth=5,
+    ai_depth=6,
 )
 
 # ── 3-player layouts ─────────────────────────────────────────────────────────

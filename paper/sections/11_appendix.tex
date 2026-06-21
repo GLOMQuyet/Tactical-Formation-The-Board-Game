@@ -1,0 +1,91 @@
+% !TeX root = ../main.tex
+\section{Bảng Tra Ký Hiệu}
+\label{app:notation}
+
+Bảng~\ref{tab:notation_full} liệt kê đầy đủ ký hiệu dùng trong mô hình
+toán học ở Phụ lục~\ref{app:formal}.
+
+\begin{table}[H]
+  \centering
+  \caption{Ký hiệu của mô hình hình thức (chế độ 2 người).}
+  \label{tab:notation_full}
+  \begin{tabular}{ll}
+    \toprule
+    \textbf{Ký hiệu} & \textbf{Ý nghĩa} \\
+    \midrule
+    $\mathcal B_{\mathsf V},\ \mathcal B_{\mathsf C},\ \mathcal B$
+      & lưới ô đỉnh (25), ô tâm (16), toàn bàn (41 ô) \\
+    $\kappa(\cdot)$
+      & loại (đỉnh $\mathsf V$ / tâm $\mathsf C$) của ô hoặc quân \\
+    $\mathrm Y,\ \mathrm G,\ \bar c,\ \varnothing$
+      & Vàng, Xanh, đối thủ của $c$, ô trống \\
+    $x_p,\ c_p$
+      & vị trí và phe hiện tại của quân $p$ \\
+    $P^{\mathrm Y}_0,\ P^{\mathrm G}_0$
+      & hai tập 14 ô xuất phát của Vàng / Xanh \\
+    $s=(b,\mathrm{turn})$
+      & trạng thái: cấu hình bàn $b$ và phe đến lượt; $s_0$ là trạng thái 0 \\
+    $N_c(s)$
+      & số quân phe $c$; luôn $N_{\mathrm Y}{+}N_{\mathrm G}=28$ \\
+    $D_{\mathsf V},\ D_{\mathsf C}$
+      & hướng đi của quân đỉnh / tâm (8 / 4 hướng) \\
+    $\Delta_{\mathsf V},\ \Delta_{\mathsf C}$
+      & hướng ăn của quân đỉnh / tâm (8 / 4 hướng) \\
+    $\mathrm{Jumps}(x,b)$
+      & các ô đáp hợp lệ của quân tại $x$ \\
+    $\mathcal A_{\mathrm{move}}(s),\ \mathcal A(s)$
+      & các cách di chuyển; tập hành động đầy đủ $(x,x',\delta)$ \\
+    $F_\delta,\ \Delta(s,x,x')$
+      & dãy quân bị ăn theo hướng $\delta$; tập các hướng ăn được \\
+    $|a|$
+      & cỡ hành động $=$ số quân ăn được $=|F_\delta|$ \\
+    $r_c(s,a)$
+      & phần thưởng từng bước: $+|a|$ phe đi, $-|a|$ phe kia \\
+    $W$
+      & phần thưởng kết cuộc $\pm W$, $W>0$ trừu tượng \\
+    $\mathrm{alive}(c,s)$
+      & phe $c$ còn quân và còn nước nhảy \\
+    $T(s,a)$
+      & hàm chuyển: nhảy $\to$ lật theo $\delta$ $\to$ đổi lượt \\
+    $\mathcal G$
+      & $(\mathcal S,\mathcal A,T,r,R,s_0)$---toàn bộ trò chơi \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Cấu Hình Xuất Phát Chế Độ Nhiều Người}
+\label{app:multistart}
+
+Để đặc tả luật chơi đầy đủ cho cả 2--4 người (đóng góp~(i)), phụ lục này
+liệt kê chính xác bàn cờ và vị trí xuất phát của chế độ 3 và 4 người, khớp
+với cài đặt mã nguồn mở. Toạ độ nguyên là ô đỉnh, nửa nguyên là ô tâm. Vị
+trí xuất phát chế độ 2 người đã cho ở~\eqref{eq:starty}--\eqref{eq:startg}.
+
+\paragraph{Chế độ 3 người.} Bàn $7\times6$ đỉnh ($x\in0\text{--}6$,
+$y\in0\text{--}5$); bốn ô bị loại (không đáp được):
+$(0,5),(0.5,4.5),(6,5),(5.5,4.5)$. Thứ tự lượt: Tím $\to$ Vàng $\to$ Xanh.
+\begin{itemize}[noitemsep,topsep=2pt]
+  \item \textbf{Vàng (13 quân):} đỉnh $(0,0\text{--}4)$ và $(1,0\text{--}3)$;
+        tâm $(0.5,0.5),(0.5,1.5),(0.5,2.5),(0.5,3.5)$.
+  \item \textbf{Xanh (13 quân):} đỉnh $(6,0\text{--}4)$ và $(5,0\text{--}3)$;
+        tâm $(5.5,0.5),(5.5,1.5),(5.5,2.5),(5.5,3.5)$.
+  \item \textbf{Tím (14 quân):} đỉnh $(1\text{--}5,5)$ và $(1\text{--}5,4)$;
+        tâm $(1.5,4.5),(2.5,4.5),(3.5,4.5),(4.5,4.5)$.
+\end{itemize}
+Lưu ý cấu hình này \emph{không cân đối} về số quân (13/13/14); xem
+Mục~\ref{sec:limitations}.
+
+\paragraph{Chế độ 4 người.} Bàn $7\times7$ đỉnh ($x,y\in0\text{--}6$); tám ô
+bị loại ở bốn góc: $(0,0)$, $(0.5,0.5)$, $(6,0)$, $(5.5,0.5)$, $(0,6)$,
+$(0.5,5.5)$, $(6,6)$, $(5.5,5.5)$. Mỗi phe \textbf{13 quân}. Thứ tự lượt: Lam $\to$ Xanh $\to$
+Tím $\to$ Vàng.
+\begin{itemize}[noitemsep,topsep=2pt]
+  \item \textbf{Lam (13):} đỉnh $(1\text{--}5,0)$ và $(1\text{--}4,1)$;
+        tâm $(1.5,0.5),(2.5,0.5),(3.5,0.5),(4.5,0.5)$.
+  \item \textbf{Vàng (13):} đỉnh $(0,1\text{--}5)$ và $(1,2\text{--}5)$;
+        tâm $(0.5,1.5),(0.5,2.5),(0.5,3.5),(0.5,4.5)$.
+  \item \textbf{Tím (13):} đỉnh $(1\text{--}5,6)$ và $(2\text{--}5,5)$;
+        tâm $(1.5,5.5),(2.5,5.5),(3.5,5.5),(4.5,5.5)$.
+  \item \textbf{Xanh (13):} đỉnh $(6,1\text{--}5)$ và $(5,1\text{--}4)$;
+        tâm $(5.5,1.5),(5.5,2.5),(5.5,3.5),(5.5,4.5)$.
+\end{itemize}
