@@ -44,7 +44,6 @@ async def run(win, mode):
     awaiting_capture_choice = False
     game_over = False
     winner = None
-    stalemate_count = 0
 
     # 2-player bot-mode flags (separate from 3p/4p threaded path)
     bot_move_pending = False
@@ -57,7 +56,7 @@ async def run(win, mode):
 
     def _reset():
         nonlocal selected_piece, valid_moves, moved_piece, capture_options
-        nonlocal awaiting_capture_choice, game_over, winner, stalemate_count
+        nonlocal awaiting_capture_choice, game_over, winner
         nonlocal bot_move_pending, bot_thinking, bot_task, state, move_history
         state = GameState.new(mode)
         sprites.clear()
@@ -68,7 +67,6 @@ async def run(win, mode):
         awaiting_capture_choice = False
         game_over = False
         winner = None
-        stalemate_count = 0
         bot_move_pending = False
         bot_thinking = False
         bot_task = None
@@ -98,17 +96,12 @@ async def run(win, mode):
         # ── Win/elimination check ─────────────────────────────────────────
         if not game_over:
             current = state.current_player
-            if mode.max_stalemate is not None and stalemate_count >= mode.max_stalemate \
-                    and len(state.active_players) >= 2:
-                game_over = True
-                counts = {c: sum(1 for p in state.pieces if p.color == c)
-                          for c in state.active_players}
-                winner = max(counts, key=counts.get)
-            elif current is None:
+            # No move limit: like the folk game, play continues until the
+            # winning condition is met (a 4-player game could last hours).
+            if current is None:
                 game_over = True
             elif not rules.is_alive(current, state.board, mode):
                 if mode.eliminate_on_no_moves:
-                    stalemate_count = 0
                     state.active_players.remove(current)
                     if len(state.active_players) == 1:
                         game_over = True
@@ -146,7 +139,6 @@ async def run(win, mode):
                         move, capture_direction = result
                         _apply_human_or_bot_move(state, move, sprites, mode,
                                                  move_history, capture_direction)
-                        stalemate_count += 1
                         state.advance_turn()
             elif mode.ai_engine == 'minimax':
                 if not bot_move_pending:
@@ -204,7 +196,6 @@ async def run(win, mode):
                 awaiting_capture_choice = False
                 capture_options = {}
                 moved_piece = None
-                stalemate_count += 1
                 state.advance_turn()
                 continue
 
@@ -226,14 +217,12 @@ async def run(win, mode):
                             rec.captured.extend((p, p.color) for p in captured)
                             for p in captured:
                                 p.color = selected_piece.color
-                            stalemate_count += 1
                             state.advance_turn()
                             capture_options = {}
                         else:
                             awaiting_capture_choice = True
                             moved_piece = selected_piece
                     else:
-                        stalemate_count += 1
                         state.advance_turn()
                     selected_piece = None
                     valid_moves = []

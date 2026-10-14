@@ -19,7 +19,6 @@ class Mode:
     players: tuple                  # turn order, e.g. ('green', 'yellow')
     bot_colors: frozenset           # subset of players that are AI
     human_colors: frozenset         # subset of players that are human
-    max_stalemate: Optional[int]    # moves since last elimination -> draw; None disables
     eliminate_on_no_moves: bool     # True for 3p/4p; in 2p no-moves = loss
     bot_delay_ms: int               # animation delay before bot move
     grid_rows: int                  # for renderer (visible grid)
@@ -55,7 +54,6 @@ MODE_PLAY_2 = Mode(
     players=('green', 'yellow'),
     bot_colors=frozenset(),
     human_colors=frozenset({'green', 'yellow'}),
-    max_stalemate=None,
     eliminate_on_no_moves=False,
     bot_delay_ms=0,
     grid_rows=4, grid_cols=4, square_size=150,
@@ -69,7 +67,6 @@ MODE_BOT_2 = Mode(
     players=('green', 'yellow'),
     bot_colors=frozenset({'yellow'}),
     human_colors=frozenset({'green'}),
-    max_stalemate=None,
     eliminate_on_no_moves=False,
     bot_delay_ms=200,
     grid_rows=4, grid_cols=4, square_size=150,
@@ -104,7 +101,6 @@ MODE_PLAY_3 = Mode(
     players=('purple', 'yellow', 'green'),
     bot_colors=frozenset({'purple', 'yellow'}),
     human_colors=frozenset({'green'}),
-    max_stalemate=150,
     eliminate_on_no_moves=True,
     bot_delay_ms=0,
     grid_rows=5, grid_cols=6, square_size=100,
@@ -123,7 +119,6 @@ MODE_PLAY_3_HUMAN = Mode(
     players=('purple', 'yellow', 'green'),
     bot_colors=frozenset(),
     human_colors=frozenset({'purple', 'yellow', 'green'}),
-    max_stalemate=150,
     eliminate_on_no_moves=True,
     bot_delay_ms=0,
     grid_rows=5, grid_cols=6, square_size=100,
@@ -168,7 +163,6 @@ MODE_PLAY_4 = Mode(
     players=('blue', 'green', 'purple', 'yellow'),
     bot_colors=frozenset({'blue', 'purple', 'yellow'}),
     human_colors=frozenset({'green'}),
-    max_stalemate=200,
     eliminate_on_no_moves=True,
     bot_delay_ms=0,
     grid_rows=6, grid_cols=6, square_size=100,
@@ -189,7 +183,6 @@ MODE_PLAY_4_HUMAN = Mode(
     players=('blue', 'green', 'purple', 'yellow'),
     bot_colors=frozenset(),
     human_colors=frozenset({'blue', 'green', 'purple', 'yellow'}),
-    max_stalemate=200,
     eliminate_on_no_moves=True,
     bot_delay_ms=0,
     grid_rows=6, grid_cols=6, square_size=100,

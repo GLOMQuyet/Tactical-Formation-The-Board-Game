@@ -195,12 +195,9 @@ Kết quả:    [Vàng] [Vàng] [Vàng] [Vàng] [Vàng]
 2. Người không còn nước đi hợp lệ → bị loại.
 3. **Người còn lại sau cùng** là người thắng.
 
-### Chống hòa (Stalemate Prevention)
+### Không giới hạn số lượt
 
-Nếu game kéo dài quá lâu mà không ai bị loại:
-
-- Chế độ 3 người: sau **150 lượt** không có người bị loại → game kết thúc, **đếm quân** để xác định người thắng.
-- Chế độ 4 người: sau **200 lượt**.
+Cờ Trận dân gian **không có giới hạn số lượt** và không có luật hòa: ván cờ chơi đến khi chỉ còn một người. Ngày xưa một ván 4 người thường kéo dài 3–4 tiếng, từ trưa đến chiều tối. Phần mềm giữ đúng như vậy.
 
 ---
 
@@ -485,12 +482,9 @@ In 3–4 player modes, the first player eliminated **does not win**. Elimination
 2. A player with no valid moves remaining is eliminated.
 3. **The last player standing wins.**
 
-### Anti-Stalemate Rule
+### No Turn Limit
 
-To prevent games from going on indefinitely:
-
-- 3-player mode: after **150 turns** with no elimination → game ends, **piece count** determines the winner.
-- 4-player mode: after **200 turns**.
+The folk game Cờ Trận has **no turn limit** and no draw rule: a game goes on until only one player remains. A four-player game traditionally lasted three to four hours, from midday until the evening. The software keeps it that way.
 
 ---
 
