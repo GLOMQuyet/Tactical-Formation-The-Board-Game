@@ -20,18 +20,25 @@ from core import rules
 from core.state import GameState
 from ai import minimax, paranoid
 
+# Cờ Trận has no move limit and no draw rule (the folk game, and the software,
+# play on until a side wins). Experiments therefore play every game to its
+# natural end; SAFETY_CAP only guards against a pathological endless game and
+# is reported as 'unfinished' -- never as a draw. In the paper's runs no game
+# reached it.
+SAFETY_CAP = 100_000
+
 
 def _other_2p(mode, color):
     return next(c for c in mode.players if c != color)
 
 
-def play_2p(mode, depth_by_color, seed, max_plies=400, time_moves=False):
+def play_2p(mode, depth_by_color, seed, max_plies=SAFETY_CAP, time_moves=False):
     """Play one 2-player game; return a result dict.
 
     `depth_by_color` maps each colour to its search depth. The game ends when
-    the side to move has no legal move (it loses) or `max_plies` is reached
-    (declared a draw — the 2-player rules have no repetition draw, so the cap
-    stands in for non-termination; see paper Limitations).
+    the side to move has no legal move (it loses). If `max_plies` is reached
+    first, the game is reported as unfinished (`winner` None, reason
+    'ply_cap') -- the rules have no draws, so this is not a draw.
     """
     random.seed(seed)
     state = GameState.new(mode)
@@ -91,11 +98,12 @@ def repetition_count(mode, depth_by_color, seed, max_plies, use_history):
     return repeats, plies
 
 
-def play_np(mode, depth, seed, max_plies=600, time_moves=False):
+def play_np(mode, depth, seed, max_plies=SAFETY_CAP, time_moves=False):
     """Play one 3/4-player paranoid game; return a result dict.
 
-    Ends when one player remains (winner) or `max_plies` reached. A player with
-    no legal move is eliminated (matches `eliminate_on_no_moves`).
+    Ends when one player remains (winner). If `max_plies` is reached first the
+    game is reported as unfinished. A player with no legal move is eliminated
+    (matches `eliminate_on_no_moves`).
     """
     random.seed(seed)
     state = GameState.new(mode)
@@ -127,7 +135,7 @@ def play_np(mode, depth, seed, max_plies=600, time_moves=False):
             'reason': 'ply_cap'}
 
 
-def random_states(mode, n_games, max_plies, seed):
+def random_states(mode, n_games, max_plies, seed, lengths=None):
     """Yield (phase_fraction, n_moves, n_actions) for states under random play.
 
     `n_moves`   = number of legal (from, to) moves = branching of the *move*
@@ -136,6 +144,9 @@ def random_states(mode, n_games, max_plies, seed):
                   branches over = `len(expanded_moves)`, comparable to the
                   analytic bound in the paper.
     `phase_fraction` = ply / game_length in [0,1), for early/mid/late binning.
+                  Only meaningful when games run to completion, so pass a
+                  `max_plies` no game reaches (e.g. SAFETY_CAP).
+    `lengths`   = optional list; receives (plies, finished) for every game.
     """
     rng = random.Random(seed)
     for g in range(n_games):
@@ -162,6 +173,8 @@ def random_states(mode, n_games, max_plies, seed):
             rules.apply_move(state.board, mv, mode)
             state.advance_turn()
             ply += 1
+        if lengths is not None:
+            lengths.append((ply, ply < max_plies))
         glen = max(ply, 1)
         for p, nm, na in records:
             yield (p / glen, nm, na)

@@ -18,9 +18,11 @@ import os
 import platform
 import statistics
 import time
+from concurrent.futures import ProcessPoolExecutor
 
 from core.modes import MODE_BOT_2, MODE_PLAY_3, MODE_PLAY_4
 from experiments import harness
+from experiments.harness import SAFETY_CAP
 
 RESULTS_DIR = os.path.join(os.path.dirname(__file__), 'results')
 
@@ -69,13 +71,16 @@ def run_branching(n_games, max_plies):
     _ensure_results()
     modes = [('2', MODE_BOT_2), ('3', MODE_PLAY_3), ('4', MODE_PLAY_4)]
     rows = []
+    len_rows = []
     summary = {}
     for label, mode in modes:
         bins = {'early': [], 'mid': [], 'late': []}
         bins_act = {'early': [], 'mid': [], 'late': []}
         allm, alla = [], []
+        lengths = []
         for frac, n_moves, n_actions in harness.random_states(
-                mode, n_games=n_games, max_plies=max_plies, seed=1234):
+                mode, n_games=n_games, max_plies=max_plies, seed=1234,
+                lengths=lengths):
             phase = 'early' if frac < 1/3 else ('mid' if frac < 2/3 else 'late')
             bins[phase].append(n_moves)
             bins_act[phase].append(n_actions)
@@ -95,11 +100,20 @@ def run_branching(n_games, max_plies):
             rows.append([label, phase, mean(bins[phase]), mean(bins_act[phase]),
                          len(bins[phase])])
         rows.append([label, 'overall', mean(allm), mean(alla), len(allm)])
+        plies = sorted(p for p, _done in lengths)
+        unfinished = sum(1 for _p, done in lengths if not done)
+        len_rows.append([label, len(plies), statistics.median(plies), plies[0],
+                         plies[-1], unfinished])
 
     with open(_path('branching.csv'), 'w', newline='') as f:
         w = csv.writer(f)
         w.writerow(['players', 'phase', 'mean_moves', 'mean_actions', 'n_samples'])
         w.writerows(rows)
+    with open(_path('gamelength_random.csv'), 'w', newline='') as f:
+        w = csv.writer(f)
+        w.writerow(['players', 'games', 'median_plies', 'min_plies', 'max_plies',
+                    'unfinished'])
+        w.writerows(len_rows)
 
     print("\n=== BRANCHING FACTOR (mean legal moves / mean full actions) ===")
     print(f"{'phase':8} | {'2p':>14} | {'3p':>14} | {'4p':>14}")
@@ -113,13 +127,17 @@ def run_branching(n_games, max_plies):
         print(f"{phase:8} | " + " | ".join(f"{c:>14}" for c in cells))
     print(f"samples: 2p={summary['2']['n_samples']}, "
           f"3p={summary['3']['n_samples']}, 4p={summary['4']['n_samples']}")
+    for label, n, med, lo, hi, unf in len_rows:
+        print(f"{label}p random-play game length: median {med} plies "
+              f"(min {lo}, max {hi}), unfinished {unf}/{n}")
     return summary
 
 
 # ── (2) Tournament (2-player) + Elo ──────────────────────────────────────────
 
-def _winrate(wins, draws, total):
-    return (wins + 0.5 * draws) / total if total else 0.0
+def _winrate(wins, losses):
+    """Win-rate over finished games (the rules have no draws)."""
+    return wins / (wins + losses) if wins + losses else 0.0
 
 
 def _elo_delta(p):
@@ -145,7 +163,7 @@ def run_tournament(games, max_plies):
     pair_winrate = {}
     print(f"\n=== TOURNAMENT (2-player, {games} games/pair) ===")
     for da, db in pairs:
-        wins_a = wins_b = draws = 0
+        wins_a = wins_b = unfinished = 0
         half = games // 2
         for i in range(games):
             # Alternate which depth plays the first-moving colour (green).
@@ -159,64 +177,86 @@ def run_tournament(games, max_plies):
                                   max_plies=max_plies)
             w = res['winner']
             if w is None:
-                draws += 1
+                unfinished += 1
             else:
                 a_won = (w == 'green') == strong_is_green
                 if a_won:
                     wins_a += 1
                 else:
                     wins_b += 1
-        wr = _winrate(wins_a, draws, games)
+        wr = _winrate(wins_a, wins_b)
         pair_winrate[(da, db)] = wr
-        rows.append([f'd{da}_vs_d{db}', games, wins_a, draws, wins_b,
+        rows.append([f'd{da}_vs_d{db}', games, wins_a, unfinished, wins_b,
                      round(wr * 100, 1)])
-        print(f"d={da} vs d={db}: A {wins_a}  draw {draws}  B {wins_b}  "
-              f"-> win-rate A = {wr*100:.1f}%")
+        print(f"d={da} vs d={db}: A {wins_a}  unfinished {unfinished}  "
+              f"B {wins_b}  -> win-rate A = {wr*100:.1f}%")
 
     with open(_path('tournament.csv'), 'w', newline='') as f:
         w = csv.writer(f)
-        w.writerow(['pair', 'games', 'wins_strong', 'draws', 'wins_weak',
+        w.writerow(['pair', 'games', 'wins_strong', 'unfinished', 'wins_weak',
                     'winrate_strong_pct'])
         w.writerows(rows)
 
-    # Elo scale anchored at d=2 -> 1000.
+    # Elo scale anchored at d=2 -> 1000. d=6 is chained through d=4, because
+    # the d6-vs-d2 sweep (p -> 1) makes the logistic formula diverge; the
+    # direct pairing only gives a lower bound (as explained in the paper).
     elo = {2: 1000.0}
     elo[4] = 1000.0 + _elo_delta(pair_winrate[(4, 2)])
-    elo[6] = 1000.0 + _elo_delta(pair_winrate[(6, 2)])
-    check = _elo_delta(pair_winrate[(6, 4)])
+    elo[6] = elo[4] + _elo_delta(pair_winrate[(6, 4)])
+    direct = pair_winrate[(6, 2)]
     with open(_path('elo.csv'), 'w', newline='') as f:
         w = csv.writer(f)
         w.writerow(['depth', 'elo'])
         for d in (2, 4, 6):
             w.writerow([d, round(elo[d])])
-    print("Elo (anchor d2=1000): "
+    print("Elo (anchor d2=1000, d6 chained via d4): "
           f"d2={elo[2]:.0f}  d4={elo[4]:.0f}  d6={elo[6]:.0f}  "
-          f"(d6-vs-d4 implies +{check:.0f})")
+          f"(direct d6-vs-d2 win-rate {direct*100:.1f}%)")
     return pair_winrate, elo
 
 
 # ── (3) Real-time performance (think time per move) ──────────────────────────
 
+_TIMING_CONFIGS = [
+    ('2', MODE_BOT_2, 6, 'minimax'),
+    ('3', MODE_PLAY_3, 4, 'paranoid'),
+    ('4', MODE_PLAY_4, 3, 'paranoid'),
+]
+
+
+def _time_config(args):
+    """Worker: play `games` complete self-play games for one configuration and
+    return every per-move think time, plus game lengths and unfinished count."""
+    label, mode, depth, engine, games, max_plies = args
+    times, plies, unfinished = [], [], 0
+    for g in range(games):
+        if engine == 'minimax':
+            res = harness.play_2p(mode, {'green': depth, 'yellow': depth},
+                                  seed=777 + g, max_plies=max_plies,
+                                  time_moves=True)
+        else:
+            res = harness.play_np(mode, depth, seed=777 + g,
+                                  max_plies=max_plies, time_moves=True)
+        times.extend(res['move_times'])
+        plies.append(res['plies'])
+        unfinished += res['reason'] == 'ply_cap'
+    return label, depth, times, plies, unfinished
+
+
 def run_timing(games, max_plies):
+    """Think time per move over `games` complete games per configuration.
+
+    The three configurations run in parallel, one process each on its own
+    core; each search itself stays single-threaded, as in the game.
+    """
     _ensure_results()
-    configs = [
-        ('2', MODE_BOT_2, 6, 'minimax'),
-        ('3', MODE_PLAY_3, 4, 'paranoid'),
-        ('4', MODE_PLAY_4, 3, 'paranoid'),
-    ]
+    jobs = [(label, mode, depth, engine, games, max_plies)
+            for label, mode, depth, engine in _TIMING_CONFIGS]
     rows = []
-    print("\n=== TIMING (seconds per move) ===")
-    for label, mode, depth, engine in configs:
-        times = []
-        for g in range(games):
-            if engine == 'minimax':
-                res = harness.play_2p(mode, {'green': depth, 'yellow': depth},
-                                      seed=777 + g, max_plies=max_plies,
-                                      time_moves=True)
-            else:
-                res = harness.play_np(mode, depth, seed=777 + g,
-                                      max_plies=max_plies, time_moves=True)
-            times.extend(res['move_times'])
+    print(f"\n=== TIMING (seconds per move, {games} complete games/config) ===")
+    with ProcessPoolExecutor(max_workers=len(jobs)) as pool:
+        results = list(pool.map(_time_config, jobs))
+    for label, depth, times, plies, unfinished in results:
         if not times:
             continue
         times.sort()
@@ -224,12 +264,14 @@ def run_timing(games, max_plies):
         p95 = times[min(len(times) - 1, int(0.95 * len(times)))]
         mx = times[-1]
         rows.append([label, depth, round(median, 4), round(p95, 4), round(mx, 4),
-                     len(times)])
+                     len(times), games, unfinished])
         print(f"{label}p (d={depth}): median={median*1000:.1f}ms  "
-              f"p95={p95*1000:.1f}ms  max={mx*1000:.1f}ms  (n={len(times)})")
+              f"p95={p95*1000:.1f}ms  max={mx*1000:.1f}ms  (n={len(times)} "
+              f"moves, game lengths {plies}, unfinished {unfinished})")
     with open(_path('timing.csv'), 'w', newline='') as f:
         w = csv.writer(f)
-        w.writerow(['players', 'depth', 'median_s', 'p95_s', 'max_s', 'n_moves'])
+        w.writerow(['players', 'depth', 'median_s', 'p95_s', 'max_s', 'n_moves',
+                    'games', 'unfinished'])
         w.writerows(rows)
     return rows
 
@@ -267,32 +309,35 @@ def run_first_move(games, depth, max_plies):
     """Equal-depth self-play to measure first-mover (green) advantage."""
     _ensure_results()
     mode = MODE_BOT_2          # 'green' moves first, 'yellow' second
-    g_wins = y_wins = draws = 0
+    g_wins = y_wins = unfinished = 0
+    longest = 0
     print(f"\n=== FIRST-MOVE ADVANTAGE (2-player, d={depth} vs d={depth}, "
           f"{games} games) ===")
     for i in range(games):
         res = harness.play_2p(mode, {'green': depth, 'yellow': depth},
                               seed=314159 + i, max_plies=max_plies)
+        longest = max(longest, res['plies'])
         w = res['winner']
         if w == 'green':
             g_wins += 1
         elif w == 'yellow':
             y_wins += 1
         else:
-            draws += 1
-    decisive = g_wins + y_wins
-    wr = (g_wins + 0.5 * draws) / games if games else 0.0
-    lo, hi = _wilson(g_wins, decisive) if decisive else (0.0, 0.0)
+            unfinished += 1
+    finished = g_wins + y_wins
+    wr = g_wins / finished if finished else 0.0
+    lo, hi = _wilson(g_wins, finished) if finished else (0.0, 0.0)
     with open(_path('firstmove.csv'), 'w', newline='') as f:
         w = csv.writer(f)
         w.writerow(['depth', 'games', 'first_mover_wins', 'second_mover_wins',
-                    'draws', 'first_winrate_pct', 'ci95_lo', 'ci95_hi'])
-        w.writerow([depth, games, g_wins, y_wins, draws, round(wr * 100, 1),
-                    round(lo, 1), round(hi, 1)])
+                    'unfinished', 'first_winrate_pct', 'ci95_lo', 'ci95_hi',
+                    'longest_game_plies'])
+        w.writerow([depth, games, g_wins, y_wins, unfinished, round(wr * 100, 1),
+                    round(lo, 1), round(hi, 1), longest])
     print(f"first-mover (green) {g_wins}  second (yellow) {y_wins}  "
-          f"draws {draws}  -> first-mover score {wr*100:.1f}% "
-          f"(Wilson95 of decisive games [{lo:.1f}, {hi:.1f}])")
-    return g_wins, y_wins, draws
+          f"unfinished {unfinished}  -> first-mover win-rate {wr*100:.1f}% "
+          f"(Wilson95 [{lo:.1f}, {hi:.1f}]), longest game {longest} plies")
+    return g_wins, y_wins, unfinished
 
 
 def main():
@@ -310,6 +355,9 @@ def main():
                     help='games per tournament pair (default 200)')
     ap.add_argument('--fm-depth', type=int, default=2,
                     help='depth for the first-move experiment (default 2)')
+    ap.add_argument('--timing-games', type=int, default=3,
+                    help='complete games per configuration for timing '
+                         '(default 3)')
     args = ap.parse_args()
 
     do_all = args.all or not any(
@@ -337,16 +385,20 @@ def main():
         print(f"\n[quick] total {time.perf_counter()-t0:.1f}s")
         return
 
+    # Every game is played to its natural end (SAFETY_CAP is never expected to
+    # be hit). The one exception is the anti-repetition study: without the
+    # fix, bots can shuffle forever, so each game is observed for a fixed
+    # 200-ply window and repetitions are counted inside it.
     if do_all or args.branching:
-        run_branching(n_games=60, max_plies=200)
+        run_branching(n_games=60, max_plies=SAFETY_CAP)
     if do_all or args.timing:
-        run_timing(games=10, max_plies=200)
+        run_timing(games=args.timing_games, max_plies=SAFETY_CAP)
     if do_all or args.antirep:
         run_antirep(games=40, max_plies=200)
     if do_all or args.firstmove:
-        run_first_move(games=100, depth=args.fm_depth, max_plies=200)
+        run_first_move(games=100, depth=args.fm_depth, max_plies=SAFETY_CAP)
     if do_all or args.tournament:
-        run_tournament(games=args.games, max_plies=300)
+        run_tournament(games=args.games, max_plies=SAFETY_CAP)
 
 
 if __name__ == '__main__':

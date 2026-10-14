@@ -1,4 +1,4 @@
-pair,games,wins_strong,draws,wins_weak,winrate_strong_pct
+pair,games,wins_strong,unfinished,wins_weak,winrate_strong_pct
 d6_vs_d2,50,50,0,0,100.0
 d6_vs_d4,50,43,0,7,86.0
 d4_vs_d2,50,45,0,5,90.0
