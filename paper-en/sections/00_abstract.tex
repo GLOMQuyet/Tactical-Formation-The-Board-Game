@@ -1,0 +1,45 @@
+% !TeX root = ../main.tex
+% ─────────────────────────────────────────────────────────────
+%  Abstract — English edition. 150–300 words answering the four
+%  questions: problem / what we did / results / significance.
+% ─────────────────────────────────────────────────────────────
+
+\begin{abstract}
+% (1) Problem
+Many Vietnamese folk board games survive only by word of mouth among village
+children, and they are slowly being forgotten. \textbf{Cờ Trận} is one such
+game. It was played in Đồng Bùa hamlet, Tam Quan commune, Tam Đảo district,
+Vĩnh Phúc province, using whatever could be picked up by the roadside as
+pieces: stones, pebbles, twigs, leaves. To our knowledge it has never been
+written down.
+% (2) What we did
+This paper records the complete rules of Cờ Trận for two, three and four
+players, from the recollection of the author, who played it throughout
+grades 5 to 9. We refer to it in English as \emph{Tactical Formation}. A
+piece moves by jumping over an adjacent piece of any side, and the
+jumped-over piece stays on the board. After landing, the moving piece
+sandwiches the line of enemy pieces lying between it and a friendly piece,
+and that whole line changes side. The board has two layers of positions,
+vertices and centres: a vertex piece moves in 8 directions and a centre
+piece in 4.
+% (3) Results
+We give a formal mathematical model of the two-player mode, stating a
+\emph{28-piece conservation law} (capture $=$ change of side, never
+removal). We also implement the game as open-source software, with an AI
+based on Minimax search with Alpha-Beta pruning (the Paranoid variant for the
+multiplayer modes). Experiments measure the branching factor and the think
+time per move, and a two-player bot-vs-bot tournament shows that deeper
+search wins consistently.
+% (4) Significance
+Through a written record, a formal model and software that anyone can play,
+the paper helps keep a folk game from disappearing entirely.
+\end{abstract}
+
+\vspace{0.4em}
+\noindent\textbf{Keywords:}
+Vietnamese folk game;
+traditional board game;
+intangible cultural heritage;
+abstract board game;
+Paranoid Minimax;
+multiplayer board game.

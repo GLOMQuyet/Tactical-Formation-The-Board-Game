@@ -2,37 +2,37 @@
 \section{Kết Luận}
 \label{sec:conclusion}
 
-Bài báo đã trình bày Tactical Formation---một trò chơi cờ chiến thuật
-trừu tượng mới kết hợp di chuyển kiểu Cờ Đam và bắt quân kiểu Reversi
-trên bàn cờ hai lớp vị trí, hỗ trợ 2--4 người chơi. Luật chơi được
-đặc tả đầy đủ và nhất quán cho cả ba biến thể. Mô hình toán học hình
-thức cho chế độ 2 người làm rõ Định luật Bảo toàn 28 quân---phát biểu
-hình thức cho khẳng định trực giác ``ăn = đổi phe, không loại bỏ''---phân
-biệt Tactical Formation với cả Cờ Đam và Reversi.
+Bài báo đã ghi chép Cờ Trận, một trò chơi cờ dân gian của trẻ em thôn Đồng
+Bùa (Tam Quan, Tam Đảo, Vĩnh Phúc), mà theo hiểu biết của chúng tôi chưa
+từng được ghi thành văn bản. Luật chơi cho cả ba chế độ 2, 3 và 4 người
+được ghi lại từ hồi ức của tác giả và đặc tả đầy đủ, nhất quán. Cờ Trận
+thuộc họ các trò chơi ăn quân bằng đổi phe, cùng với Reversi, Cờ gánh và
+Ming Mang. Điểm riêng của nó là tổ hợp gồm di chuyển chỉ bằng cú nhảy kiểu
+Halma, kẹp thẳng hàng nhưng chỉ chọn một hướng, và bàn cờ hai lớp đỉnh--tâm.
+Mô hình toán học hình thức cho chế độ 2 người làm rõ Định luật Bảo toàn
+28 quân, phát biểu hình thức cho nguyên tắc ``ăn = đổi phe, không loại bỏ''.
 
 AI đồng hành dựa trên tìm kiếm Minimax với cắt tỉa Alpha-Beta (biến thể
 Paranoid cho chế độ nhiều người) chơi hợp lý trong ngân sách thời gian
-tương tác và cho phép người chơi tự luyện tập khi không có đối thủ; giải
-đấu bot-vs-bot xác nhận tìm kiếm sâu hơn thắng ổn định. Việc phân tích vì
-sao MCTS với rollout ngẫu nhiên thuần không phù hợp cho lớp game
-Reversi-like (rollout quá nhiễu) bổ sung cho công trình trước về
-Othello~\citep{buro1999how}.
+tương tác và cho phép người chơi tự luyện tập khi không có đối thủ. Giải
+đấu bot-vs-bot xác nhận tìm kiếm sâu hơn thắng ổn định. Phần mềm mã nguồn
+mở là hình thức lưu giữ thứ hai bên cạnh văn bản: ai cũng có thể chơi lại
+Cờ Trận, kể cả khi không còn người nào trong làng nhớ luật.
 
 \paragraph{Hướng phát triển tiếp theo.}
 \begin{enumerate}[label=(\roman*)]
+  \item Tìm thêm người từng chơi Cờ Trận ở Đồng Bùa và các làng lân cận để
+        đối chiếu luật, ghi lại các biến thể địa phương nếu có.
   \item Mở rộng mô hình toán học hình thức sang chế độ 3 và 4 người,
         phân tích sự tồn tại của chiến lược cân bằng và động lực
         liên minh.
-  \item Phân tích định lượng độ cân bằng game qua mô phỏng bot-vs-bot
-        hàng trăm ván, ước lượng lợi thế tay đi đầu nếu có.
+  \item Phân tích định lượng độ cân bằng của trò chơi qua mô phỏng
+        bot-vs-bot hàng trăm ván, ước lượng lợi thế tay đi đầu nếu có.
   \item Cải thiện hàm đánh giá AI với các đặc trưng chiến lược phức
         tạp hơn, hoặc học hàm đánh giá qua self-play theo hướng
         AlphaZero~\citep{silver2018alphazero}.
   \item Phát triển chế độ online để hỗ trợ nhiều người chơi từ xa.
-  \item Khảo sát các biến thể luật chơi---ví dụ cho phép người đi chọn
-        hướng sandwich thay vì bắt buộc lấy hướng nhiều nhất---và
-        đánh giá ảnh hưởng đến chiều sâu chiến thuật.
-  \item Mô tả Tactical Formation trong một hệ general game system như
-        Ludii~\citep{piette2020ludii} để cộng đồng có thể chơi tự động
-        và so sánh với các game cờ trừu tượng khác.
+  \item Mô tả Cờ Trận trong hệ general game system Ludii~\citep{piette2020ludii}
+        để lưu trữ nó cùng các trò chơi truyền thống khác, cho phép máy chơi
+        và so sánh tự động.
 \end{enumerate}

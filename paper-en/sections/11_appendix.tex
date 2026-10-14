@@ -1,0 +1,93 @@
+% !TeX root = ../main.tex
+\section{Notation Table}
+\label{app:notation}
+
+Table~\ref{tab:notation_full} lists in full the notation used in the
+mathematical model of Appendix~\ref{app:formal}.
+
+\begin{table}[H]
+  \centering
+  \caption{Notation of the formal model (2-player mode).}
+  \label{tab:notation_full}
+  \begin{tabular}{ll}
+    \toprule
+    \textbf{Symbol} & \textbf{Meaning} \\
+    \midrule
+    $\mathcal B_{\mathsf V},\ \mathcal B_{\mathsf C},\ \mathcal B$
+      & vertex grid (25), centre cells (16), whole board (41 cells) \\
+    $\kappa(\cdot)$
+      & type (vertex $\mathsf V$ / centre $\mathsf C$) of a cell or piece \\
+    $\mathrm Y,\ \mathrm G,\ \bar c,\ \varnothing$
+      & Yellow, Green, the opponent of $c$, empty cell \\
+    $x_p,\ c_p$
+      & current position and side of piece $p$ \\
+    $P^{\mathrm Y}_0,\ P^{\mathrm G}_0$
+      & the two sets of 14 starting cells for Yellow / Green \\
+    $s=(b,\mathrm{turn})$
+      & state: board configuration $b$ and side to move; $s_0$ is state 0 \\
+    $N_c(s)$
+      & number of pieces of side $c$; always $N_{\mathrm Y}{+}N_{\mathrm G}=28$ \\
+    $D_{\mathsf V},\ D_{\mathsf C}$
+      & movement directions of a vertex / centre piece (8 / 4 directions) \\
+    $\Delta_{\mathsf V},\ \Delta_{\mathsf C}$
+      & capturing directions of a vertex / centre piece (8 / 4 directions) \\
+    $\mathrm{Jumps}(x,b)$
+      & the valid landing cells of the piece at $x$ \\
+    $\mathcal A_{\mathrm{move}}(s),\ \mathcal A(s)$
+      & the moves; the full action set $(x,x',\delta)$ \\
+    $F_\delta,\ \Delta(s,x,x')$
+      & the run captured along direction $\delta$; the set of capturing directions \\
+    $|a|$
+      & action size $=$ number of pieces captured $=|F_\delta|$ \\
+    $r_c(s,a)$
+      & per-step reward: $+|a|$ for the mover, $-|a|$ for the other side \\
+    $W$
+      & terminal reward $\pm W$, with $W>0$ abstract \\
+    $\mathrm{alive}(c,s)$
+      & side $c$ still has a piece with a legal jump \\
+    $T(s,a)$
+      & transition function: jump $\to$ flip along $\delta$ $\to$ pass turn \\
+    $\mathcal G$
+      & $(\mathcal S,\mathcal A,T,r,R,s_0)$---the whole game \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Multiplayer Starting Configurations}
+\label{app:multistart}
+
+To specify the rules completely for 2--4 players (contribution~(i)), this
+appendix lists the exact board and starting positions of the 3- and
+4-player modes, matching the open-source implementation. Integer coordinates
+are vertex cells, half-integer coordinates are centre cells. The 2-player
+starting position was given in~\eqref{eq:starty}--\eqref{eq:startg}.
+
+\paragraph{3-player mode.} A $7\times6$ vertex board ($x\in0\text{--}6$,
+$y\in0\text{--}5$); four cells removed (no landing):
+$(0,5),(0.5,4.5),(6,5),(5.5,4.5)$. Turn order: Purple $\to$ Yellow $\to$
+Green.
+\begin{itemize}[noitemsep,topsep=2pt]
+  \item \textbf{Yellow (13 pieces):} vertices $(0,0\text{--}4)$ and
+        $(1,0\text{--}3)$; centres $(0.5,0.5)$, $(0.5,1.5)$, $(0.5,2.5)$, $(0.5,3.5)$.
+  \item \textbf{Green (13 pieces):} vertices $(6,0\text{--}4)$ and
+        $(5,0\text{--}3)$; centres $(5.5,0.5)$, $(5.5,1.5)$, $(5.5,2.5)$, $(5.5,3.5)$.
+  \item \textbf{Purple (14 pieces):} vertices $(1\text{--}5,5)$ and
+        $(1\text{--}5,4)$; centres $(1.5,4.5)$, $(2.5,4.5)$, $(3.5,4.5)$, $(4.5,4.5)$.
+\end{itemize}
+Note that this configuration is \emph{unbalanced} in piece count (13/13/14);
+see Section~\ref{sec:limitations}.
+
+\paragraph{4-player mode.} A $7\times7$ vertex board ($x,y\in0\text{--}6$);
+eight cells removed at the four corners: $(0,0)$, $(0.5,0.5)$, $(6,0)$,
+$(5.5,0.5)$, $(0,6)$, $(0.5,5.5)$, $(6,6)$, $(5.5,5.5)$. Each side has
+\textbf{13 pieces}. Turn order: Blue $\to$ Green $\to$ Purple $\to$ Yellow.
+\begin{itemize}[noitemsep,topsep=2pt]
+  \item \textbf{Blue (13):} vertices $(1\text{--}5,0)$ and $(1\text{--}4,1)$;
+        centres $(1.5,0.5)$, $(2.5,0.5)$, $(3.5,0.5)$, $(4.5,0.5)$.
+  \item \textbf{Yellow (13):} vertices $(0,1\text{--}5)$ and $(1,2\text{--}5)$;
+        centres $(0.5,1.5)$, $(0.5,2.5)$, $(0.5,3.5)$, $(0.5,4.5)$.
+  \item \textbf{Purple (13):} vertices $(1\text{--}5,6)$ and $(2\text{--}5,5)$;
+        centres $(1.5,5.5)$, $(2.5,5.5)$, $(3.5,5.5)$, $(4.5,5.5)$.
+  \item \textbf{Green (13):} vertices $(6,1\text{--}5)$ and $(5,1\text{--}4)$;
+        centres $(5.5,1.5)$, $(5.5,2.5)$, $(5.5,3.5)$, $(5.5,4.5)$.
+\end{itemize}

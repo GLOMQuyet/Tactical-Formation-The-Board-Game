@@ -1,8 +1,11 @@
 # Tactical Formation — Thư mục Paper
 
 Thư mục này chứa toàn bộ mã nguồn LaTeX cho bài báo
-*Tactical Formation: Trò Chơi Cờ Chiến Thuật Trừu Tượng Dành Cho 2--4
-Người Chơi*. Tổ chức theo chuẩn của plugin
+*Cờ Trận (Tactical Formation): Ghi Chép và Phân Tích Tính Toán Một Trò
+Chơi Cờ Dân Gian Việt Nam Cho 2--4 Người Chơi*. Cờ Trận là trò chơi dân
+gian của thôn Đồng Bùa (Tam Quan, Tam Đảo, Vĩnh Phúc); tác giả ghi chép
+và phân tích trò chơi, không phải người sáng tạo ra nó. Tổ chức theo chuẩn
+của plugin
 [`academic-research-skills`](https://github.com/Imbad0202/academic-research-skills)
 (skill `academic-paper` v3.2.0).
 

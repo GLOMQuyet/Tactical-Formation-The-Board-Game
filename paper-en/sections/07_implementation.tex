@@ -1,0 +1,60 @@
+% !TeX root = ../main.tex
+\section{Implementation and Software}
+\label{sec:impl}
+
+The game is written in Python~3 with the Pygame~2 library. The source is
+open at:
+\url{https://github.com/quyetops/Tactical-Formation-The-Board-Game}.
+
+The source is organised into independent modules: \texttt{core/} (the rule
+engine, board geometry, state), \texttt{ai/} (the Minimax and Paranoid
+bots, policy), \texttt{ui/} (Pygame rendering, screens, widgets,
+animation), and \texttt{tests/} (rule tests). The technical document
+\texttt{docs/formal\_model.md} describes the formal mathematical model and
+\texttt{docs/visual\_model.html} provides a visual companion.
+
+\subsection{Mapping the formal model to source code}
+\label{ssec:mapping}
+
+The \texttt{core/} module directly implements the definitions in
+Appendix~\ref{app:formal}, upholding the principle that \emph{the rule
+engine depends on neither the interface nor the AI}:
+\begin{itemize}[noitemsep,topsep=2pt]
+  \item The state~\eqref{eq:state} is an immutable structure consisting of
+        the board configuration $b$ (a cell $\to$ colour map) and the side
+        to move.
+  \item Move generation implements $\mathrm{Jumps}(x,b)$~\eqref{eq:moves}:
+        for each piece of the side to move, it scans the direction set
+        $D_{\kappa(x)}$ and filters by the three validity
+        conditions~\eqref{eq:jump}.
+  \item Sandwich detection implements the ray scan~\eqref{eq:clamp}: from
+        the landing cell, along each capturing direction, it gathers the run
+        of consecutive opponent pieces until it meets one of its own pieces
+        (success), an empty cell, or the board edge (failure).
+  \item Applying a move is the transition function
+        $T$~\eqref{eq:t1}--\eqref{eq:t3}: jump, flip along the chosen
+        direction, pass the turn---purely deterministic, creating no piece
+        and deleting no piece (the invariant~\eqref{eq:conservation} is
+        checked by an assertion that the total piece count $=28$ in
+        \texttt{tests/}).
+\end{itemize}
+The bots in \texttt{ai/} call only those three operations (generate moves,
+apply, evaluate): \texttt{minimax.py} implements
+Algorithm~\ref{alg:minimax} for the 2-player mode, and
+\texttt{paranoid.py} implements Algorithm~\ref{alg:paranoid} for the 3--4
+player mode. Both are fully separated from the rule engine and can be
+swapped for another algorithm without touching \texttt{core/}.
+
+\begin{lstlisting}[language=bash, caption={Installing and running the game.}]
+python -m venv .venv
+source .venv/bin/activate   # Linux / macOS
+pip install pygame
+python main.py
+\end{lstlisting}
+
+The web version runs through \texttt{pygbag}~\citep{pygbag}:
+\begin{lstlisting}[language=bash, caption={Running in the browser.}]
+pip install pygbag
+pygbag main.py
+# Open the browser at http://localhost:8000
+\end{lstlisting}

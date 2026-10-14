@@ -2,6 +2,15 @@
 \section{Hạn Chế}
 \label{sec:limitations}
 
+Hạn chế lớn nhất nằm ở nguồn tư liệu. Luật Cờ Trận được ghi lại từ hồi ức
+của \emph{một} người, là tác giả, nhiều năm sau khi thôi chơi
+(Mục~\ref{sec:provenance}). Chúng tôi chưa tìm được người thứ hai để đối
+chiếu, cũng không tìm thấy tài liệu thành văn nào. Vì vậy bản ghi có thể
+khác với cách chơi ở những thời điểm khác, ở các nhóm trẻ khác trong làng,
+hay ở những làng lân cận, và không loại trừ sai sót do trí nhớ. Chúng tôi
+không có thông tin về lịch sử lâu đời hơn của trò chơi: nó có từ bao giờ,
+do ai nghĩ ra, và có liên hệ với trò chơi nào khác hay không.
+
 Phần mềm hiện chưa có chế độ online nhiều người chơi từ xa. Hàm đánh
 giá của AI chỉ dùng hai yếu tố (quân số và mobility); các yếu tố chiến
 lược sâu hơn như kiểm soát trung tâm, đe dọa nhiều hướng, hay giá trị
@@ -11,11 +20,12 @@ Mô hình toán học hình thức ở Phụ lục~\ref{app:formal} chỉ đầy
 độ 2 người. Phần mở rộng sang 3 và 4 người chỉ được đặc tả ở mức cấu hình
 (kích thước bàn, vị trí xuất phát---Phụ lục~\ref{app:notation}) chứ chưa
 được phân tích lý thuyết, đặc biệt là các tính chất cân bằng của ván nhiều
-người. Đáng chú ý, cấu hình xuất phát hiện tại của chế độ 3 người
-\emph{không cân đối}: hai phe có 13 quân còn phe thứ ba có 14 quân---một
-bất đối xứng cần được khảo sát và có thể hiệu chỉnh trong nghiên cứu cân
-bằng tương lai, chẳng hạn qua các phương pháp đo và thiết kế cân bằng tự
-động~\citep{hommarks2007balanced}.
+người. Đáng chú ý, cấu hình xuất phát của chế độ 3 người \emph{không cân
+đối}: hai phe có 13 quân còn phe thứ ba có 14 quân. Chúng tôi ghi lại cấu
+hình này đúng như trò chơi dân gian và \emph{không} tự ý sửa nó, vì sửa luật
+sẽ làm sai lệch bản ghi. Nếu cần một phiên bản cân bằng hơn, phiên bản đó
+phải được trình bày rõ là một biến thể mới. Có thể khảo sát hướng này bằng
+các phương pháp đo và thiết kế cân bằng tự động~\citep{hommarks2007balanced}.
 
 Giải đấu bot-vs-bot ở Mục~\ref{sec:eval} mới chỉ so các độ sâu tìm kiếm
 trong chế độ 2 người. Phép đo lợi thế tay đi đầu
@@ -25,9 +35,10 @@ sâu cố định ($d{=}2$, nơi bên đi sau tỏ ra có lợi thế); chưa c�
 liệu màu đi trước/đi sau có lợi thế hệ thống ở các độ sâu khác, hay chiến
 lược liên minh ngầm có ổn định, còn để mở.
 
-Về điều kiện kết thúc, chế độ 2 người \emph{không} có luật hoà do lặp thế:
-trên lý thuyết hai phe có thể chơi vô hạn mà không phe nào bị phong toả
-(cài đặt đặt \texttt{max\_stalemate} cho riêng chế độ 3--4 người). Cơ chế
-phạt lặp thế của AI (Mục~\ref{ssec:pitfalls}) làm điều này hiếm trong thực
-tế nhưng không loại trừ về mặt luật; một luật hoà do lặp thế là hướng bổ
-sung tự nhiên.
+Về điều kiện kết thúc, Cờ Trận \emph{không} có giới hạn số nước hay luật
+hoà do lặp thế, ở mọi chế độ. Trên lý thuyết, ván cờ có thể kéo dài vô hạn
+mà không phe nào bị phong toả. Đây là đặc điểm của chính trò chơi dân gian:
+khi chơi thật, một ván 4 người có thể kéo dài 3--4 tiếng
+(Mục~\ref{sec:provenance}). Phần mềm giữ đúng như vậy và không đặt giới hạn
+số nước. Cơ chế phạt lặp thế của AI (Mục~\ref{ssec:pitfalls}) làm việc lặp
+vô hạn hiếm xảy ra khi máy chơi, nhưng không loại trừ được về mặt luật.

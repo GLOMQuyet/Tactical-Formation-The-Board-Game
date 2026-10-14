@@ -16,14 +16,17 @@ sẽ đọc bản ghi này thay cho việc hỏi lại người dùng.
 ## 1. Loại paper (Paper Type)
 
 - **Loại chính**: Theoretical / Conference paper hybrid
-  - Game design specification + algorithm description, không phải
-    empirical IMRaD vì chưa có experiment quantitative.
+  - Ghi chép một trò chơi dân gian (Cờ Trận, thôn Đồng Bùa) + mô hình
+    hình thức + mô tả thuật toán + thực nghiệm.
+  - **Không** phải đặc tả một game do tác giả thiết kế: tác giả không
+    sáng tạo ra Cờ Trận (xác nhận 14/10/2026). Mọi văn bản không được
+    viết như thể tác giả phát minh ra trò chơi.
 - **Template skill khớp**: `theoretical_paper_template.md` cho cấu
   trúc lý thuyết, `conference_paper_template.md` cho format ngắn gọn.
 
 ## 2. Discipline
 
-- Game AI / Combinatorial Game Theory / Board Game Design
+- Game AI / Combinatorial Game Theory / Traditional & Folk Games
 
 ## 3. Venue mục tiêu (Target Venue)
 

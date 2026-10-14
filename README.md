@@ -2,6 +2,8 @@
 
 Engage in epic battles with 2, 3, or 4 players! Tactical Formation challenges you to master the art of strategic deployment and outmaneuver your opponents in a dynamic and engaging board game. Command your unique forces, anticipate your rivals' moves, and dominate the battlefield to claim victory.
 
+> **Origin.** Tactical Formation is the English name for **Cờ Trận**, a folk board game played by children in Đồng Bùa hamlet, Tam Quan commune, Tam Đảo district, Vĩnh Phúc province, Vietnam. Pieces were whatever could be found by the roadside: stones, pebbles, twigs, leaves. This project did not invent the game. It records the rules from memory and brings the game to software so that it is not forgotten.
+
 > Full game rules and strategy guide: [study.md](./study.md)
 
 ---

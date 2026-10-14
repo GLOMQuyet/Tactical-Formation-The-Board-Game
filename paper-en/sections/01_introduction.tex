@@ -1,0 +1,66 @@
+% !TeX root = ../main.tex
+\section{Introduction}
+\label{sec:intro}
+
+Folk games are part of intangible cultural heritage, which the UNESCO
+Convention describes as \emph{transmitted from generation to
+generation}~\citep{unesco2003ich}. Most Vietnamese folk board games have no
+books and no written rules. The rules live only in the memory of the
+children who play them together. When those children grow up and stop
+playing, a game can vanish without a trace. Some games have been recorded
+and digitised, such as Cờ gánh from Quảng Nam~\citep{mytour_coganh}. Many
+others have not.
+
+\textbf{Cờ Trận} belongs to the second group. It is the name that the people
+of Đồng Bùa hamlet, Tam Quan commune, Tam Đảo district, Vĩnh Phúc province
+give to a board game played by the village children. The author played Cờ
+Trận throughout grades 5 to 9. Today almost nobody in the village remembers
+the game, and the author had partly forgotten it too. This paper comes from
+the wish to keep Cờ Trận from being forgotten: to write its rules down, to
+model it mathematically, and to put it into software that anyone can play.
+In this paper we refer to the game in English as \emph{Tactical Formation}.
+The author did \emph{not} create Cờ Trận and does not know who did.
+Section~\ref{sec:provenance} describes its origin and how it was recorded.
+
+In terms of mechanics, every move in Cờ Trận is a \emph{jump} over an
+adjacent piece, including one's own. The jumped-over piece stays on the
+board. From the landing square, the player \emph{sandwiches} the line of
+enemy pieces lying between the moved piece and a friendly piece, and that
+whole line changes side. Every move therefore has two effects at once: the
+new position of the piece shapes future jumps, and the sandwich formed from
+that position flips pieces immediately. The player must weigh both. Taken
+one at a time, the jump resembles Halma and the capture resembles Reversi.
+Section~\ref{sec:related} compares Cờ Trận with these games in detail.
+
+The paper makes the following contributions:
+\begin{enumerate}[label=(\roman*)]
+  \item To our knowledge, the first complete and consistent written record
+        of the rules of Cờ Trận for 2--4 players, together with a record of
+        the game's origin. The 3-player starting configuration is recorded
+        exactly as in the folk game, even though it is unbalanced; see
+        Section~\ref{sec:limitations}.
+  \item A description of the two-layer board structure (vertices and
+        centres) and an analysis of its effect on the tactical space.
+  \item A formal mathematical model for the 2-player mode, together with
+        the \emph{28-Piece Conservation Law} that distils the principle
+        \emph{capture = change of side}.
+  \item A companion AI based on Paranoid Minimax, with the reasoning behind
+        our choice of Minimax over MCTS with random rollouts.
+  \item An empirical evaluation of the game and the AI via branching
+        factor (2--4 players), a bot-vs-bot tournament (2-player mode),
+        and real-time performance.
+  \item An open-source software release, as a form of digitisation and
+        preservation, so that the community can play and study the game.
+\end{enumerate}
+
+The remainder of the paper is organised as follows.
+Section~\ref{sec:provenance} describes the origin of the game and the
+recording method. Section~\ref{sec:related} compares Cờ Trận with related
+games. Section~\ref{sec:rules} gives a complete specification of the rules
+through board images. Section~\ref{sec:variants} describes the multiplayer
+modes. Section~\ref{sec:ai} presents the companion-AI algorithm.
+Section~\ref{sec:impl} describes the software. Section~\ref{sec:eval}
+gives the empirical evaluation. Section~\ref{sec:limitations} states the
+limitations, and Section~\ref{sec:conclusion} concludes. The full formal
+mathematical model for the 2-player mode is presented in
+Appendix~\ref{app:formal}.

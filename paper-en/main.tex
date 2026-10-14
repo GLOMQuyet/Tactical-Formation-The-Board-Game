@@ -1,0 +1,58 @@
+% ============================================================
+%  Tactical Formation — English edition
+%  Entry point — only \input the modules
+%  Compile: xelatex main && bibtex main && xelatex main && xelatex main
+% ============================================================
+
+\input{preamble}
+
+% ── Title block ──────────────────────────────────────────────
+\title{%
+  \textbf{Cờ Trận (Tactical Formation):}\\[0.3em]
+  \textbf{Documenting and Analysing}\\[0.3em]
+  \textbf{a Vietnamese Folk Board Game}\\[0.3em]
+  \textbf{for 2--4 Players}
+}
+\author{%
+  Trương Văn Quyết%
+  \thanks{Corresponding author: \href{mailto:quyetops@gmail.com}{quyetops@gmail.com}}
+}
+\affil{Independent Researcher, Vietnam}
+\date{\today}
+
+% ─────────────────────────────────────────────────────────────
+\begin{document}
+% ─────────────────────────────────────────────────────────────
+
+\maketitle
+
+\input{sections/00_abstract}
+
+\vspace{0.8em}
+\hrule
+\vspace{0.4em}
+
+\tableofcontents
+\newpage
+
+\input{sections/01_introduction}
+\input{sections/015_provenance}
+\input{sections/02_related_work}
+\input{sections/04_rules}
+\input{sections/05_variants}
+\input{sections/06_ai}
+\input{sections/07_implementation}
+\input{sections/075_evaluation}
+\input{sections/08_limitations}
+\input{sections/09_conclusion}
+
+% ── Appendices ───────────────────────────────────────────────────
+\appendix
+\input{sections/03_formal_model}
+\input{sections/11_appendix}
+
+\input{sections/10_disclosures}
+
+\bibliography{references}
+
+\end{document}

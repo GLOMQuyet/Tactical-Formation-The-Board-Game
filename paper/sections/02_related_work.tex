@@ -1,74 +1,105 @@
 % !TeX root = ../main.tex
-\section{Các Game Liên Quan}
+\section{Các Trò Chơi Liên Quan}
 \label{sec:related}
 
-\subsection{Cờ Đam (Checkers / Draughts)}
+Cờ Trận là trò chơi dân gian, không phải trò chơi được thiết kế dựa trên
+các trò dưới đây. Chúng tôi so sánh để định vị cơ chế của nó, không khẳng
+định có quan hệ lịch sử nào giữa các trò chơi. Các trò chơi dân gian ở
+nhiều nơi vốn hay chia sẻ cơ chế với nhau.
 
-Cờ Đam~\citep{schaeffer2007checkers} là game chiến thuật 2 người trên bàn
-8{\texttimes}8. Quân di chuyển theo đường chéo và nhảy qua quân đối thủ
-để ăn---quân bị ăn bị loại khỏi bàn. Tactical Formation giữ lại cơ chế
-nhảy nhưng bỏ việc loại quân: quân bị nhảy qua trở thành thành phần
-chiến lược thay vì bị xóa.
+\subsection{Các trò chơi có cơ chế nhảy}
 
-\subsection{Reversi / Othello}
+Trong Cờ Đam~\citep{schaeffer2007checkers}, quân nhảy qua \emph{quân đối
+thủ} để ăn, và quân bị nhảy qua bị loại khỏi bàn. Trong Halma và họ hàng
+của nó là cờ nhảy (Chinese Checkers), quân có thể nhảy qua \emph{bất kỳ}
+quân kề bên nào, của mình hay của đối thủ, và quân bị nhảy qua \emph{không}
+bị loại~\citep{britannica_halma}. Cờ nhảy chơi được nhiều người và từng là
+trò chơi thử nghiệm cho các thuật toán tìm kiếm nhiều người
+chơi~\citep{nijssen2013mcts}. Cách nhảy của Cờ Trận giống Halma ở hai điểm
+này. Khác biệt là Cờ Trận \emph{chỉ} cho phép nhảy (không có nước đi một
+bước vào ô kề), mỗi lượt chỉ nhảy một lần, và cú nhảy kéo theo luật kẹp
+lật quân. Halma thì không có ăn quân.
 
-Reversi là game 2 người trên bàn 8{\texttimes}8; chương trình Logistello
-của \citet{buro1997othello} từng đánh bại nhà vô địch thế giới và đánh
-dấu cột mốc AI cho game này. Gần đây, Othello $8\times8$ thậm chí đã được
-chứng minh là \emph{hòa} với lối chơi tối ưu của cả hai bên%
-~\citep{takizawa2023othello}, khép lại câu hỏi lý thuyết về game gốc.
-Người chơi đặt quân mới và lật tất cả quân đối thủ bị kẹp theo đường thẳng. Tactical Formation giữ cơ chế lật quân
-sandwich nhưng thay vì đặt quân mới, người chơi phải \emph{di chuyển quân
-hiện có}. Ràng buộc này giới hạn đáng kể số nước khả dụng và thêm chiều
-sâu về bố trí quân (positioning).
+\subsection{Các trò chơi ăn quân bằng đổi phe}
 
-\subsection{Thiết Kế Game Cờ Trừu Tượng Mới}
+Trong Reversi/Othello, người chơi \emph{đặt quân mới} và lật mọi quân đối
+thủ bị kẹp thẳng hàng theo \emph{tất cả} các hướng cùng lúc. Chương trình
+Logistello của \citet{buro1997othello} từng đánh bại nhà vô địch thế giới;
+gần đây Othello $8\times8$ đã được chứng minh là \emph{hòa} với lối chơi
+tối ưu của cả hai bên~\citep{takizawa2023othello}. Rolit là biến thể
+Reversi cho tối đa 4 người, và đã được dùng làm trò chơi thử nghiệm cho
+tìm kiếm Paranoid, max$^n$ và Best-Reply
+Search~\citep{schadd2011brs,nijssen2013mcts,nijssen2013policies}. Như vậy,
+lớp trò chơi kẹp lật kiểu Reversi đã có phiên bản nhiều người. Luật kẹp
+của Cờ Trận gần với Reversi, nhưng có ba khác biệt: quân được \emph{di
+chuyển} chứ không đặt mới; khi có nhiều tia kẹp, người đi chỉ chọn
+\emph{một} tia; và tổng số quân không đổi.
 
-Việc đề xuất một game cờ trừu tượng mới kèm phân tích bằng AI là một
-dòng nghiên cứu đã có tiền lệ. Hệ thống \emph{Ludi} của
-\citet{browne2010evolutionary} sinh tự động các luật game cờ trừu tượng
-mới qua tiến hóa và đánh giá chất lượng game; một trong các kết quả của
-nó---\emph{Yavalath}---kết hợp hai cơ chế cổ điển (xếp hàng để thắng và
-phản-thắng) và đã được xuất bản thương mại~\citep{browne2012yavalath}.
-Tuy nhiên, theo hiểu biết của chúng tôi, chưa có công trình nào lai cơ
-chế \emph{nhảy} của Cờ Đam với cơ chế \emph{kẹp lật} của Reversi, cũng
-như mở rộng lớp game Reversi-like sang nhiều người chơi---khoảng trống
-mà bài báo này hướng tới.
+Ý tưởng ``ăn quân là đổi phe, tổng số quân bảo toàn'' cũng không mới. Trong
+\emph{Cờ gánh} của Quảng Nam, quân đi một bước theo đường kẻ trên bàn 25
+điểm. Nếu quân đi vào điểm nằm giữa hai quân địch thẳng hàng thì hai quân
+đó đổi phe (``gánh''), và quân bị vây đến hết đường đi cũng đổi
+phe~\citep{mytour_coganh,fptshop_coganh}. Cách ăn của Cờ gánh ngược với Cờ
+Trận: ở Cờ gánh quân mình đi \emph{vào giữa} hai quân địch, còn ở Cờ Trận
+quân địch bị kẹp \emph{giữa} hai quân mình. Trong \emph{Ming Mang} (Tây
+Tạng), quân trượt thẳng như quân xe, và một dãy quân địch bị kẹp thẳng hàng
+sẽ đổi sang phe người ăn~\citep{wiki_mingmang}. Đây là tiền lệ gần nhất cho
+cách kẹp đổi phe của Cờ Trận. \emph{Ataxx} cũng có nước nhảy, sau đó đổi
+phe mọi quân địch \emph{kề bên} ô đáp, không theo đường thẳng, và nước đi
+một ô tạo thêm quân mới nên tổng số quân tăng~\citep{gebop_ataxx}.
 
-\subsection{Các Game Di Chuyển Quân Khác}
+\subsection{Các trò chơi di chuyển quân khác}
 
-Hai game cờ trừu tượng khác làm rõ vị trí của Tactical Formation trong
-phổ thiết kế. \emph{Lines of Action}---game 2 người trên bàn
-8{\texttimes}8 do Claude Soucie thiết kế, được mô tả trong tuyển tập của
-\citet{sackson1969gamut}---cũng \emph{di chuyển quân hiện có} thay vì đặt
-quân mới, và lấy việc \emph{kết nối bố trí} quân làm mục tiêu thắng; trò
-chơi này đã được nghiên cứu sâu bằng tìm kiếm cây Monte
-Carlo~\citep{winands2010loa}. Tuy nhiên, quân bị bắt trong Lines of Action
-vẫn bị \emph{loại} khỏi bàn như ở Cờ Đam. \emph{Focus} (còn gọi
-\emph{Domination}) của Sid Sackson~\citep{sackson1969gamut} lại gần với
-Tactical Formation ở một điểm khác: quân bị bắt \emph{không bị xóa vĩnh
-viễn} mà được giữ lại và có thể quay trở lại bàn cờ---một tiền lệ thiết kế
-cho ý tưởng ``bắt quân là chuyển hóa, không phải loại bỏ''. Tactical
-Formation hợp nhất hai nét này---di chuyển quân hiện có \emph{và} bảo toàn
-quân số---rồi bổ sung cơ chế kẹp-lật kiểu Reversi và mở rộng lên tới 4
-người chơi.
+\emph{Lines of Action}, do Claude Soucie thiết kế và được mô tả trong tuyển
+tập của \citet{sackson1969gamut}, cũng di chuyển quân có sẵn thay vì đặt
+quân mới. Mục tiêu thắng là kết nối các quân của mình. Trò chơi này đã được
+nghiên cứu sâu bằng tìm kiếm cây Monte Carlo~\citep{winands2010loa}, nhưng
+quân bị bắt vẫn bị loại khỏi bàn như ở Cờ Đam. \emph{Focus} (còn gọi là
+\emph{Domination}) của Sid Sackson~\citep{sackson1969gamut} giữ lại quân bị
+bắt để có thể đưa trở lại bàn cờ, tức cũng coi bắt quân là chuyển hoá chứ
+không phải loại bỏ.
 
-\subsection{So Sánh Tổng Quan}
+\subsection{Ghi chép và số hoá trò chơi truyền thống}
+
+Hệ thống Ludii~\citep{piette2020ludii} mô tả các trò chơi cờ, kể cả nhiều
+trò chơi truyền thống, bằng một ngôn ngữ mô tả trò chơi chung, cho phép máy
+chơi và so sánh chúng. Bài báo này đi theo cùng tinh thần: ghi chép một trò
+chơi truyền thống, mô hình hoá nó và cài đặt nó để bảo tồn. Đưa Cờ Trận
+vào Ludii là một hướng tiếp theo tự nhiên (Mục~\ref{sec:conclusion}).
+
+\subsection{So sánh tổng quan}
+
+Bảng~\ref{tab:comparison} tóm tắt các điểm giống và khác. Theo hiểu biết
+của chúng tôi, chưa có trò chơi nào được ghi chép có đồng thời cả năm đặc
+điểm sau của Cờ Trận: (1)~chỉ di chuyển bằng cách nhảy qua quân bất kỳ, và
+quân bị nhảy qua giữ nguyên; (2)~kẹp thẳng hàng làm đổi phe, nhưng chỉ chọn
+một hướng; (3)~bàn hai lớp đỉnh--tâm, với 8 hướng cho quân đỉnh và 4 hướng
+cho quân tâm; (4)~tổng số quân không đổi; (5)~chơi được 2 đến 4 người.
+Từng đặc điểm riêng lẻ thì đều đã có trong các trò chơi khác.
 
 \begin{table}[H]
   \centering
-  \caption{So sánh Tactical Formation với các game cờ liên quan.}
+  \caption{So sánh Cờ Trận với các trò chơi liên quan.}
   \label{tab:comparison}
-  \begin{tabular}{lccc}
+  \footnotesize
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabularx}{\linewidth}{l*{6}{>{\centering\arraybackslash}X}}
     \toprule
-    \textbf{Đặc điểm} & \textbf{Cờ Đam} & \textbf{Reversi}
-                      & \textbf{Tactical Formation} \\
+    \textbf{Đặc điểm} & \textbf{Cờ Đam} & \textbf{Halma / cờ nhảy}
+      & \textbf{Reversi / Rolit} & \textbf{Cờ gánh} & \textbf{Ming Mang}
+      & \textbf{Cờ Trận} \\
     \midrule
-    Cách di chuyển   & Nhảy qua quân  & Đặt quân mới & Nhảy qua quân \\
-    Quân bị nhảy qua & Bị loại        & ---          & Còn trên bàn  \\
-    Cách bắt quân    & Nhảy trực tiếp & Sandwich     & Sandwich sau nhảy \\
-    Số người chơi    & 2              & 2            & 2, 3, hoặc 4  \\
-    Số lớp vị trí    & 1              & 1            & 2 (đỉnh + tâm) \\
+    Di chuyển        & Đi chéo, nhảy & Đi 1 bước hoặc nhảy & Đặt quân mới
+                     & Đi 1 bước & Trượt thẳng & Chỉ nhảy \\
+    Nhảy qua         & Quân địch & Quân bất kỳ & --- & --- & --- & Quân bất kỳ \\
+    Quân bị nhảy qua & Bị loại & Giữ nguyên & --- & --- & --- & Giữ nguyên \\
+    Cách ăn quân     & Nhảy qua & Không có & Kẹp, mọi hướng
+                     & Gánh, vây & Kẹp & Kẹp, chọn 1 hướng \\
+    Quân bị ăn       & Bị loại & --- & Đổi phe & Đổi phe & Đổi phe & Đổi phe \\
+    Tổng số quân     & Giảm & Không đổi & Tăng & Không đổi & Không đổi
+                     & Không đổi \\
+    Số người chơi    & 2 & 2--6 & 2 / 2--4 & 2 & 2 & 2--4 \\
+    Số lớp vị trí    & 1 & 1 & 1 & 1 & 1 & 2 (đỉnh + tâm) \\
     \bottomrule
-  \end{tabular}
+  \end{tabularx}
 \end{table}
