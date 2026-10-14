@@ -4,7 +4,7 @@
 
 The game is written in Python~3 with the Pygame~2 library. The source is
 open at:
-\url{https://github.com/quyetops/Tactical-Formation-The-Board-Game}.
+\url{https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game}.
 
 The source is organised into independent modules: \texttt{core/} (the rule
 engine, board geometry, state), \texttt{ai/} (the Minimax and Paranoid
@@ -20,9 +20,10 @@ The \texttt{core/} module directly implements the definitions in
 Appendix~\ref{app:formal}, upholding the principle that \emph{the rule
 engine depends on neither the interface nor the AI}:
 \begin{itemize}[noitemsep,topsep=2pt]
-  \item The state~\eqref{eq:state} is an immutable structure consisting of
-        the board configuration $b$ (a cell $\to$ colour map) and the side
-        to move.
+  \item The state~\eqref{eq:state} consists of the board configuration $b$
+        (a cell $\to$ colour map) and the side to move. During search the
+        engine updates the state in place and then undoes the move
+        (make/unmake) instead of copying it.
   \item Move generation implements $\mathrm{Jumps}(x,b)$~\eqref{eq:moves}:
         for each piece of the side to move, it scans the direction set
         $D_{\kappa(x)}$ and filters by the three validity
@@ -39,22 +40,11 @@ engine depends on neither the interface nor the AI}:
         \texttt{tests/}).
 \end{itemize}
 The bots in \texttt{ai/} call only those three operations (generate moves,
-apply, evaluate): \texttt{minimax.py} implements
-Algorithm~\ref{alg:minimax} for the 2-player mode, and
-\texttt{paranoid.py} implements Algorithm~\ref{alg:paranoid} for the 3--4
-player mode. Both are fully separated from the rule engine and can be
+apply, evaluate): \texttt{minimax.py} implements Minimax Alpha-Beta for
+the 2-player mode, and \texttt{paranoid.py} implements Paranoid Minimax for
+the 3--4 player mode (Section~\ref{ssec:search}). Both are fully separated from the rule engine and can be
 swapped for another algorithm without touching \texttt{core/}.
 
-\begin{lstlisting}[language=bash, caption={Installing and running the game.}]
-python -m venv .venv
-source .venv/bin/activate   # Linux / macOS
-pip install pygame
-python main.py
-\end{lstlisting}
-
-The web version runs through \texttt{pygbag}~\citep{pygbag}:
-\begin{lstlisting}[language=bash, caption={Running in the browser.}]
-pip install pygbag
-pygbag main.py
-# Open the browser at http://localhost:8000
-\end{lstlisting}
+Instructions for installing and running the game, both the desktop version
+and the web version packaged with \texttt{pygbag}~\citep{pygbag}, are in the
+repository README.

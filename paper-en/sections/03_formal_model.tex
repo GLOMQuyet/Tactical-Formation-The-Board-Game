@@ -10,8 +10,7 @@ enough to grasp the rules). The focus is on the core of the game: which
 rests on three pillars---\textbf{state}, \textbf{action},
 \textbf{reward}---and one axiom throughout: \emph{the board always has
 exactly 28 pieces; capture is a change of side, never removal}. The
-extension to the 3--4 player modes is given in Section~\ref{sec:variants};
-the full notation table is in Appendix~\ref{app:notation}.
+extension to the 3--4 player modes is given in Section~\ref{sec:variants}.
 
 \subsection{The board and the 28 pieces}
 \label{ssec:board}
@@ -305,12 +304,16 @@ solved~\citep{schaeffer2007checkers})---showing that the 2-player mode is
 within reach of heuristic search without deep learning.
 
 As for the \emph{branching factor}, an action is the triple
-$(x,x',\delta)$. Each side has at most 14 pieces; a vertex piece has $\le 8$
-landing cells, a centre piece $\le 4$; each landing cell gives $\le 8$
-capturing directions but only one is chosen (or no capture). Hence the
-number of actions at a state is loosely bounded by
+$(x,x',\delta)$. Because capture is a change of side, one side can hold
+almost all 28 pieces, so the bound cannot use the initial 14. The
+\emph{kind} of a piece is invariant, however: the board always has exactly
+20 vertex pieces and 8 centre pieces. A vertex piece has $\le 8$ landing
+cells, and each landing cell offers $\le 8$ sandwich rays of which one is
+chosen (a single action if there is none); a centre piece has $\le 4$
+landing cells and $\le 4$ rays. Hence the number of actions at a state is
+loosely bounded by
 \begin{equation}
-|\mathcal A(s)| \;\le\; 14\cdot 8\cdot(8+1) \;=\; 1008 .
+|\mathcal A(s)| \;\le\; 20\cdot 8\cdot 8 + 8\cdot 4\cdot 4 \;=\; 1408 .
 \label{eq:branchbound}
 \end{equation}
 The jump constraint~\eqref{eq:jump} (requiring both a springboard \emph{and}

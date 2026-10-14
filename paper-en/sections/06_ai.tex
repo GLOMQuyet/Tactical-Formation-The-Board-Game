@@ -2,39 +2,23 @@
 \section{Companion AI}
 \label{sec:ai}
 
-\subsection{Why an AI Is Needed}
+A companion AI lets a player practise when no opponent is available.
 
-One of the barriers to an abstract board game is the need for an opponent.
-A companion AI lets a player practise alone and feel the tactical depth
-without having to wait for someone else.
-
-\subsection{Why Not Random-Rollout MCTS}
+\subsection{Why Minimax Rather Than MCTS}
 
 Monte Carlo Tree Search (MCTS)~\citep{coulom2006efficient,browne2012survey}
-is often chosen for multiplayer games because it needs no explicit
-evaluation function. The argument below targets \emph{MCTS with plain
-random rollouts} (vanilla UCT)---not MCTS in general: the neural-network-%
-guided MCTS variant of the AlphaZero kind~\citep{silver2018alphazero}
-replaces random rollouts with a learned value function and plays very
-strongly even in the Reversi-like class, so it lies outside the scope of
-this critique (and is revisited under future work). With plain random
-rollouts and a small compute budget, MCTS performs poorly in Tactical
-Formation because:
-\begin{itemize}
-  \item A single move can flip 5--10 pieces at once---the outcome of a
-        random game is almost unrelated to the quality of the first move.
-  \item The rollout signal is too noisy, and UCT cannot distinguish a good
-        move from a bad one.
-  \item With a budget of 500--800 simulations, MCTS explores only the first
-        1--2 layers, equivalent to greedy 1-ply.
-\end{itemize}
-This contrasts with Hex, where MCTS rollouts are more effective because the
-rollout signal is less noisy~\citep{arneson2010hex}: how well a random
-rollout fits depends strongly on its reliability within each class of game.
-In the Reversi-like class, an explicit evaluation function based on piece
-count and mobility---in the spirit of the learned evaluation functions for
-Othello~\citep{buro1999how}---distinguishes move quality better than a
-random rollout.
+is a popular choice for multiplayer games because it needs no explicit
+evaluation function. \citet{nijssen2013mcts} also shows that MCTS with a
+max$^n$ tree performs best in several multiplayer games, including Rolit, a
+Reversi variant close to Cờ Trận. We nevertheless chose the Minimax family
+for this version, for two practical reasons. First, the sandwich-flip rule
+gives an explicit signal that is cheap to compute and close to how players
+judge a position (piece count and number of moves), in the spirit of the
+evaluation functions for Othello~\citep{buro1999how}. Second, Minimax with
+Alpha-Beta pruning is simple to implement in pure Python. We have \emph{not}
+compared it experimentally with MCTS or Best-Reply Search, so we do not
+claim that Minimax is stronger; this is a next step
+(Section~\ref{sec:conclusion}).
 
 \subsection{Adversarial Search}
 \label{ssec:search}
@@ -46,8 +30,8 @@ We write $N_c$ for the number of pieces and $M_c$ for the number of legal
 moves (mobility) of side $c$.
 
 \paragraph{2-player mode---Minimax Alpha-Beta.} The two sides are fully
-opposed, so the bot uses classic Minimax~\citep{knuth1975alphabeta}
-(Algorithm~\ref{alg:minimax}): our side maximises, the opponent minimises,
+opposed, so the bot uses classic Minimax with Alpha-Beta
+pruning~\citep{knuth1975alphabeta}: our side maximises, the opponent minimises,
 alternating via the \textsc{max} flag. The evaluation function is designed
 to \emph{think like a player}---both wanting to capture pieces and wanting
 to squeeze the opponent's space of moves---by normalising both terms to
@@ -67,41 +51,11 @@ When a side is no longer alive, the terminal score carries a fast-win bonus
 The terminal value dominates every eval score $\in[-1,1]$, so shrinking the
 scale does not make the bot miss a real winning or losing move.
 
-\begin{algorithm}[H]
-\caption{Minimax Alpha-Beta (2-player mode)}
-\label{alg:minimax}
-\begin{algorithmic}[1]
-\Function{Minimax}{$s,\ d,\ \alpha,\ \beta,\ \textsc{max},\ \textsc{me},\ \textsc{opp}$}
-  \If{$s$ is terminal} \State \Return $\pm(10000+d)$ \Comment{by~\eqref{eq:term2}} \EndIf
-  \If{$d=0$} \State \Return $\mathrm{eval}_2(s,\textsc{me})$ \EndIf
-  \State $c \gets \textsc{me}$ if \textsc{max}, else $\textsc{opp}$
-  \State $\mathit{moves} \gets \mathcal A(c,s)$
-  \If{$\mathit{moves}=\varnothing$} \State \Return $\mathrm{eval}_2(s,\textsc{me})$ \EndIf
-  \If{\textsc{max}} \Comment{our turn: maximise}
-    \State $v \gets -\infty$
-    \For{$a \in \mathit{moves}$}
-      \State $v \gets \max\bigl(v,\ \textsc{Minimax}(T(s,a),\,d{-}1,\,\alpha,\,\beta,\,\textsf{false},\,\textsc{me},\,\textsc{opp})\bigr)$
-      \State $\alpha \gets \max(\alpha, v)$
-      \If{$\alpha \ge \beta$} \textbf{break} \Comment{$\beta$ cutoff} \EndIf
-    \EndFor
-  \Else \Comment{opponent's turn: minimise}
-    \State $v \gets +\infty$
-    \For{$a \in \mathit{moves}$}
-      \State $v \gets \min\bigl(v,\ \textsc{Minimax}(T(s,a),\,d{-}1,\,\alpha,\,\beta,\,\textsf{true},\,\textsc{me},\,\textsc{opp})\bigr)$
-      \State $\beta \gets \min(\beta, v)$
-      \If{$\alpha \ge \beta$} \textbf{break} \Comment{$\alpha$ cutoff} \EndIf
-    \EndFor
-  \EndIf
-  \State \Return $v$
-\EndFunction
-\end{algorithmic}
-\end{algorithm}
-
 \paragraph{3--4 player mode---Paranoid Minimax.} With $\ge 3$ sides, the
 score is no longer fully opposed, so pruning is
 harder~\citep{korf1991multiplayer,sturtevant2000pruning}. The bot applies
-\textbf{Paranoid Minimax}~\citep{sturtevant2003comparison,sturtevant2008analysis}
-(Algorithm~\ref{alg:paranoid}): the side under consideration maximises,
+\textbf{Paranoid Minimax}~\citep{sturtevant2003comparison,sturtevant2008analysis}:
+the side under consideration maximises,
 \emph{every other side is treated as a single coalition} that minimises,
 reducing the $N$-player problem to a two-sided max--min so that full
 Alpha-Beta applies. It keeps the same $0.7/0.3$ weights and the piece-count
@@ -127,53 +81,25 @@ carries a fast-win bonus
 \label{eq:termpar}
 \end{equation}
 where $d$ is the remaining depth---encouraging the bot to finish early
-rather than prolong the game. A strong alternative is Best Reply
+rather than prolong the game. In the search tree, a side to move that has no
+move is eliminated and the turn passes to the next side, as in the rules. A strong alternative is Best Reply
 Search~\citep{schadd2011brs}, which often outperforms Paranoid in many
 4-player games; we choose Paranoid for its simplicity and because it is good
 enough within a real-time compute budget, leaving a comparison with Best
 Reply Search to future work.
 
-\begin{algorithm}[H]
-\caption{Paranoid Minimax (3--4 player mode)}
-\label{alg:paranoid}
-\begin{algorithmic}[1]
-\Function{Paranoid}{$s,\ d,\ \alpha,\ \beta,\ \textsc{me}$}
-  \If{only one side is alive} \State \Return $\pm(10000+d)$ \Comment{by~\eqref{eq:termpar}} \EndIf
-  \If{$d=0$} \State \Return $\mathrm{eval}_{\text{par}}(s,\textsc{me})$ \EndIf
-  \State $c \gets \textsc{turn}(s)$;\quad $\mathit{moves} \gets \mathcal A(c,s)$
-  \If{$\mathit{moves}=\varnothing$} \State \Return \textsc{Paranoid}(drop $c$, pass turn) \Comment{a blockaded side is skipped} \EndIf
-  \If{$c = \textsc{me}$} \Comment{maximising layer}
-    \State $v \gets -\infty$
-    \For{$a \in \mathit{moves}$}
-      \State $v \gets \max\bigl(v,\ \textsc{Paranoid}(T(s,a),\,d{-}1,\,\alpha,\,\beta,\,\textsc{me})\bigr)$
-      \State $\alpha \gets \max(\alpha, v)$
-      \If{$\alpha \ge \beta$} \textbf{break} \EndIf
-    \EndFor
-  \Else \Comment{all other sides: minimising coalition}
-    \State $v \gets +\infty$
-    \For{$a \in \mathit{moves}$}
-      \State $v \gets \min\bigl(v,\ \textsc{Paranoid}(T(s,a),\,d{-}1,\,\alpha,\,\beta,\,\textsc{me})\bigr)$
-      \State $\beta \gets \min(\beta, v)$
-      \If{$\alpha \ge \beta$} \textbf{break} \EndIf
-    \EndFor
-  \EndIf
-  \State \Return $v$
-\EndFunction
-\end{algorithmic}
-\end{algorithm}
-
 \begin{table}[H]
   \centering
-  \caption{AI parameters by game mode.}
+  \caption{AI parameters by game mode, exactly as in the software. The
+  measured think time is in Table~\ref{tab:timing}.}
   \label{tab:ai_params}
-  \begin{tabular}{lccc}
+  \begin{tabular}{lcc}
     \toprule
-    \textbf{Mode} & \textbf{Algorithm} & \textbf{Depth}
-    & \textbf{Time/move} \\
+    \textbf{Mode} & \textbf{Algorithm} & \textbf{Depth} \\
     \midrule
-    2-player & Minimax Alpha-Beta & 6 & $<0.3$\,s \\
-    3-player & Paranoid Minimax   & 4 & $<0.5$\,s \\
-    4-player & Paranoid Minimax   & 3 & $<0.5$\,s \\
+    2-player & Minimax Alpha-Beta & 6 \\
+    3-player & Paranoid Minimax   & 4 \\
+    4-player & Paranoid Minimax   & 3 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -185,12 +111,7 @@ that the interface does not freeze while it computes.
 \label{ssec:ordering}
 
 The effectiveness of Alpha-Beta pruning depends strongly on the order in
-which moves are visited. With branching factor $b$ and depth $d$, the
-worst-case number of leaf nodes is $O(b^{d})$---no better than exhaustive
-search---but if the best move is always visited first, this drops to
-$O(b^{d/2})$, that is, it \emph{doubles} the feasible depth within the same
-time budget~\citep{knuth1975alphabeta}. Move ordering is therefore the main
-lever for pushing the depths in Table~\ref{tab:ai_params}.
+which moves are visited~\citep{knuth1975alphabeta}.
 
 Tactical Formation offers a cheap and natural ordering heuristic: because
 each action \emph{foresees} the number of pieces it captures,
@@ -208,18 +129,16 @@ transposition table because keying a state (together with the set of living
 sides and the turn pointer) is more complex, left for a later version.
 Iterative deepening is not yet implemented and is left for future work.
 
-\subsection{Four design pitfalls and their fixes}
+\subsection{Three design pitfalls and their fixes}
 \label{ssec:pitfalls}
 
-When testing the bot, we found four pitfalls that are \emph{not}
+When testing the bot, we found three pitfalls that are \emph{not}
 implementation bugs but stem from applying a general-purpose algorithm to a
 specific ruleset: pieces are conserved (capture $=$ change of side,
 Section~\ref{ssec:capture}) and the winning condition is essentially to
 \emph{blockade} the opponent rather than to annihilate it. Each pitfall
-reflects a wrong implicit assumption in that match. The first three pitfalls
-(\#1--\#3) have concrete fixes that apply to both engines (2-player and
-Paranoid); the fourth pitfall (\#4) is inherent to any depth-limited search
-and is discussed separately at the end.
+reflects a wrong implicit assumption in that match. All three have
+concrete fixes that apply to both engines (2-player and Paranoid).
 
 \paragraph{Pitfall \#1 --- Greedy capture.}
 \emph{Cause.} The default move generator, when a move creates several
@@ -293,11 +212,3 @@ turns)---the oscillation loop is eliminated entirely. Note that the history
 $\mathcal H$ contains only positions that have \emph{already} occurred, so
 it does not increase search cost exponentially; it is merely an $O(1)$ hash
 lookup at the root.
-
-\paragraph{Pitfall \#4 --- Horizon effect.}
-A fourth pitfall in the development log---the \emph{horizon effect}, where a
-danger is pushed beyond the search depth---is inherent to any depth-limited
-search, not specific to this game. With a $5\times5$ board and depth 6, the
-state space is small enough that this effect is negligible, so we leave it
-as is rather than adding quiescence search; this is a natural direction for
-future work if the board size is increased.

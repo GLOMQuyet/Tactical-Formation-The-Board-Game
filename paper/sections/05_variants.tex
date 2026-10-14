@@ -7,7 +7,7 @@ toàn tổng số quân---được giữ nguyên qua cả ba biến thể; chỉ
 bàn, số quân mỗi phe và số phe thay đổi (Bảng~\ref{tab:board_size}). Chế
 độ 4 người dùng bàn 7{\texttimes}7 cắt tám ô ở bốn góc, tạo hình gần bát
 giác cân đối cho bốn hướng tiến quân (Hình~\ref{fig:multiboard}); chế độ
-3 người dùng bàn 7{\texttimes}6 chỉ cắt hai góc trên.
+3 người dùng bàn 7{\texttimes}6 chỉ cắt hai góc dưới.
 
 \begin{figure}[H]
   \centering
@@ -31,13 +31,13 @@ Phụ lục~\ref{app:formal} và dùng Minimax Alpha-Beta cổ điển (Mục~\r
   \centering
   \includegraphics[width=0.52\linewidth]{figures/board_3p.png}
   \caption{Vị trí xuất phát chế độ 3 người (ảnh chụp trực tiếp từ trò
-  chơi): bàn 7{\texttimes}6 cắt bốn ô ở hai góc trên; ba phe Vàng, Xanh
+  chơi): bàn 7{\texttimes}6 cắt bốn ô ở hai góc dưới; ba phe Vàng, Xanh
   lá, Tím. Cấu hình \emph{không cân đối}---hai phe 13 quân, phe thứ ba 14
   quân (Phụ lục~\ref{app:multistart}).}
   \label{fig:board3p}
 \end{figure}
 
-Bàn cờ 7{\texttimes}6 với 4 ô góc trên bị loại.
+Bàn cờ 7{\texttimes}6 với 4 ô ở hai góc dưới bị loại.
 Hai phe có 13 quân và phe thứ ba có 14 quân (cấu hình chính xác và lưu ý
 bất đối xứng ở Phụ lục~\ref{app:multistart}). Màu: Vàng, Xanh lá, Tím.
 Chế độ này giới thiệu
@@ -49,6 +49,5 @@ phối hợp chống mình.
 
 \subsection{Chế Độ 4 Người}
 Bàn 7{\texttimes}7 cắt 8 ô ở bốn góc, mỗi bên 13 quân.
-Màu: Lam, Xanh lá, Tím, Vàng. Bốn người chơi tạo ra mạng lưới quan hệ
-phức tạp; chiến thắng thường đến từ việc giữ vị trí trung lập rồi ra
-đòn quyết định khi các đối thủ đã tiêu hao lẫn nhau.
+Màu: Lam, Xanh lá, Tím, Vàng. Như ở chế độ 3 người, mỗi người chơi phải
+tính đến cả ba đối thủ cùng lúc.

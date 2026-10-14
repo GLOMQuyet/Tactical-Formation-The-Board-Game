@@ -3,7 +3,7 @@
 \label{sec:impl}
 
 Game được viết bằng Python~3 với thư viện Pygame~2. Mã nguồn mở tại:
-\url{https://github.com/quyetops/Tactical-Formation-The-Board-Game}.
+\url{https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game}.
 
 Mã nguồn được tổ chức thành các module độc lập: \texttt{core/} (engine
 luật, hình học bàn cờ, trạng thái), \texttt{ai/} (bot Minimax,
@@ -19,8 +19,9 @@ Module \texttt{core/} hiện thực trực tiếp các định nghĩa ở
 Phụ lục~\ref{app:formal}, giữ đúng nguyên tắc \emph{engine luật không phụ
 thuộc giao diện hay AI}:
 \begin{itemize}[noitemsep,topsep=2pt]
-  \item Trạng thái~\eqref{eq:state} là một cấu trúc bất biến gồm cấu hình
-        bàn $b$ (ánh xạ ô $\to$ màu) và phe đến lượt.
+  \item Trạng thái~\eqref{eq:state} gồm cấu hình bàn $b$ (ánh xạ ô $\to$
+        màu) và phe đến lượt. Khi tìm kiếm, engine cập nhật trạng thái tại
+        chỗ rồi hoàn tác (make/unmake) thay vì sao chép.
   \item Sinh nước đi cài đặt $\mathrm{Jumps}(x,b)$~\eqref{eq:moves}: với
         mỗi quân của phe đến lượt, duyệt tập hướng $D_{\kappa(x)}$ và lọc
         theo ba điều kiện hợp lệ~\eqref{eq:jump}.
@@ -33,21 +34,10 @@ thuộc giao diện hay AI}:
         bằng một assertion tổng quân $=28$ trong \texttt{tests/}).
 \end{itemize}
 Bot trong \texttt{ai/} chỉ gọi ba phép trên (sinh nước, áp dụng, đánh
-giá): \texttt{minimax.py} cài Thuật toán~\ref{alg:minimax} cho chế độ 2
-người, \texttt{paranoid.py} cài Thuật toán~\ref{alg:paranoid} cho chế độ
-3--4 người. Cả hai tách biệt hoàn toàn với engine luật và có thể thay
+giá): \texttt{minimax.py} cài Minimax Alpha-Beta cho chế độ 2 người,
+\texttt{paranoid.py} cài Paranoid Minimax cho chế độ 3--4 người
+(Mục~\ref{ssec:search}). Cả hai tách biệt hoàn toàn với engine luật và có thể thay
 bằng thuật toán khác mà không sửa \texttt{core/}.
 
-\begin{lstlisting}[language=bash, caption={Cài đặt và chạy game.}]
-python -m venv .venv
-source .venv/bin/activate   # Linux / macOS
-pip install pygame
-python main.py
-\end{lstlisting}
-
-Phiên bản web chạy qua \texttt{pygbag}~\citep{pygbag}:
-\begin{lstlisting}[language=bash, caption={Chạy trên trình duyệt.}]
-pip install pygbag
-pygbag main.py
-# Mở trình duyệt tại http://localhost:8000
-\end{lstlisting}
+Hướng dẫn cài đặt và chạy trò chơi, cả bản desktop lẫn bản web đóng gói
+bằng \texttt{pygbag}~\citep{pygbag}, nằm trong tệp README của kho mã.

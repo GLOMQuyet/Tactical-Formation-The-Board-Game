@@ -79,7 +79,7 @@ theo ván, từ khoảng 16 ở đầu ván lên 20--23 ở cuối ván, và ch�
 cao nhất. Chúng tôi chưa phân tích nguyên nhân của xu hướng này. Cả ba chế
 độ đều có branching cao hơn Reversi, vốn khoảng 10 nước mỗi
 lượt~\citep{allis1994searching}. Các giá trị này nằm xa dưới chặn trên giải
-tích $|\mathcal A(s)|\le 1008$ (Phụ lục~\ref{app:formal}), xác nhận ràng buộc
+tích $|\mathcal A(s)|\le 1408$ (Phụ lục~\ref{app:formal}), xác nhận ràng buộc
 cú nhảy thắt chặt không gian nước đi thực tế; việc định vị độ phức tạp của
 một game so với các game đã được giải là thông lệ đánh giá tiêu
 chuẩn~\citep{herik2002games}. Cần nhấn mạnh: branching factor đo \emph{bề
@@ -118,29 +118,14 @@ khác độ sâu đấu đối kháng (Bảng~\ref{tab:tournament}).
 \paragraph{Ước lượng Elo.}
 Từ win-rate $p$ của bên mạnh, chênh lệch Elo ước lượng theo
 $\Delta\mathrm{Elo} = -400\,\log_{10}(1/p - 1)$. Lấy bot độ sâu~2 làm
-mốc 1000 Elo, ta thu được thang Elo tương đối trong Bảng~\ref{tab:elo}.
-Cặp d=4 vs d=2 (90{,}0\%) cho $\Delta\mathrm{Elo}\approx{+}382$, còn cặp
-d=6 vs d=4 (86{,}0\%) cho ${+}315$; ghép chuỗi, bot độ sâu~6 cao hơn độ
-sâu~2 khoảng ${+}697$ Elo.\footnote{Cặp d=6 vs d=2 thắng tuyệt đối
+mốc 1000 Elo: cặp d=4 vs d=2 (90{,}0\%) cho $\Delta\mathrm{Elo}\approx{+}382$,
+tức độ sâu~4 $\approx 1382$ Elo; cặp d=6 vs d=4 (86{,}0\%) cho ${+}315$.
+Ghép chuỗi, độ sâu~6 $\approx 1697$ Elo, cao hơn độ sâu~2 khoảng
+${+}697$ Elo.\footnote{Cặp d=6 vs d=2 thắng tuyệt đối
 (100\%) khiến công thức logistic phân kỳ ($p\to1$ làm
 $\Delta\mathrm{Elo}\to\infty$), nên chỉ cho \emph{cận dưới} chứ không phải
 một giá trị Elo hữu hạn; vì vậy chúng tôi ước lượng Elo của độ sâu~6 qua
 chuỗi d=2\,$\to$\,d=4\,$\to$\,d=6 đáng tin hơn.}
-
-\begin{table}[H]
-  \centering
-  \caption{Thang Elo tương đối của AI theo độ sâu (chế độ 2 người).}
-  \label{tab:elo}
-  \begin{tabular}{lc}
-    \toprule
-    \textbf{Cấu hình bot} & \textbf{Elo ước lượng} \\
-    \midrule
-    Độ sâu 2 (mốc) & 1000 \\
-    Độ sâu 4        & 1382 \\
-    Độ sâu 6        & $\approx 1697$ \\
-    \bottomrule
-  \end{tabular}
-\end{table}
 
 \paragraph{Lợi thế tay đi đầu.}
 Để dò một khía cạnh cân bằng cơ bản của chế độ 2 người, chúng tôi cho hai
@@ -158,7 +143,7 @@ là quan sát ở \emph{một} độ sâu cố định; lợi thế này có th�
 \label{sec:eval_timing}
 
 Bảng~\ref{tab:timing} báo cáo thời gian suy nghĩ mỗi nước đo thực tế,
-bổ sung cho các mục tiêu thiết kế ở Bảng~\ref{tab:ai_params}.
+với đúng các cấu hình ở Bảng~\ref{tab:ai_params}.
 
 \begin{table}[H]
   \centering
@@ -198,7 +183,7 @@ khoảng tin cậy 95\% đều nằm trên $50\%$ một cách rõ rệt. Việc 
 mang lại lợi thế hệ thống chứng tỏ các quyết định trong Tactical Formation
 \emph{có hệ quả dài hạn}---dấu hiệu của chiều sâu chiến thuật---và hàm đánh
 giá kết hợp tìm kiếm Minimax là ``có nghĩa'', không phải nhiễu ngẫu nhiên.
-Thang Elo (Bảng~\ref{tab:elo}) định lượng khoảng cách: mỗi hai bậc độ sâu
+Thang Elo ước lượng ở trên định lượng khoảng cách: mỗi hai bậc độ sâu
 tương ứng $\approx 300$--$380$ Elo. Cần lưu ý đây là thang \emph{nội tại}
 (neo tương đối giữa các bot cùng engine), không phải Elo neo theo người
 chơi hay một đối thủ ngoài; nó chứng minh sức mạnh \emph{tương đối} tăng

@@ -9,8 +9,7 @@ vào cốt lõi của cờ: quân đi theo \textbf{hướng} nào và \textbf{ă
 ra sao. Mô hình dựng trên ba trụ cột---\textbf{trạng thái}, \textbf{hành
 động}, \textbf{phần thưởng}---và một tiên đề xuyên suốt: \emph{bàn cờ
 luôn có đúng 28 quân; ăn quân là đổi phe, không bao giờ loại bỏ}. Phần
-mở rộng cho chế độ 3--4 người được nêu ở Mục~\ref{sec:variants}; bảng tra
-ký hiệu đầy đủ ở Phụ lục~\ref{app:notation}.
+mở rộng cho chế độ 3--4 người được nêu ở Mục~\ref{sec:variants}.
 
 \subsection{Bàn cờ và 28 quân}
 \label{ssec:board}
@@ -282,12 +281,15 @@ với Cờ Đam ($\sim5\times10^{20}$, đã giải~\citep{schaeffer2007checkers}
 ---cho thấy chế độ 2 người nằm trong tầm tìm kiếm heuristic mà không cần
 học sâu.
 
-Về \emph{branching factor}, một hành động là bộ ba $(x,x',\delta)$. Mỗi
-phe có tối đa 14 quân; quân đỉnh có $\le 8$ ô đáp, quân tâm $\le 4$; mỗi
-ô đáp cho $\le 8$ hướng ăn nhưng chỉ chọn một (hoặc không ăn). Do đó số
-hành động ở một trạng thái bị chặn lỏng bởi
+Về \emph{branching factor}, một hành động là bộ ba $(x,x',\delta)$. Vì ăn
+quân là đổi phe, một phe có thể nắm gần như toàn bộ 28 quân, nên không thể
+chặn theo 14 quân ban đầu. Nhưng \emph{loại} quân thì bất biến: toàn bàn
+luôn có đúng 20 quân đỉnh và 8 quân tâm. Quân đỉnh có $\le 8$ ô đáp, và từ
+mỗi ô đáp có $\le 8$ tia kẹp để chọn một (nếu không có tia nào thì chỉ có
+một hành động); quân tâm có $\le 4$ ô đáp và $\le 4$ tia. Do đó số hành
+động ở một trạng thái bị chặn lỏng bởi
 \begin{equation}
-|\mathcal A(s)| \;\le\; 14\cdot 8\cdot(8+1) \;=\; 1008 .
+|\mathcal A(s)| \;\le\; 20\cdot 8\cdot 8 + 8\cdot 4\cdot 4 \;=\; 1408 .
 \label{eq:branchbound}
 \end{equation}
 Ràng buộc cú nhảy~\eqref{eq:jump} (cần bệ \emph{và} ô đáp trống) khiến
