@@ -18,7 +18,7 @@ Engage in epic battles with 2, 3, or 4 players! Tactical Formation challenges yo
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/quyetops/Tactical-Formation-The-Board-Game.git
+git clone https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game.git
 cd Tactical-Formation-The-Board-Game
 
 # 2. Create and activate the virtual environment
@@ -67,8 +67,8 @@ Then open `http://localhost:8000` in your browser.
 |---|---|---|
 | **Play 2** | 2 players, same machine | Yellow vs Green, take turns with the mouse |
 | **Bot AI** | 1 player vs Bot | You (Green) vs Minimax AI depth=6 (Yellow) |
-| **Play 3** | 3 players (2 bots + 1 human) | You (Green) vs 2 MCTS bots (Purple + Yellow) |
-| **Play 4** | 4 players (3 bots + 1 human) | You (Green) vs 3 MCTS bots (Blue + Purple + Yellow) |
+| **Play 3** | 3 players (2 bots + 1 human) | You (Green) vs 2 Paranoid Minimax bots, depth 4 (Purple + Yellow) |
+| **Play 4** | 4 players (3 bots + 1 human) | You (Green) vs 3 Paranoid Minimax bots, depth 3 (Blue + Purple + Yellow) |
 
 ---
 

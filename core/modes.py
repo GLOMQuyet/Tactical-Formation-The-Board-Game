@@ -107,7 +107,7 @@ MODE_PLAY_3 = Mode(
     # bottom-left and bottom-right corner cells (col, row)
     missing_cells=((0, 4), (5, 4)),
     ai_engine='paranoid',
-    ai_depth=5,
+    ai_depth=4,
 )
 
 # 3-player human-only variant (used when user picks "Play Human → 3 Players")
@@ -168,7 +168,7 @@ MODE_PLAY_4 = Mode(
     grid_rows=6, grid_cols=6, square_size=100,
     missing_cells=((0, 0), (5, 0), (0, 5), (5, 5)),
     ai_engine='paranoid',
-    ai_depth=5,
+    ai_depth=3,
 )
 
 # 4-player human-only variant (used when user picks "Play Human → 4 Players")
