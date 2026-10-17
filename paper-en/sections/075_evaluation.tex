@@ -7,14 +7,14 @@
 \section{Empirical Evaluation}
 \label{sec:eval}
 
-This section quantifies three aspects of Cờ Trận: (i) the
+This section quantifies three aspects of Tactical Formation: (i) the
 breadth of the game tree via the \emph{branching factor} and game length, (ii) the relative
 strength of the AI via a bot-vs-bot tournament, and (iii) real-time
 performance. The goal is to confirm that the move space is \emph{broad and
 non-degenerate} (branching factor), and that search depth \emph{actually
 translates into playing strength} (greater depth beats lesser depth
 consistently). Separation by depth is a sign, though not full proof,
-that decisions in Cờ Trận have lasting consequences.
+that decisions in Tactical Formation have lasting consequences.
 
 \subsection{Experimental Setup}
 \label{sec:eval_setup}
@@ -22,8 +22,8 @@ that decisions in Cờ Trận have lasting consequences.
 All experiments run on an AMD Ryzen~7 6800H CPU (16 threads, 7.4\,GB RAM),
 Python~3.12 on Linux (WSL2); the AI search runs single-threaded. The
 measurement code lives in \texttt{experiments/} in the open-source
-repository, with every random seed fixed for reproducibility. Because Cờ
-Trận has no move limit and no draw rule (Section~\ref{sec:provenance}),
+repository, with every random seed fixed for reproducibility. Because Tactical
+Formation has no move limit and no draw rule (Section~\ref{sec:provenance}),
 every game in the experiments of this section is played until one side
 wins. The measurement code sets only a safety cap of $10^5$ plies against an
 endless loop, and no game reached it. Each pairing
@@ -195,7 +195,7 @@ tactical depth).} The win-rate ranks monotonically with depth---d=6 beats
 d=2 absolutely (100\%), d=4 beats d=2 (90\%), and d=6 beats d=4 (86\%)
 (Table~\ref{tab:tournament})---every game ended with a winner, and all 95\%
 confidence intervals lie clearly above $50\%$. That seeing farther brings a
-systematic advantage indicates that decisions in Cờ Trận \emph{have
+systematic advantage indicates that decisions in Tactical Formation \emph{have
 long-term consequences}---a sign of tactical depth---and that the evaluation
 function combined with Minimax search is ``meaningful'', not random noise.
 The Elo estimate above quantifies the gap: every two depth

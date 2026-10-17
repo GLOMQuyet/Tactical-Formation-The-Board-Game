@@ -8,7 +8,7 @@ A companion AI lets a player practise when no opponent is available.
 
 The software does not use Monte Carlo Tree Search (MCTS)~\citep{browne2012survey}.
 Plain MCTS evaluates a move by playing random games to the end many times,
-and games of Cờ Trận are very long: the rules have no move limit, and a
+and games of Tactical Formation are very long: the rules have no move limit, and a
 random game lasts a median of about 300 plies in the 2-player mode, 1,300 to
 1,600 plies in the 3-player mode and 3,300 to 3,500 plies in the 4-player
 mode (Section~\ref{sec:eval_branching}). On the machine used in
@@ -119,7 +119,7 @@ thread, so the interface pauses while it computes its move.
 The effectiveness of Alpha-Beta pruning depends strongly on the order in
 which moves are visited~\citep{knuth1975alphabeta}.
 
-Cờ Trận offers a cheap and natural ordering heuristic: because
+Tactical Formation offers a cheap and natural ordering heuristic: because
 each action \emph{foresees} the number of pieces it captures,
 $|a|=|F_\delta|$ (Section~\ref{ssec:capture}), the bot visits moves in
 \emph{decreasing} order of $|a|$; the 2-player engine also visits first the

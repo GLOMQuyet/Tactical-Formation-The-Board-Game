@@ -2,7 +2,7 @@
 \section{Formal Mathematical Model (2-Player Mode)}
 \label{app:formal}
 
-This appendix specifies Cờ Trận mathematically,
+This appendix specifies Tactical Formation mathematically,
 \emph{independently of any software implementation}, complementing the
 presentation through images in Section~\ref{sec:rules} (which is
 enough to grasp the rules). The focus is on the core of the game: which
@@ -65,9 +65,9 @@ needing an elaborate proof. Its value lies in its \emph{consequence for
 play}: the game never degenerates into a sparse endgame, and all 28 pieces
 always stay in play.
 
-The invariant~\eqref{eq:conservation} distinguishes Cờ Trận from
+The invariant~\eqref{eq:conservation} distinguishes Tactical Formation from
 both Checkers (capture $=$ removal) and Reversi (the piece count grows with
-each placement), and places it in the same group as Cờ gánh and Ming Mang,
+each placement), and places it in the same group as Shoulder-Pole Chess and Ming Mang,
 two games that also conserve the total number of pieces
 (Section~\ref{sec:related}). The starting position (state $0$) consists of two
 symmetric blocks of pieces:
@@ -303,7 +303,7 @@ Ignoring reachability, the number of board configurations is bounded by
 (a factor of $2$ for the turn). This is a loose upper bound that includes
 states which never arise in real play. It is about three orders of magnitude
 below Checkers (about $5\times10^{20}$ positions), which was weakly solved in
-2007~\citep{schaeffer2007checkers}. Solving the 2-player mode of Cờ Trận
+2007~\citep{schaeffer2007checkers}. Solving the 2-player mode of Tactical Formation
 may therefore be a feasible research direction, although it would still need
 substantial computing resources.
 
