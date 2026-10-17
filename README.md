@@ -99,20 +99,19 @@ Tactical-Formation-The-Board-Game/
 ├── tests/                  # Rule tests
 ├── tools/make_figures.py   # Renders the board figures used in the paper
 ├── docs/                   # Formal model of the 2-player game
-├── paper/, paper-en/       # Paper (Vietnamese and English editions)
 ├── assets/                 # Images, fonts and sounds
 └── utils/utils.py          # Shared utilities
 ```
 
 The bots use Minimax-family search only; Monte Carlo Tree Search is not used
-(the paper's Section 6 explains why).
+(Section 6 of the [paper](https://doi.org/10.5281/zenodo.23437471) explains why).
 
 ---
 
 ## License
 
 - Software: [MIT](./LICENSE).
-- Paper sources (`paper/`, `paper-en/`): [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- Paper ([doi:10.5281/zenodo.23437471](https://doi.org/10.5281/zenodo.23437471)): [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 - The rules of Cờ Trận are a Vietnamese folk tradition and are not owned by the author.
 
 ---

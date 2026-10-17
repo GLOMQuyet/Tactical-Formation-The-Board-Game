@@ -171,32 +171,10 @@ cython_debug/
 # .idea/
 tactical/
 
-# LaTeX build artifacts (paper/)
-paper/build/
-paper/*.aux
-paper/*.bbl
-paper/*.blg
-paper/*.log
-paper/*.out
-paper/*.toc
-paper/*.synctex.gz
-paper/*.fdb_latexmk
-paper/*.fls
-paper/sections/*.aux
-paper/figures/*.aux
-paper/*.pdf
-paper/*.xdv
-paper-en/*.aux
-paper-en/*.bbl
-paper-en/*.blg
-paper-en/*.log
-paper-en/*.out
-paper-en/*.toc
-paper-en/*.synctex.gz
-paper-en/*.fdb_latexmk
-paper-en/*.fls
-paper-en/*.pdf
-paper-en/*.xdv
+# Paper sources are kept locally, outside this repository.
+# Published paper: https://doi.org/10.5281/zenodo.23437471
+paper/
+paper-en/
 
 # Experiment run logs (keep the CSVs, drop the noisy logs)
 experiments/results/*.log
