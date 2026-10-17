@@ -7,7 +7,7 @@
 \section{Empirical Evaluation}
 \label{sec:eval}
 
-This section quantifies three aspects of Tactical Formation: (i) the
+This section quantifies three aspects of Cờ Trận: (i) the
 state-space complexity via the \emph{branching factor}, (ii) the relative
 strength of the AI via a bot-vs-bot tournament, and (iii) real-time
 performance. The goal is to confirm that the move space is \emph{broad and
@@ -87,7 +87,8 @@ turn~\citep{allis1994searching}. These values lie far below the analytic
 upper bound $|\mathcal A(s)|\le 1408$ (Appendix~\ref{app:formal}),
 confirming that the jump constraint tightens the actual move space;
 positioning a game's complexity relative to solved games is standard
-evaluation practice~\citep{herik2002games}. It must be stressed: the
+evaluation practice~\citep{herik2002games}, and Appendix~\ref{app:formal}
+bounds the 2-player state space at about $3.7\times10^{17}$~\eqref{eq:statespace}. It must be stressed: the
 branching factor measures the \emph{breadth} of the game tree, not directly
 the \emph{depth} of tactics; it only shows that the move space is rich
 enough and does not degenerate toward the endgame. The evidence for tactical
@@ -193,13 +194,13 @@ tactical depth).} The win-rate ranks monotonically with depth---d=6 beats
 d=2 absolutely (100\%), d=4 beats d=2 (90\%), and d=6 beats d=4 (86\%)
 (Table~\ref{tab:tournament})---every game ended with a winner, and all 95\%
 confidence intervals lie clearly above $50\%$. That seeing farther brings a
-systematic advantage proves that decisions in Tactical Formation \emph{have
+systematic advantage indicates that decisions in Cờ Trận \emph{have
 long-term consequences}---a sign of tactical depth---and that the evaluation
 function combined with Minimax search is ``meaningful'', not random noise.
 The Elo estimate above quantifies the gap: every two depth
 levels correspond to $\approx 300$--$380$ Elo. Note that this is an
 \emph{intrinsic} scale (relatively anchored among bots of the same engine),
-not an Elo anchored to human players or an external opponent; it proves that
+not an Elo anchored to human players or an external opponent; it shows that
 \emph{relative} strength grows with depth, not the absolute quality of the
 AI.
 

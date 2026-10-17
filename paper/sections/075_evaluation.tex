@@ -7,7 +7,7 @@
 \section{Đánh Giá Thực Nghiệm}
 \label{sec:eval}
 
-Mục này định lượng ba khía cạnh của Tactical Formation: (i) độ phức tạp
+Mục này định lượng ba khía cạnh của Cờ Trận: (i) độ phức tạp
 không gian trạng thái qua \emph{branching factor}, (ii) sức mạnh tương
 đối của AI qua giải đấu bot-vs-bot, và (iii) hiệu năng thời gian thực.
 Mục tiêu là xác nhận không gian nước đi \emph{đủ rộng và không suy biến}
@@ -82,7 +82,8 @@ lượt~\citep{allis1994searching}. Các giá trị này nằm xa dưới chặn
 tích $|\mathcal A(s)|\le 1408$ (Phụ lục~\ref{app:formal}), xác nhận ràng buộc
 cú nhảy thắt chặt không gian nước đi thực tế; việc định vị độ phức tạp của
 một game so với các game đã được giải là thông lệ đánh giá tiêu
-chuẩn~\citep{herik2002games}. Cần nhấn mạnh: branching factor đo \emph{bề
+chuẩn~\citep{herik2002games}; Phụ lục~\ref{app:formal} ước lượng không gian
+trạng thái chế độ 2 người tối đa khoảng $3{,}7\times10^{17}$~\eqref{eq:statespace}. Cần nhấn mạnh: branching factor đo \emph{bề
 rộng} của cây trò chơi, không trực tiếp đo \emph{chiều sâu} chiến thuật; nó
 chỉ cho thấy không gian nước đi đủ phong phú và không suy biến về cuối ván.
 Bằng chứng cho chiều sâu chiến thuật---rằng các quyết định thực sự có ý
@@ -184,13 +185,13 @@ chiều sâu chiến thuật).} Win-rate xếp hạng đơn điệu theo độ s
 d=2 tuyệt đối (100\%), d=4 thắng d=2 (90\%), và d=6 thắng d=4 (86\%)
 (Bảng~\ref{tab:tournament})---mọi ván đều phân thắng bại, và các
 khoảng tin cậy 95\% đều nằm trên $50\%$ một cách rõ rệt. Việc nhìn xa hơn
-mang lại lợi thế hệ thống chứng tỏ các quyết định trong Tactical Formation
+mang lại lợi thế hệ thống cho thấy các quyết định trong Cờ Trận
 \emph{có hệ quả dài hạn}---dấu hiệu của chiều sâu chiến thuật---và hàm đánh
 giá kết hợp tìm kiếm Minimax là ``có nghĩa'', không phải nhiễu ngẫu nhiên.
 Thang Elo ước lượng ở trên định lượng khoảng cách: mỗi hai bậc độ sâu
 tương ứng $\approx 300$--$380$ Elo. Cần lưu ý đây là thang \emph{nội tại}
 (neo tương đối giữa các bot cùng engine), không phải Elo neo theo người
-chơi hay một đối thủ ngoài; nó chứng minh sức mạnh \emph{tương đối} tăng
+chơi hay một đối thủ ngoài; nó cho thấy sức mạnh \emph{tương đối} tăng
 theo độ sâu, chứ không khẳng định chất lượng tuyệt đối của AI.
 
 \textbf{(3) Hiệu năng thời gian thực.} Chế độ 4 người đạt trung vị

@@ -2,7 +2,7 @@
 \section{Mô Hình Toán Học Hình Thức (Chế Độ 2 Người)}
 \label{app:formal}
 
-Phụ lục này đặc tả Tactical Formation bằng toán học, \emph{độc lập với mọi
+Phụ lục này đặc tả Cờ Trận bằng toán học, \emph{độc lập với mọi
 cách cài đặt phần mềm}, bổ sung cho phần trình bày chính bằng hình ảnh bàn
 cờ thật ở Mục~\ref{sec:rules} (đủ để nắm luật chơi). Trọng tâm đặt
 vào cốt lõi của cờ: quân đi theo \textbf{hướng} nào và \textbf{ăn quân}
@@ -61,7 +61,7 @@ nó nằm ở \emph{hệ quả đối với lối chơi}: ván cờ không bao g
 thành tàn cuộc thưa quân, toàn bộ 28 quân luôn là tài nguyên chiến thuật
 sống.
 
-Bất biến~\eqref{eq:conservation} phân biệt Tactical Formation với cả Cờ
+Bất biến~\eqref{eq:conservation} phân biệt Cờ Trận với cả Cờ
 Đam (ăn $=$ loại) lẫn Reversi (số quân tăng theo lượt đặt), và xếp nó vào
 cùng nhóm với Cờ gánh và Ming Mang, hai trò chơi cũng bảo toàn tổng số quân
 (Mục~\ref{sec:related}). Vị trí xuất
@@ -86,7 +86,8 @@ b:\mathcal B\to\{\mathrm Y,\mathrm G,\varnothing\},\qquad
 $b$ là \emph{cấu hình bàn} (ô nào mang màu gì), $\mathrm{turn}$ là phe
 đến lượt. Biết vị trí và phe của cả 28 quân cộng với ai đang đi là biết
 toàn bộ trạng thái---trò chơi \emph{thông tin hoàn hảo}, không có thông
-tin ẩn. Trạng thái xuất phát là $s_0=(b_0,\mathrm G)$ với $b_0$ đặt theo
+tin ẩn. Trạng thái xuất phát là $s_0=(b_0,\mathrm G)$ (quy ước Xanh đi
+trước; khi chơi thật, ai đi trước do thoả thuận) với $b_0$ đặt theo
 \eqref{eq:starty}--\eqref{eq:startg}. Hàm đếm quân $N_c(s)$ thoả
 $N_{\mathrm Y}(s_0)=N_{\mathrm G}(s_0)=14$ và bất biến~\eqref{eq:conservation}.
 
@@ -295,6 +296,20 @@ một hành động); quân tâm có $\le 4$ ô đáp và $\le 4$ tia. Do đó s
 Ràng buộc cú nhảy~\eqref{eq:jump} (cần bệ \emph{và} ô đáp trống) khiến
 branching factor thực tế nhỏ hơn nhiều; giá trị đo đạc được báo cáo ở
 Mục~\ref{sec:eval}.
+
+Về \emph{không gian trạng thái}, vì loại quân bất biến, 20 quân đỉnh luôn
+nằm trên 25 ô đỉnh và 8 quân tâm trên 16 ô tâm; mỗi quân thuộc một trong
+hai phe, cộng thêm phe đến lượt. Số trạng thái do đó bị chặn trên bởi
+\begin{equation}
+|\mathcal S| \;\le\; \binom{25}{20}\binom{16}{8}\,2^{28}\cdot 2
+\;\approx\; 3{,}7\times10^{17}.
+\label{eq:statespace}
+\end{equation}
+Chặn trên này tính cả những trạng thái không bao giờ xảy ra trong ván thật.
+Nó nhỏ hơn khoảng ba bậc độ lớn so với Cờ Đam (khoảng $5\times10^{20}$ thế
+cờ), trò chơi đã được giải yếu năm 2007~\citep{schaeffer2007checkers}. Giải
+trọn chế độ 2 người của Cờ Trận vì thế có thể là một hướng nghiên cứu khả
+thi, dù vẫn cần tài nguyên tính toán lớn.
 
 \subsection{Trò chơi trong một dòng}
 \label{ssec:onelinerule}

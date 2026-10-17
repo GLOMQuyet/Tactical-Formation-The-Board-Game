@@ -2,7 +2,7 @@
 \section{Formal Mathematical Model (2-Player Mode)}
 \label{app:formal}
 
-This appendix specifies Tactical Formation mathematically,
+This appendix specifies Cờ Trận mathematically,
 \emph{independently of any software implementation}, complementing the main
 presentation through real board images in Section~\ref{sec:rules} (which is
 enough to grasp the rules). The focus is on the core of the game: which
@@ -64,7 +64,7 @@ needing an elaborate proof. Its value lies in its \emph{consequence for
 play}: the game never degenerates into a sparse endgame, and all 28 pieces
 always remain a live tactical resource.
 
-The invariant~\eqref{eq:conservation} distinguishes Tactical Formation from
+The invariant~\eqref{eq:conservation} distinguishes Cờ Trận from
 both Checkers (capture $=$ removal) and Reversi (the piece count grows with
 each placement), and places it in the same group as Cờ gánh and Ming Mang,
 two games that also conserve the total number of pieces
@@ -91,7 +91,8 @@ $b$ is the \emph{board configuration} (which cell holds which colour), and
 $\mathrm{turn}$ is the side to move. Knowing the position and side of all 28
 pieces plus who is to move is to know the entire state---the game is one of
 \emph{perfect information}, with no hidden information. The starting state is
-$s_0=(b_0,\mathrm G)$ with $b_0$ placed per
+$s_0=(b_0,\mathrm G)$ (by convention Green moves first; in real play the
+first mover is agreed among the players) with $b_0$ placed per
 \eqref{eq:starty}--\eqref{eq:startg}. The piece-count function $N_c(s)$
 satisfies $N_{\mathrm Y}(s_0)=N_{\mathrm G}(s_0)=14$ and the
 invariant~\eqref{eq:conservation}.
@@ -319,6 +320,21 @@ loosely bounded by
 The jump constraint~\eqref{eq:jump} (requiring both a springboard \emph{and}
 an empty landing cell) makes the actual branching factor much smaller; the
 measured values are reported in Section~\ref{sec:eval}.
+
+As for the \emph{state space}, because the kind of a piece is invariant, the
+20 vertex pieces always occupy 25 vertex cells and the 8 centre pieces 16
+centre cells; each piece belongs to one of the two sides, and one side is to
+move. The number of states is therefore bounded by
+\begin{equation}
+|\mathcal S| \;\le\; \binom{25}{20}\binom{16}{8}\,2^{28}\cdot 2
+\;\approx\; 3.7\times10^{17}.
+\label{eq:statespace}
+\end{equation}
+This bound includes states that never arise in real play. It is about three
+orders of magnitude below Checkers (about $5\times10^{20}$ positions), which
+was weakly solved in 2007~\citep{schaeffer2007checkers}. Solving the
+2-player mode of Cờ Trận may therefore be a feasible research direction,
+although it would still need substantial computing resources.
 
 \subsection{The game in one line}
 \label{ssec:onelinerule}
