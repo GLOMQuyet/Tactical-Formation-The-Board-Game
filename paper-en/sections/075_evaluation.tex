@@ -91,7 +91,7 @@ evaluation practice~\citep{herik2002games}, and Appendix~\ref{app:formal}
 bounds the 2-player state space at about $3.7\times10^{17}$~\eqref{eq:statespace}. It must be stressed: the
 branching factor measures the \emph{breadth} of the game tree, not directly
 the \emph{depth} of tactics; it only shows that the move space is rich
-enough and does not degenerate toward the endgame. The evidence for tactical
+enough and does not degenerate toward the endgame. A stronger indication of tactical
 depth---that decisions truly matter---comes from the tournament in
 Section~\ref{sec:eval_tournament}.
 
@@ -186,11 +186,11 @@ choices. In no mode does the branching shrink toward the end of the game: it
 is stable in the 2-player mode and even grows in the 3- and 4-player modes,
 unlike games with piece removal, where the branching dwindles toward the
 endgame. The game therefore does not degenerate into a simple endgame.
-Branching alone does not prove tactical depth; it establishes a necessary
-condition (a non-trivial space), while the sufficient evidence comes from
+Branching alone does not prove tactical depth; it only shows a necessary
+condition (a non-trivial move space), while a stronger indication comes from
 observation~(2).
 
-\textbf{(2) Search depth translates into playing strength (the evidence for
+\textbf{(2) Search depth translates into playing strength (a sign of
 tactical depth).} The win-rate ranks monotonically with depth---d=6 beats
 d=2 absolutely (100\%), d=4 beats d=2 (90\%), and d=6 beats d=4 (86\%)
 (Table~\ref{tab:tournament})---every game ended with a winner, and all 95\%

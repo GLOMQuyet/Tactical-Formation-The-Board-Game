@@ -109,6 +109,14 @@ The bots use Minimax-family search only; Monte Carlo Tree Search is not used
 
 ---
 
+## License
+
+- Software: [MIT](./LICENSE).
+- Paper sources (`paper/`, `paper-en/`): [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- The rules of Cờ Trận are a Vietnamese folk tradition and are not owned by the author.
+
+---
+
 ## Troubleshooting
 
 | Error | Fix |
