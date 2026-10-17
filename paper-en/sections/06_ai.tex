@@ -7,10 +7,11 @@ A companion AI lets a player practise when no opponent is available.
 \subsection{Why Minimax Rather Than MCTS}
 
 Monte Carlo Tree Search (MCTS)~\citep{coulom2006efficient,browne2012survey}
-is a popular choice for multiplayer games because it needs no explicit
-evaluation function. \citet{nijssen2013mcts} also shows that MCTS with a
-max$^n$ tree performs best in several multiplayer games, including Rolit, a
-Reversi variant close to Cờ Trận. We nevertheless chose the Minimax family
+is a popular choice for multiplayer games~\citep{sturtevant2008analysis}
+because it needs no explicit evaluation function. \citet{nijssen2013mcts}
+compares max$^n$ MCTS with Best-Reply Search and finds no technique that wins
+in every game: Best-Reply Search is stronger in Focus, while MCTS is stronger
+in Blokus and especially in Rolit, a Reversi variant close to Cờ Trận. We nevertheless chose the Minimax family
 for this version, for two practical reasons. First, the sandwich-flip rule
 gives an explicit signal that is cheap to compute and close to how players
 judge a position (piece count and number of moves), in the spirit of the
@@ -54,7 +55,7 @@ scale does not make the bot miss a real winning or losing move.
 \paragraph{3--4 player mode---Paranoid Minimax.} With $\ge 3$ sides, the
 score is no longer fully opposed, so pruning is
 harder~\citep{korf1991multiplayer,sturtevant2000pruning}. The bot applies
-\textbf{Paranoid Minimax}~\citep{sturtevant2003comparison,sturtevant2008analysis}:
+\textbf{Paranoid Minimax}~\citep{sturtevant2000pruning,sturtevant2003comparison}:
 the side under consideration maximises,
 \emph{every other side is treated as a single coalition} that minimises,
 reducing the $N$-player problem to a two-sided max--min so that full
@@ -83,8 +84,9 @@ carries a fast-win bonus
 where $d$ is the remaining depth---encouraging the bot to finish early
 rather than prolong the game. In the search tree, a side to move that has no
 move is eliminated and the turn passes to the next side, as in the rules. A strong alternative is Best Reply
-Search~\citep{schadd2011brs}, which often outperforms Paranoid in many
-4-player games; we choose Paranoid for its simplicity and because it is good
+Search~\citep{schadd2011brs}: it outperforms Paranoid in Chinese Checkers
+and Focus, but is only on a par with Paranoid in
+Rolit~\citep{schadd2011brs,nijssen2013mcts}. We choose Paranoid for its simplicity and because it is good
 enough within a real-time compute budget, leaving a comparison with Best
 Reply Search to future work.
 

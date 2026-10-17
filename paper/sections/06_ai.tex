@@ -7,10 +7,11 @@ AI đồng hành cho phép người chơi luyện tập khi không có đối th
 \subsection{Vì Sao Chọn Minimax Thay Cho MCTS}
 
 Monte Carlo Tree Search (MCTS)~\citep{coulom2006efficient,browne2012survey}
-là lựa chọn phổ biến cho game nhiều người vì không cần hàm đánh giá tường
-minh. \citet{nijssen2013mcts} còn cho thấy MCTS dạng max$^n$ chơi tốt nhất
-trong nhiều game nhiều người, trong đó có Rolit, một biến thể Reversi gần với
-Cờ Trận. Chúng tôi vẫn chọn họ Minimax cho phiên bản này vì hai lý do thực
+là lựa chọn phổ biến cho game nhiều người~\citep{sturtevant2008analysis} vì
+không cần hàm đánh giá tường minh. \citet{nijssen2013mcts} so sánh MCTS dạng
+max$^n$ với Best-Reply Search và thấy không có kỹ thuật nào thắng ở mọi game:
+Best-Reply Search mạnh hơn trong Focus, còn MCTS mạnh hơn trong Blokus và
+nhất là Rolit, một biến thể Reversi gần với Cờ Trận. Chúng tôi vẫn chọn họ Minimax cho phiên bản này vì hai lý do thực
 dụng. Thứ nhất, luật kẹp--lật cho một tín hiệu tường minh, rẻ để tính và gần
 với cách người chơi đánh giá thế cờ (quân số và số nước đi), theo tinh thần
 các hàm đánh giá cho Othello~\citep{buro1999how}. Thứ hai, Minimax với cắt
@@ -50,7 +51,7 @@ làm bot bỏ lỡ nước thắng/thua thực sự.
 \paragraph{Chế độ 3--4 người---Paranoid Minimax.} Với $\ge 3$ phe, điểm
 số không còn đối nghịch hoàn toàn nên cắt tỉa khó
 hơn~\citep{korf1991multiplayer,sturtevant2000pruning}. Bot áp dụng
-\textbf{Paranoid Minimax}~\citep{sturtevant2003comparison,sturtevant2008analysis}:
+\textbf{Paranoid Minimax}~\citep{sturtevant2000pruning,sturtevant2003comparison}:
 phe đang xét cực đại, \emph{mọi phe còn
 lại bị coi như một liên minh} cùng cực tiểu, quy bài toán $N$-người về
 max--min hai chiều để dùng Alpha-Beta đầy đủ. Giữ nguyên trọng số $0.7/0.3$
@@ -76,8 +77,9 @@ phe sống, điểm kết cuộc kèm thưởng thắng nhanh
 trong đó $d$ là độ sâu còn lại---khuyến khích bot kết liễu sớm thay vì
 kéo dài ván. Trong cây tìm kiếm, phe đến lượt mà hết nước đi bị loại và
 lượt chuyển sang phe kế tiếp, đúng như luật chơi. Một lựa chọn thay thế mạnh là Best Reply
-Search~\citep{schadd2011brs}, thường vượt Paranoid trong nhiều game 4
-người; chúng tôi chọn Paranoid vì đơn giản và đủ tốt trong ngân sách
+Search~\citep{schadd2011brs}: nó vượt Paranoid trong Chinese Checkers và
+Focus, nhưng chỉ ngang Paranoid trong Rolit~\citep{schadd2011brs,nijssen2013mcts}.
+Chúng tôi chọn Paranoid vì đơn giản và đủ tốt trong ngân sách
 tính toán thời gian thực, để dành so sánh với Best Reply Search cho hướng
 phát triển.
 
