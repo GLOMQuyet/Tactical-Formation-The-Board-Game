@@ -7,6 +7,8 @@ After every completed move the game is autosaved (`core.savegame`); the save
 is deleted when the game ends.
 """
 
+import time
+
 import pygame
 
 from ai.worker import BotWorker
@@ -15,6 +17,7 @@ from core.history import MoveRecord, undo_record
 from core.state import GameState
 from ui import input as ui_input, renderer
 from ui.widgets import UndoButton, game_over_screen
+
 
 def run(win, mode, difficulty=None, saved=None):
     """Run one game in `mode`. Returns 'menu' or 'exit'.
@@ -38,7 +41,7 @@ def _play(win, mode, difficulty, saved, worker):
     else:
         state, move_history = GameState.new(mode), []
     sprites = renderer.SpriteRegistry()
-    bot_started = 0
+    bot_started = 0.0   # time.monotonic() when the current search began
 
     selected_piece = None
     valid_moves = []
@@ -106,33 +109,19 @@ def _play(win, mode, difficulty, saved, worker):
         clock.tick(120 if not mode.bot_colors or mode.name == 'bot_2' else 60)
 
         # ── Win/elimination check ─────────────────────────────────────────
+        # No move limit: like the folk game, play continues until the winning
+        # condition is met (a 4-player game could last hours).
         if not game_over:
-            current = state.current_player
-            # No move limit: like the folk game, play continues until the
-            # winning condition is met (a 4-player game could last hours).
-            if current is None:
-                game_over = True
-            elif not rules.is_alive(current, state.board, mode):
-                if mode.eliminate_on_no_moves:
-                    state.active_players.remove(current)
-                    if len(state.active_players) == 1:
-                        game_over = True
-                        winner = state.active_players[0]
-                    elif not state.active_players:
-                        game_over = True
-                else:
-                    # 2-player: current player loses
-                    game_over = True
-                    winner = next(c for c in mode.players if c != current)
+            game_over, winner = state.start_turn()
 
         # ── Bot turn: search in the background, apply when done ──────────
         bot_turn = (not game_over and not awaiting_capture_choice
                     and state.current_player in mode.bot_colors)
         if bot_turn and not worker.busy:
             worker.start(state)
-            bot_started = pygame.time.get_ticks()
+            bot_started = time.monotonic()
         elif (bot_turn and worker.done()
-              and pygame.time.get_ticks() - bot_started >= mode.bot_delay_ms):
+              and (time.monotonic() - bot_started) * 1000 >= mode.bot_delay_ms):
             result = worker.result()
             if result is not None:
                 move, capture_direction = result
@@ -146,8 +135,8 @@ def _play(win, mode, difficulty, saved, worker):
                 worker.cancel()
                 return 'exit'
 
-            if undo_button is not None:
-                undo_button.handle_event(event)
+            if undo_button is not None and undo_button.handle_event(event):
+                continue   # the click was for the button, not the board
 
             if event.type != pygame.MOUSEBUTTONDOWN or game_over:
                 continue

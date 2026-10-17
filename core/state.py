@@ -38,6 +38,28 @@ class GameState:
             return None
         return self.active_players[self.turn_index % len(self.active_players)]
 
+    def start_turn(self):
+        """Settle the start of the current turn; return (game_over, winner).
+
+        In 3/4-player modes a player who cannot move is eliminated, and the
+        game ends when one player is left — also when `advance_turn` has
+        already removed the others. In 2-player mode a player who cannot move
+        loses. `winner` is None while the game goes on (or if nobody is left).
+        """
+        mode = self.mode
+        while True:
+            if mode.eliminate_on_no_moves and len(self.active_players) <= 1:
+                return True, (self.active_players[0] if self.active_players else None)
+            current = self.current_player
+            if current is None:
+                return True, None
+            if rules.is_alive(current, self.board, mode):
+                return False, None
+            if not mode.eliminate_on_no_moves:
+                return True, next(c for c in mode.players if c != current)
+            # The next player in turn order slides into `turn_index`.
+            self.active_players.remove(current)
+
     def advance_turn(self):
         """Move to next still-alive player. Eliminate dead ones if mode allows."""
         # Record the position the just-completed move produced. The live board's

@@ -55,11 +55,14 @@ class UndoButton:
         win.blit(assets.undo_icon(), self.rect.topleft)
 
     def handle_event(self, event):
+        """Run the callback on a click; return True if the click hit the button."""
         if event.type == pygame.MOUSEMOTION:
             self.hovered = self.rect.collidepoint(event.pos)
         elif (event.type == pygame.MOUSEBUTTONDOWN
-              and event.button == 1 and self.hovered):
+              and event.button == 1 and self.rect.collidepoint(event.pos)):
             self.callback()
+            return True
+        return False
 
 
 def game_over_screen(win, winner):

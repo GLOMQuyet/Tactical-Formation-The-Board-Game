@@ -129,6 +129,40 @@ class TestAdvanceTurn(unittest.TestCase):
         self.assertEqual(s.current_player, 'green')
 
 
+class TestStartTurn(unittest.TestCase):
+    def test_game_goes_on_at_the_opening(self):
+        for mode in (MODE_PLAY_2, MODE_PLAY_3, MODE_PLAY_4):
+            self.assertEqual(_make(mode).start_turn(), (False, None), mode.name)
+
+    def test_last_player_left_wins_after_advance_turn(self):
+        # Regression: when advance_turn eliminated everyone but the mover, the
+        # game screen never declared a winner and the last player moved alone.
+        board = Board([Piece(2, 2, 'purple'), Piece(3, 2, 'purple'),
+                       Piece(0, 0, 'yellow'), Piece(6, 0, 'green')])
+        s = GameState(board=board, active_players=['purple', 'yellow', 'green'],
+                      turn_index=0, mode=MODE_PLAY_3_HUMAN)
+        rules.apply_move(s.board, (2, 2, 4, 2), MODE_PLAY_3_HUMAN)
+        s.advance_turn()
+        self.assertEqual(s.active_players, ['purple'])
+        self.assertEqual(s.start_turn(), (True, 'purple'))
+
+    def test_player_without_moves_is_eliminated_and_the_next_one_plays(self):
+        board = Board([Piece(0, 0, 'purple'),
+                       Piece(2, 2, 'yellow'), Piece(3, 2, 'yellow'),
+                       Piece(2, 4, 'green'), Piece(3, 4, 'green')])
+        s = GameState(board=board, active_players=['purple', 'yellow', 'green'],
+                      turn_index=0, mode=MODE_PLAY_3_HUMAN)
+        self.assertEqual(s.start_turn(), (False, None))
+        self.assertEqual(s.active_players, ['yellow', 'green'])
+        self.assertEqual(s.current_player, 'yellow')
+
+    def test_2p_player_without_moves_loses(self):
+        board = Board([Piece(2, 2, 'green'), Piece(0, 0, 'yellow'), Piece(1, 0, 'yellow')])
+        s = GameState(board=board, active_players=['green', 'yellow'],
+                      turn_index=0, mode=MODE_PLAY_2)
+        self.assertEqual(s.start_turn(), (True, 'yellow'))
+
+
 class TestHumanModesHaveNoBots(unittest.TestCase):
     def test_play_2_no_bots(self):
         self.assertEqual(MODE_PLAY_2.bot_colors, frozenset())
