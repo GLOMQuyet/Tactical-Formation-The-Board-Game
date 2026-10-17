@@ -1,0 +1,18 @@
+[project]
+name = "tactical-formation"
+version = "1.1.0.dev0"
+description = "Tactical Formation, a Vietnamese folk board game for 2-4 players, with Minimax and Paranoid Minimax bots"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Truong Van Quyet" }]
+requires-python = ">=3.10"
+dependencies = ["pygame==2.6.1"]
+
+[project.urls]
+Repository = "https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game"
+Paper = "https://doi.org/10.5281/zenodo.23437471"
+
+[tool.uv]
+# An application run from the source tree (uv run main.py), not an installable package.
+package = false

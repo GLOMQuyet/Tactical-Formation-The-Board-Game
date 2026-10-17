@@ -1,10 +1,10 @@
 """Run the empirical evaluation for the paper and write results to CSV.
 
 Usage:
-    python -m experiments.run_eval --all
-    python -m experiments.run_eval --branching --timing
-    python -m experiments.run_eval --tournament --games 200
-    python -m experiments.run_eval --quick          # tiny smoke run
+    uv run python -m experiments.run_eval --all
+    uv run python -m experiments.run_eval --branching --timing
+    uv run python -m experiments.run_eval --tournament --games 200
+    uv run python -m experiments.run_eval --quick          # tiny smoke run (overwrites results/*.csv)
 
 Outputs go to experiments/results/*.csv and a human-readable summary is printed
 (ready to transcribe into the LaTeX tables). All randomness is seeded so runs
@@ -420,7 +420,8 @@ def main():
     ap.add_argument('--firstmove', action='store_true',
                     help='equal-depth self-play, first-mover advantage')
     ap.add_argument('--quick', action='store_true',
-                    help='tiny smoke run to validate the harness')
+                    help='tiny smoke run to validate the harness '
+                         '(overwrites results/*.csv)')
     ap.add_argument('--games', type=int, default=200,
                     help='games per tournament pair (default 200)')
     ap.add_argument('--fm-depth', type=int, default=2,

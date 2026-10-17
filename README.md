@@ -1,5 +1,7 @@
 # Tactical Formation — The Board Game
 
+[![tests](https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game/actions/workflows/tests.yml/badge.svg)](https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game/actions/workflows/tests.yml)
+
 Engage in epic battles with 2, 3, or 4 players! Tactical Formation challenges you to master the art of strategic deployment and outmaneuver your opponents in a dynamic and engaging board game. Command your unique forces, anticipate your rivals' moves, and dominate the battlefield to claim victory.
 
 > **Origin.** Tactical Formation is the English name for **Cờ Trận**, a folk board game played by children in Đồng Bùa hamlet, Tam Quan commune, Tam Đảo district, Vĩnh Phúc province, Vietnam. Pieces were whatever could be found by the roadside: stones, pebbles, twigs, leaves. This project did not invent the game. It records the rules from memory and brings the game to software so that it is not forgotten.
@@ -12,63 +14,70 @@ Engage in epic battles with 2, 3, or 4 players! Tactical Formation challenges yo
 
 ### Requirements
 
-- Python 3.10+
-
-### Installation
+- [uv](https://docs.astral.sh/uv/getting-started/installation/). uv installs the
+  right Python (3.12, from `.python-version`) and the locked dependencies
+  (`uv.lock`) by itself; no manual virtual environment or `pip` is needed.
 
 ```bash
-# 1. Clone the repository
+# Linux / macOS
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+```powershell
+# Windows (PowerShell)
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+### Install and run
+
+```bash
 git clone https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game.git
 cd Tactical-Formation-The-Board-Game
-
-# 2. Create and activate the virtual environment
-python3 -m venv .venv
-
-source .venv/bin/activate        # Linux/macOS
-# .venv\Scripts\activate         # Windows
-
-# 3. Install dependencies
-pip install -r requirements.txt
+uv run main.py
 ```
 
-### Run
+The first `uv run` creates `.venv/` and installs pygame from the lock file; later
+runs start immediately. An 800×800 window opens with the main menu.
+
+### Tests
 
 ```bash
-# Make sure the virtual environment is active first!
-source .venv/bin/activate        # Linux/macOS (skip if already active)
-
-python main.py
+uv run python -m unittest discover -s tests
 ```
 
-> **Common mistake**: running `python3 main.py` with the system Python (which has no pygame) instead of the venv Python. Always activate the venv first, or call `.venv/bin/python main.py` directly.
-
-A 800×800 window will open with the main menu.
-
-### Run without activating venv
-
-```bash
-.venv/bin/python main.py          # Linux/macOS
-.venv\Scripts\python main.py      # Windows
-```
-
-### Run in Browser (optional)
-
-```bash
-.venv/bin/python -m pygbag main.py
-```
-
-Then open `http://localhost:8000` in your browser.
+GitHub Actions runs the same tests on Linux, Windows and macOS for every push.
 
 ---
 
 ## Game Modes
 
-| Menu Button | Mode | Description |
+| Menu | Choice | Description |
 |---|---|---|
-| **Play 2** | 2 players, same machine | Yellow vs Green, take turns with the mouse |
-| **Bot AI** | 1 player vs Bot | You (Green) vs Minimax AI depth=6 (Yellow) |
-| **Play 3** | 3 players (2 bots + 1 human) | You (Green) vs 2 Paranoid Minimax bots, depth 4 (Purple + Yellow) |
-| **Play 4** | 4 players (3 bots + 1 human) | You (Green) vs 3 Paranoid Minimax bots, depth 3 (Blue + Purple + Yellow) |
+| **Play Human** | 2, 3 or 4 Players | Everyone plays on the same machine, taking turns with the mouse |
+| **Play Bot** | 1 vs Bot (2P) | You (Green) vs a Minimax bot (Yellow) |
+| | 2 Bots (3P) | You (Green) vs 2 Paranoid Minimax bots (Purple, Yellow) |
+| | 3 Bots (4P) | You (Green) vs 3 Paranoid Minimax bots (Blue, Purple, Yellow) |
+| **Continue** | | Shown when a game is unfinished; resumes it |
+
+After choosing a bot game you pick a difficulty. It sets how many moves ahead
+the bots search:
+
+| Difficulty | 2 players | 3 players | 4 players |
+|---|---|---|---|
+| Easy | 2 | 2 | 1 |
+| Medium | 4 | 3 | 2 |
+| Hard | 6 | 4 | 3 |
+
+Hard is the setting measured in the paper. Bots think in a separate process,
+so the window stays responsive while they search.
+
+**Autosave.** Every game is saved after each move and the save is removed when
+the game ends, so you can close the window at any time and pick the game up
+again with **Continue**. The save file is `autosave.json` in
+`%APPDATA%\TacticalFormation` (Windows),
+`~/Library/Application Support/TacticalFormation` (macOS) or
+`~/.local/share/tactical-formation` (Linux). In the 2-player bot game the
+undo button (top right) takes back your last move and the bot's reply.
 
 ---
 
@@ -86,21 +95,29 @@ See [study.md](./study.md) for the full rulebook, board diagrams, and strategy t
 
 ```
 Tactical-Formation-The-Board-Game/
-├── main.py                 # Entry point (menus, then ui/screens/game.py)
-├── requirements.txt
+├── main.py                 # Entry point: starts pygame and switches screens
+├── pyproject.toml          # Project metadata and dependencies (uv)
+├── uv.lock                 # Locked dependency versions
 ├── study.md                # Full rulebook & guide
-├── core/                   # Rule engine: board, pieces, rules, game state, modes
+├── core/
+│   ├── board.py, piece.py, rules.py, state.py   # Rule engine
+│   ├── modes.py            # The game variants and the bot difficulty levels
+│   ├── history.py          # Move records for undo and saves
+│   └── savegame.py         # Autosave and resume
 ├── ai/
-│   ├── minimax.py          # 2-player bot: Minimax with Alpha-Beta (depth 6)
-│   ├── paranoid.py         # 3/4-player bots: Paranoid Minimax (depth 4 / 3)
-│   └── policy.py           # Picks the engine for the current mode
-├── ui/                     # Pygame rendering, input, animation, game screen
+│   ├── minimax.py          # 2-player bot: Minimax with Alpha-Beta
+│   ├── paranoid.py         # 3/4-player bots: Paranoid Minimax
+│   ├── policy.py           # Picks the engine for the current mode
+│   └── worker.py           # Runs the search in a separate process
+├── ui/
+│   ├── screens/            # menu.py, howto.py (How to Play), game.py
+│   └── ...                 # Rendering, input, animation, widgets, theme
 ├── experiments/            # Headless measurements behind the paper (results/)
-├── tests/                  # Rule tests
+├── tests/                  # Rule, bot and autosave tests
 ├── tools/make_figures.py   # Renders the board figures used in the paper
 ├── docs/                   # Formal model of the 2-player game
-├── assets/                 # Images, fonts and sounds
-└── utils/utils.py          # Shared utilities
+├── assets/                 # Images and fonts
+└── .github/workflows/      # Runs the tests on every push
 ```
 
 The bots use Minimax-family search only; Monte Carlo Tree Search is not used
@@ -120,6 +137,6 @@ The bots use Minimax-family search only; Monte Carlo Tree Search is not used
 
 | Error | Fix |
 |---|---|
-| `ModuleNotFoundError: pygame` | Run `pip install -r requirements.txt` |
+| `ModuleNotFoundError: pygame` | Start the game with `uv run main.py`, not with the system `python` |
 | `ImportError` on startup | Run from the project root directory (where `main.py` lives) |
 | Black screen on Linux | Try `export SDL_VIDEODRIVER=x11` before running |

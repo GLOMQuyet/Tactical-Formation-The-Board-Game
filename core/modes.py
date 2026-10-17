@@ -5,7 +5,7 @@ starting layout per colour, turn order, who is human vs bot, AI depth.
 Adding a new variant means adding a Mode object, not a new file tree.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, replace
 from typing import Optional
 
 
@@ -198,3 +198,24 @@ ALL_MODES = {
     'play_4': MODE_PLAY_4_HUMAN,
     'bot_4': MODE_PLAY_4,
 }
+
+
+# ── Bot difficulty ────────────────────────────────────────────────────────────
+# Search depth for each difficulty, keyed by Mode.name. 'hard' is each bot
+# mode's default ai_depth, the setting measured in the paper.
+
+DIFFICULTIES = ('easy', 'medium', 'hard')
+
+DIFFICULTY_DEPTH = {
+    'bot_2':  {'easy': 2, 'medium': 4, 'hard': 6},
+    'play_3': {'easy': 2, 'medium': 3, 'hard': 4},
+    'play_4': {'easy': 1, 'medium': 2, 'hard': 3},
+}
+
+
+def with_difficulty(mode, level):
+    """Return `mode` searching at the depth for `level` ('easy', 'medium', 'hard')."""
+    return replace(mode, ai_depth=DIFFICULTY_DEPTH[mode.name][level])
+
+
+MODES_BY_NAME = {m.name: m for m in ALL_MODES.values()}

@@ -27,7 +27,7 @@
 |---|---|
 | Số người chơi | 2 · 3 · 4 |
 | Thể loại | Chiến thuật trừu tượng |
-| Nền tảng | Desktop (Windows / macOS / Linux) · Web (pygbag) |
+| Nền tảng | Desktop (Windows / macOS / Linux) |
 | Công nghệ | Python 3 + Pygame |
 
 **Mỗi nước đi gồm hai bước:**
@@ -203,26 +203,47 @@ Cờ Trận dân gian **không có giới hạn số lượt** và không có lu
 
 ## 6. Các chế độ chơi
 
-### 2 Người chơi (Human Two)
+Ở menu chính, **Play Human** để mọi người chơi trên cùng một máy; **Play Bot**
+để bạn (phe Xanh lá) đấu với bot, sau đó chọn độ khó Dễ / Vừa / Khó.
 
-- Bàn cờ **5×5 đỉnh** (toàn bàn hình vuông).
-- Màu: **Vàng** (người chơi 1) vs **Xanh lá** (người chơi 2 hoặc Bot).
-- Mỗi bên bắt đầu với **8 quân** (4 đỉnh + 4 tâm).
-- Hỗ trợ: Người–Người hoặc Người–Bot.
+### 2 người chơi
 
-### 3 Người chơi (Human Three)
+- Bàn cờ **5×5 đỉnh**, không bỏ góc nào.
+- Màu: **Xanh lá** (đi trước) và **Vàng**. Khi đấu bot, bot cầm phe Vàng.
+- Mỗi bên bắt đầu với **14 quân** (10 đỉnh + 4 tâm).
 
-- Bàn cờ **7×7 đỉnh**, 4 góc bị loại tạo hình bát giác.
-- Màu: **Vàng** · **Xanh lá** · **Đỏ**.
-- Mỗi bên bắt đầu với **12 quân**.
-- Hỗ trợ: 1 hoặc 2 người chơi thật + bot AI.
+### 3 người chơi
 
-### 4 Người chơi (Human Four)
+- Bàn cờ **7×6 đỉnh**, bỏ hai góc dưới.
+- Màu và thứ tự đi trong phần mềm: **Tím → Vàng → Xanh lá**.
+- Số quân: Tím **14**, Vàng **13**, Xanh lá **13**.
+- Đấu bot: bạn cầm Xanh lá, hai bot cầm Tím và Vàng.
 
-- Bàn cờ **7×7 đỉnh**, cùng dạng 3 người.
-- Màu: **Vàng** · **Xanh lá** · **Đỏ** · **Tím/Trắng**.
-- Mỗi bên bắt đầu với **9 quân**.
-- Hỗ trợ: 1, 2, hoặc 3 người chơi thật + bot AI.
+### 4 người chơi
+
+- Bàn cờ **7×7 đỉnh**, bỏ cả bốn góc.
+- Màu và thứ tự đi trong phần mềm: **Xanh dương → Xanh lá → Tím → Vàng**.
+- Mỗi bên bắt đầu với **13 quân** (9 đỉnh + 4 tâm).
+- Đấu bot: bạn cầm Xanh lá, ba bot cầm ba phe còn lại.
+
+### Độ khó của bot
+
+Độ khó quyết định bot tính trước bao nhiêu nước:
+
+| Độ khó | 2 người | 3 người | 4 người |
+|---|---|---|---|
+| Dễ | 2 | 2 | 1 |
+| Vừa | 4 | 3 | 2 |
+| Khó | 6 | 4 | 3 |
+
+Bot tính toán ở một tiến trình riêng nên cửa sổ không bị đứng trong lúc bot nghĩ.
+
+### Tự lưu ván
+
+Ván đang chơi được lưu sau mỗi nước và bị xoá khi ván kết thúc. Bạn có thể đóng
+cửa sổ bất cứ lúc nào; lần sau bấm **Continue** ở menu chính để chơi tiếp. Khi
+đấu bot 2 người, nút hoàn tác (góc trên bên phải) rút lại nước vừa đi của bạn
+cùng nước đáp của bot.
 
 ---
 
@@ -230,37 +251,17 @@ Cờ Trận dân gian **không có giới hạn số lượt** và không có lu
 
 ### Yêu cầu
 
-```
-Python 3.8+
-pygame 2.x
-```
+- [uv](https://docs.astral.sh/uv/getting-started/installation/). uv tự cài đúng
+  Python (3.12, theo `.python-version`) và các thư viện đã khoá phiên bản trong
+  `uv.lock`; không cần tự tạo môi trường ảo hay dùng `pip`.
 
-### Cài đặt
-
-```bash
-# Tạo môi trường ảo (khuyến nghị)
-python -m venv .venv
-source .venv/bin/activate        # Linux / macOS
-.venv\Scripts\activate           # Windows
-
-# Cài thư viện
-pip install pygame
-```
-
-### Chạy game
+### Cài đặt và chạy game
 
 ```bash
-python main.py
+git clone https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game.git
+cd Tactical-Formation-The-Board-Game
+uv run main.py
 ```
-
-### Chạy trên trình duyệt (Web)
-
-```bash
-pip install pygbag
-pygbag main.py
-```
-
-Mở trình duyệt tại `http://localhost:8000`.
 
 ---
 
@@ -315,7 +316,7 @@ Nếu quân của bạn bị dồn vào góc hoặc cạnh bàn — nơi ít qu�
 |---|---|
 | Players | 2 · 3 · 4 |
 | Genre | Abstract strategy |
-| Platform | Desktop (Windows / macOS / Linux) · Web (pygbag) |
+| Platform | Desktop (Windows / macOS / Linux) |
 | Technology | Python 3 + Pygame |
 
 **Each turn has two phases:**
@@ -490,26 +491,47 @@ The folk game Cờ Trận has **no turn limit** and no draw rule: a game goes on
 
 ## Game Modes
 
+In the main menu, **Play Human** lets everyone play on the same machine;
+**Play Bot** puts you (Green) against bots, after you pick Easy, Medium or Hard.
+
 ### 2-Player Mode
 
-- **5×5 vertex** board (full square board, no excluded corners).
-- Colors: **Yellow** (Player 1) vs **Green** (Player 2 or Bot).
-- Each side starts with **8 pieces** (4 vertices + 4 centers).
-- Supports: Human vs Human or Human vs Bot.
+- **5×5 vertex** board, no corners removed.
+- Colors: **Green** (moves first) and **Yellow**. Against the bot, the bot plays Yellow.
+- Each side starts with **14 pieces** (10 vertices + 4 centres).
 
 ### 3-Player Mode
 
-- **7×7 vertex** board with 4 corners excluded, forming an octagonal shape.
-- Colors: **Yellow** · **Green** · **Red**.
-- Each side starts with **12 pieces**.
-- Supports: 1 or 2 human players + AI bot.
+- **7×6 vertex** board with the two bottom corners removed.
+- Colors and turn order in the software: **Purple → Yellow → Green**.
+- Pieces: Purple **14**, Yellow **13**, Green **13**.
+- Against bots: you play Green, two bots play Purple and Yellow.
 
 ### 4-Player Mode
 
-- **7×7 vertex** board, same shape as 3-player.
-- Colors: **Yellow** · **Green** · **Red** · **Purple/White**.
-- Each side starts with **9 pieces**.
-- Supports: 1, 2, or 3 human players + AI bot.
+- **7×7 vertex** board with all four corners removed.
+- Colors and turn order in the software: **Blue → Green → Purple → Yellow**.
+- Each side starts with **13 pieces** (9 vertices + 4 centres).
+- Against bots: you play Green, three bots play the other sides.
+
+### Bot Difficulty
+
+The difficulty sets how many moves ahead the bots search:
+
+| Difficulty | 2 players | 3 players | 4 players |
+|---|---|---|---|
+| Easy | 2 | 2 | 1 |
+| Medium | 4 | 3 | 2 |
+| Hard | 6 | 4 | 3 |
+
+Bots search in a separate process, so the window does not freeze while they think.
+
+### Autosave
+
+The game is saved after every move and the save is deleted when the game
+ends. You can close the window at any time and continue later with
+**Continue** in the main menu. In the 2-player bot game, the undo button (top
+right) takes back your last move together with the bot's reply.
 
 ---
 
@@ -517,37 +539,17 @@ The folk game Cờ Trận has **no turn limit** and no draw rule: a game goes on
 
 ### Requirements
 
-```
-Python 3.8+
-pygame 2.x
-```
+- [uv](https://docs.astral.sh/uv/getting-started/installation/). uv installs the
+  right Python (3.12, from `.python-version`) and the dependencies locked in
+  `uv.lock`; no manual virtual environment or `pip` is needed.
 
-### Install
-
-```bash
-# Create a virtual environment (recommended)
-python -m venv .venv
-source .venv/bin/activate        # Linux / macOS
-.venv\Scripts\activate           # Windows
-
-# Install dependencies
-pip install pygame
-```
-
-### Run the game
+### Install and run the game
 
 ```bash
-python main.py
+git clone https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game.git
+cd Tactical-Formation-The-Board-Game
+uv run main.py
 ```
-
-### Run in the browser (Web)
-
-```bash
-pip install pygbag
-pygbag main.py
-```
-
-Open your browser at `http://localhost:8000`.
 
 ---
 
@@ -577,14 +579,15 @@ You do not always need to flip every enemy piece. Sometimes it is more efficient
 
 ### AI Bot Difficulty
 
-The bot uses **Paranoid Minimax** with Alpha-Beta pruning:
+The 2-player bot uses **Minimax with Alpha-Beta pruning**; the 3- and 4-player
+bots use **Paranoid Minimax**. On **Hard** they search:
 
-| Mode | Search Depth | Measured Time per Move (median / slowest) |
+| Mode | Search Depth (Hard) | Measured Time per Move (median / slowest) |
 |---|---|---|
 | 2-player | 6 | ≈ 3.1 s / 9.5 s |
 | 3-player | 4 | ≈ 1.1 s / 4.5 s |
 | 4-player | 3 | ≈ 0.2 s / 1.4 s |
 
-Measured over complete bot-vs-bot games on an AMD Ryzen 7 6800H (see `experiments/results/timing.csv`).
+Measured over complete bot-vs-bot games on an AMD Ryzen 7 6800H (see `experiments/results/timing.csv`). Easy and Medium search less deeply (see Game Modes) and answer much faster.
 
-The bot treats all other players as a coalition against itself — it will actively prioritize survival and piece count while trying to eliminate the weakest opponent.
+The 3- and 4-player bots treat all other players as a coalition against themselves — they actively prioritize survival and piece count while trying to eliminate the weakest opponent.

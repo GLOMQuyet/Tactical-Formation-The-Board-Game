@@ -12,21 +12,27 @@ hash-agnostic, and `clone()` recomputes the hash from scratch, so any drift on
 the live UI board (which never needs the hash) is harmless.
 """
 
-import random as _random
+import hashlib
 
 from core.piece import Piece
 
-# Stable, seeded keys so hashes are reproducible across runs (helps testing).
-_ZOB_RNG = _random.Random(0xC0FFEE)
 _ZOBRIST = {}
 
 
 def _zob(pos, color):
-    """64-bit Zobrist key for a (position, color) pair — lazily generated."""
+    """64-bit Zobrist key for a (position, color) pair.
+
+    The key is derived from the pair itself, not drawn from a random stream,
+    so every run and every process uses the same keys. Hashes made by the game
+    and by the bot's search process can therefore be compared.
+    """
     key = (pos, color)
     h = _ZOBRIST.get(key)
     if h is None:
-        h = _ZOB_RNG.getrandbits(64)
+        x, y = pos
+        digest = hashlib.blake2b(f'{float(x)},{float(y)},{color}'.encode(),
+                                 digest_size=8).digest()
+        h = int.from_bytes(digest, 'big')
         _ZOBRIST[key] = h
     return h
 

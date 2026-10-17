@@ -1,6 +1,6 @@
 """Pure-Python rule tests — no pygame, headless.
 
-Run with: .venv/bin/python -m unittest tests.test_rules
+Run with: uv run python -m unittest tests.test_rules
 """
 
 import unittest

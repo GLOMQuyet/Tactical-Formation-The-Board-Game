@@ -11,7 +11,6 @@ import os
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.environ.setdefault('SDL_VIDEODRIVER', 'dummy')
-os.environ.setdefault('SDL_AUDIODRIVER', 'dummy')
 
 import pygame  # noqa: E402
 
@@ -134,7 +133,7 @@ def generate_mechanic_figures():
 def main():
     # assets.resource_path resolves relative to __main__; force repo-root base.
     assets.resource_path = lambda rel: os.path.join(REPO, rel)
-    pygame.init()
+    pygame.display.init()
     pygame.font.init()
     pygame.display.set_mode((W, H))  # needed for convert_alpha()
     os.makedirs(OUT, exist_ok=True)

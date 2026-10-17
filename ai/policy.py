@@ -1,7 +1,7 @@
 """Dispatcher: takes a GameState, returns the best move for the current player.
 
-UI calls this through a thread pool so the game loop doesn't freeze during
-search.
+The game screen calls this through `ai.worker.BotWorker`, on a background
+thread, so the window keeps responding during the search.
 """
 
 from ai import minimax, paranoid

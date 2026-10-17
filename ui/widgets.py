@@ -1,18 +1,9 @@
 """Reusable UI widgets — buttons, game-over screen."""
 
-import asyncio
-import sys
-
 import pygame
 
 from ui import assets
-
-
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-HIGHLIGHT_COLOR = (255, 215, 0)
-BTN_NORMAL = (65, 105, 225)
-BTN_HOVER = (70, 130, 180)
+from ui.theme import BLACK, BTN_HOVER, BTN_NORMAL, FPS, HEIGHT, TITLE_COLOR, WHITE, WIDTH
 
 
 class Button:
@@ -39,6 +30,20 @@ class Button:
         return False
 
 
+def make_buttons(labels, colors=None, top=None, width=260, height=52, gap=18):
+    """A centred column of buttons; `top` defaults to just below mid-screen."""
+    total = len(labels) * height + (len(labels) - 1) * gap
+    if top is None:
+        top = HEIGHT // 2 - total // 2 + 30
+    buttons = []
+    for i, label in enumerate(labels):
+        x = WIDTH // 2 - width // 2
+        y = top + i * (height + gap)
+        c = colors[i] if colors and colors[i] else BTN_NORMAL
+        buttons.append(Button(label, (x, y, width, height), color=c))
+    return buttons
+
+
 class UndoButton:
     def __init__(self, pos, size, callback):
         self.rect = pygame.Rect(pos, size)
@@ -57,27 +62,26 @@ class UndoButton:
             self.callback()
 
 
-async def game_over_screen(win, winner):
-    """Block until user clicks Restart or Exit. Returns 'restart' or 'exit'."""
+def game_over_screen(win, winner):
+    """Wait for a choice. Returns 'restart', 'menu', or 'quit' (window closed)."""
     width, height = win.get_size()
     font = assets.big_font()
-    restart = Button('Restart Game',
-                     (width // 2 - 120, height // 2 + 20, 240, 50))
-    exit_btn = Button('Exit',
-                      (width // 2 - 120, height // 2 + 90, 240, 50))
-    over_text = font.render(f'{winner.capitalize()} Wins!', True, HIGHLIGHT_COLOR)
+    clock = pygame.time.Clock()
+    restart = Button('Restart Game', (width // 2 - 120, height // 2 + 20, 240, 50))
+    to_menu = Button('Main Menu', (width // 2 - 120, height // 2 + 90, 240, 50))
+    over_text = font.render(f'{winner.capitalize()} Wins!', True, TITLE_COLOR)
     over_rect = over_text.get_rect(center=(width // 2, height // 2 - 100))
     while True:
+        clock.tick(FPS)
         win.fill(BLACK)
         win.blit(over_text, over_rect)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                sys.exit()
+                return 'quit'
             if restart.handle(event):
                 return 'restart'
-            if exit_btn.handle(event):
-                return 'exit'
+            if to_menu.handle(event):
+                return 'menu'
         restart.draw(win, font)
-        exit_btn.draw(win, font)
+        to_menu.draw(win, font)
         pygame.display.update()
-        await asyncio.sleep(0)
