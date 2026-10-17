@@ -15,7 +15,10 @@ other game.
 The software does not yet have an online mode for remote multiplayer play.
 The AI's evaluation function uses only two features (piece count and
 mobility); deeper strategic factors such as centre control, multi-direction
-threats, or positional value are not modelled.
+threats, or positional value are not modelled. The 2-player bot at depth~6
+takes a median of about 3 seconds and up to almost 10 seconds per move
+(Section~\ref{sec:eval_timing}), because the software has no time-limited
+search yet.
 
 The formal mathematical model in Appendix~\ref{app:formal} is complete only
 for the 2-player mode. The extension to 3 and 4 players is specified only at

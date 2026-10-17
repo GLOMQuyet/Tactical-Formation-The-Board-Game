@@ -154,17 +154,20 @@ practice, for exactly the configurations in Table~\ref{tab:ai_params}.
 
 \begin{table}[H]
   \centering
-  \caption{Per-move time measured in practice (seconds), $n=30$ moves per
-  configuration.}
+  \caption{Think time per move (seconds), measured over every move of 3
+  complete self-play games per configuration (2-player: 919 moves;
+  3-player: 2,029 moves; 4-player: 1,179 moves). The three configurations ran
+  in parallel, one process per core; each search is still single-threaded,
+  as in the game.}
   \label{tab:timing}
   \begin{tabular}{lccc}
     \toprule
     \textbf{Mode (depth)} & \textbf{Median} & \textbf{95th percentile}
       & \textbf{Max} \\
     \midrule
-    2-player (d=6) & 3.76 & 5.90 & 6.98 \\
-    3-player (d=4) & 0.49 & 0.90 & 0.95 \\
-    4-player (d=3) & 0.07 & 0.13 & 0.17 \\
+    2-player (d=6) & 3.07 & 5.80 & 9.51 \\
+    3-player (d=4) & 1.11 & 2.35 & 4.47 \\
+    4-player (d=3) & 0.17 & 0.57 & 1.40 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -200,14 +203,14 @@ not an Elo anchored to human players or an external opponent; it proves that
 \emph{relative} strength grows with depth, not the absolute quality of the
 AI.
 
-\textbf{(3) Real-time performance.} The 3- and 4-player modes come in under
-$1$ second per move (median $0.49$\,s and $0.07$\,s), comfortable for
-interaction. However, the 2-player mode at depth~6 costs a median of
-$3.76$\,s and a maximum of nearly $7$\,s per move on the single-threaded
-pure Python interpreter---beyond the threshold for instant feedback. This is
-a strength--speed trade-off that we discuss in
-Section~\ref{sec:limitations}, along with mitigations (adaptive depth
-reduction, time-based search, or a compiled implementation).
+\textbf{(3) Real-time performance.} The 4-player mode has a median of
+$0.17$\,s per move, comfortable for interaction. The 3-player mode at
+depth~4 takes a median of $1.11$\,s, at most $4.5$\,s. The 2-player mode at
+depth~6 takes a median of $3.07$\,s and at most $9.5$\,s per move on the
+single-threaded pure Python interpreter---beyond the threshold for instant
+feedback. This is a strength--speed trade-off; it could be reduced by
+adaptive depth reduction, time-limited search, or a compiled
+implementation.
 
 In summary, the experiments confirm both goals set at the start of the
 section: the game \emph{does} have measurable tactical depth and the AI

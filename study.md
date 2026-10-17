@@ -579,10 +579,12 @@ You do not always need to flip every enemy piece. Sometimes it is more efficient
 
 The bot uses **Paranoid Minimax** with Alpha-Beta pruning:
 
-| Mode | Search Depth | Estimated Time per Move |
+| Mode | Search Depth | Measured Time per Move (median / slowest) |
 |---|---|---|
-| 2-player | 6 | < 0.3 s |
-| 3-player | 4 | < 0.5 s |
-| 4-player | 3 | < 0.5 s |
+| 2-player | 6 | ≈ 3.1 s / 9.5 s |
+| 3-player | 4 | ≈ 1.1 s / 4.5 s |
+| 4-player | 3 | ≈ 0.2 s / 1.4 s |
+
+Measured over complete bot-vs-bot games on an AMD Ryzen 7 6800H (see `experiments/results/timing.csv`).
 
 The bot treats all other players as a coalition against itself — it will actively prioritize survival and piece count while trying to eliminate the weakest opponent.

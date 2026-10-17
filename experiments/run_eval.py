@@ -13,6 +13,7 @@ are reproducible.
 
 import argparse
 import csv
+import json
 import math
 import os
 import platform
@@ -224,11 +225,17 @@ _TIMING_CONFIGS = [
 ]
 
 
+def _timing_games_path(label):
+    return _path(f'timing_games_{label}p.jsonl')
+
+
 def _time_config(args):
-    """Worker: play `games` complete self-play games for one configuration and
-    return every per-move think time, plus game lengths and unfinished count."""
+    """Worker: play `games` complete self-play games for one configuration.
+
+    Each finished game is appended to timing_games_<n>p.jsonl straight away,
+    so an interrupted run keeps every completed game (see summarize_timing).
+    """
     label, mode, depth, engine, games, max_plies = args
-    times, plies, unfinished = [], [], 0
     for g in range(games):
         if engine == 'minimax':
             res = harness.play_2p(mode, {'green': depth, 'yellow': depth},
@@ -237,10 +244,45 @@ def _time_config(args):
         else:
             res = harness.play_np(mode, depth, seed=777 + g,
                                   max_plies=max_plies, time_moves=True)
-        times.extend(res['move_times'])
-        plies.append(res['plies'])
-        unfinished += res['reason'] == 'ply_cap'
-    return label, depth, times, plies, unfinished
+        record = {'players': label, 'depth': depth, 'seed': 777 + g,
+                  'plies': res['plies'],
+                  'unfinished': res['reason'] == 'ply_cap',
+                  'move_times': [round(t, 6) for t in res['move_times']]}
+        with open(_timing_games_path(label), 'a') as f:
+            f.write(json.dumps(record) + '\n')
+        print(f"[timing] {label}p game {g + 1}/{games} done: "
+              f"{res['plies']} plies", flush=True)
+    return label
+
+
+def summarize_timing():
+    """Build timing.csv from the per-game records written so far."""
+    rows = []
+    for label, _mode, depth, _engine in _TIMING_CONFIGS:
+        path = _timing_games_path(label)
+        if not os.path.exists(path):
+            continue
+        with open(path) as f:
+            records = [json.loads(line) for line in f if line.strip()]
+        times = sorted(t for r in records for t in r['move_times'])
+        if not times:
+            continue
+        median = statistics.median(times)
+        p95 = times[min(len(times) - 1, int(0.95 * len(times)))]
+        mx = times[-1]
+        unfinished = sum(r['unfinished'] for r in records)
+        rows.append([label, depth, round(median, 4), round(p95, 4), round(mx, 4),
+                     len(times), len(records), unfinished])
+        print(f"{label}p (d={depth}): median={median*1000:.1f}ms  "
+              f"p95={p95*1000:.1f}ms  max={mx*1000:.1f}ms  (n={len(times)} "
+              f"moves over {len(records)} games, lengths "
+              f"{[r['plies'] for r in records]}, unfinished {unfinished})")
+    with open(_path('timing.csv'), 'w', newline='') as f:
+        w = csv.writer(f)
+        w.writerow(['players', 'depth', 'median_s', 'p95_s', 'max_s', 'n_moves',
+                    'games', 'unfinished'])
+        w.writerows(rows)
+    return rows
 
 
 def run_timing(games, max_plies):
@@ -250,30 +292,15 @@ def run_timing(games, max_plies):
     core; each search itself stays single-threaded, as in the game.
     """
     _ensure_results()
+    for label, *_rest in _TIMING_CONFIGS:
+        open(_timing_games_path(label), 'w').close()
     jobs = [(label, mode, depth, engine, games, max_plies)
             for label, mode, depth, engine in _TIMING_CONFIGS]
-    rows = []
-    print(f"\n=== TIMING (seconds per move, {games} complete games/config) ===")
+    print(f"\n=== TIMING (seconds per move, {games} complete games/config) ===",
+          flush=True)
     with ProcessPoolExecutor(max_workers=len(jobs)) as pool:
-        results = list(pool.map(_time_config, jobs))
-    for label, depth, times, plies, unfinished in results:
-        if not times:
-            continue
-        times.sort()
-        median = statistics.median(times)
-        p95 = times[min(len(times) - 1, int(0.95 * len(times)))]
-        mx = times[-1]
-        rows.append([label, depth, round(median, 4), round(p95, 4), round(mx, 4),
-                     len(times), games, unfinished])
-        print(f"{label}p (d={depth}): median={median*1000:.1f}ms  "
-              f"p95={p95*1000:.1f}ms  max={mx*1000:.1f}ms  (n={len(times)} "
-              f"moves, game lengths {plies}, unfinished {unfinished})")
-    with open(_path('timing.csv'), 'w', newline='') as f:
-        w = csv.writer(f)
-        w.writerow(['players', 'depth', 'median_s', 'p95_s', 'max_s', 'n_moves',
-                    'games', 'unfinished'])
-        w.writerows(rows)
-    return rows
+        list(pool.map(_time_config, jobs))
+    return summarize_timing()
 
 
 # ── (4) Anti-repetition before/after ─────────────────────────────────────────
@@ -358,7 +385,14 @@ def main():
     ap.add_argument('--timing-games', type=int, default=3,
                     help='complete games per configuration for timing '
                          '(default 3)')
+    ap.add_argument('--timing-summary', action='store_true',
+                    help='rebuild timing.csv from the per-game records '
+                         '(e.g. after an interrupted --timing run)')
     args = ap.parse_args()
+
+    if args.timing_summary:
+        summarize_timing()
+        return
 
     do_all = args.all or not any(
         [args.branching, args.tournament, args.timing, args.antirep,
