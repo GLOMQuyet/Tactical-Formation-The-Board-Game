@@ -15,3 +15,5 @@ BTN_RESUME  = (200, 130,  20)
 TEXT_COLOR  = (255, 255, 255)
 TITLE_COLOR = (255, 215,   0)
 NOTE_BACKING = (0,  0,   0, 150)   # translucent strip behind notes on the menus
+OVERLAY_SHADE = (0, 0, 0, 110)     # dims the board behind a result panel
+OVERLAY_PANEL = (10, 14, 35, 230)

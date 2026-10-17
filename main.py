@@ -9,7 +9,7 @@ import pygame
 
 from core import savegame
 from core.modes import ALL_MODES, with_difficulty
-from ui import assets
+from ui import assets, i18n
 from ui.screens import game, howto, menu
 from ui.theme import HEIGHT, WIDTH
 
@@ -30,16 +30,33 @@ def main():
     bg = assets.welcome_background_image()
     screens = (win, font, font_small, bg)
 
+    def start(mode, difficulty=None, back='menu'):
+        """Start a new game, first asking if it would replace a saved one."""
+        saved = savegame.load()
+        if saved is not None:
+            choice = menu.unfinished_game_menu(*screens, saved)
+            if choice == 'continue':
+                return 'continue'
+            if choice != 'new':
+                return 'exit' if choice == 'exit' else back
+            savegame.delete()
+        result = game.run(win, mode, difficulty)
+        return 'exit' if result == 'exit' else 'menu'
+
     screen = 'menu'
     while screen != 'exit':
         if screen == 'menu':
             screen = menu.main_menu(*screens, saved=savegame.load())
+        elif screen == 'language':
+            i18n.toggle()
+            screen = 'menu'
         elif screen == 'continue':
             saved = savegame.load()
             if saved is None:
                 screen = 'menu'
             else:
-                screen = game.run(win, saved.state.mode, saved.difficulty, saved)
+                result = game.run(win, saved.state.mode, saved.difficulty, saved)
+                screen = 'exit' if result == 'exit' else 'menu'
         elif screen == 'human':
             screen = menu.human_menu(*screens)
         elif screen == 'bot':
@@ -47,18 +64,14 @@ def main():
         elif screen == 'howto':
             screen = howto.how_to_play_screen(*screens)
         elif screen in _HUMAN_GAMES:
-            result = game.run(win, ALL_MODES[screen])
-            screen = 'human' if result == 'menu' else result
+            screen = start(ALL_MODES[screen], back='human')
         elif screen in _BOT_GAMES:
-            level = menu.difficulty_menu(*screens, screen)
-            if level == 'exit':
-                screen = 'exit'
-            elif level == 'back':
-                screen = 'bot'
+            mode = ALL_MODES[screen]
+            level = menu.difficulty_menu(*screens, mode)
+            if level in ('exit', 'back'):
+                screen = 'exit' if level == 'exit' else 'bot'
             else:
-                mode = with_difficulty(ALL_MODES[screen], level)
-                result = game.run(win, mode, level)
-                screen = 'bot' if result == 'menu' else result
+                screen = start(with_difficulty(mode, level), level, back='bot')
         else:
             screen = 'menu'
 

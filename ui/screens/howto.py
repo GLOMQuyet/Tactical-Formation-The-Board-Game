@@ -4,7 +4,7 @@ import math
 
 import pygame
 
-from ui import assets
+from ui import assets, i18n
 from ui.theme import BTN_BACK, BTN_EXIT, BTN_LANG, BTN_NORMAL, FPS, WHITE, WIDTH
 from ui.widgets import Button
 
@@ -416,7 +416,7 @@ def _draw_howto_page(win, page, lang, ft, fs):
 def how_to_play_screen(win, font, font_small, bg):
     TOTAL = 5
     page  = 0
-    lang  = 'vi'
+    lang  = i18n.lang()
     clock = pygame.time.Clock()
 
     ft = assets.font('assets/fonts/Roboto-Bold.ttf',    30)
@@ -457,7 +457,8 @@ def how_to_play_screen(win, font, font_small, bg):
             if btn_next.handle(event) and page < TOTAL - 1:
                 page += 1
             if btn_lang.handle(event):
-                lang = 'en' if lang == 'vi' else 'vi'
+                i18n.toggle()   # the whole game follows this choice
+                lang = i18n.lang()
 
         if page > 0:       btn_prev.draw(win, font_small)
         if page < TOTAL-1: btn_next.draw(win, font_small)

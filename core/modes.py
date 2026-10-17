@@ -20,7 +20,8 @@ class Mode:
     bot_colors: frozenset           # subset of players that are AI
     human_colors: frozenset         # subset of players that are human
     eliminate_on_no_moves: bool     # True for 3p/4p; in 2p no-moves = loss
-    bot_delay_ms: int               # animation delay before bot move
+    bot_delay_ms: int               # least time from a bot's turn to its move,
+                                    # so people can follow the bots' moves
     grid_rows: int                  # for renderer (visible grid)
     grid_cols: int
     square_size: int
@@ -68,7 +69,7 @@ MODE_BOT_2 = Mode(
     bot_colors=frozenset({'yellow'}),
     human_colors=frozenset({'green'}),
     eliminate_on_no_moves=False,
-    bot_delay_ms=200,
+    bot_delay_ms=400,
     grid_rows=4, grid_cols=4, square_size=150,
     ai_engine='minimax',
     ai_depth=6,
@@ -102,7 +103,7 @@ MODE_PLAY_3 = Mode(
     bot_colors=frozenset({'purple', 'yellow'}),
     human_colors=frozenset({'green'}),
     eliminate_on_no_moves=True,
-    bot_delay_ms=0,
+    bot_delay_ms=600,
     grid_rows=5, grid_cols=6, square_size=100,
     # bottom-left and bottom-right corner cells (col, row)
     missing_cells=((0, 4), (5, 4)),
@@ -164,7 +165,7 @@ MODE_PLAY_4 = Mode(
     bot_colors=frozenset({'blue', 'purple', 'yellow'}),
     human_colors=frozenset({'green'}),
     eliminate_on_no_moves=True,
-    bot_delay_ms=0,
+    bot_delay_ms=600,
     grid_rows=6, grid_cols=6, square_size=100,
     missing_cells=((0, 0), (5, 0), (0, 5), (5, 5)),
     ai_engine='paranoid',

@@ -2,6 +2,12 @@
 
 [![tests](https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game/actions/workflows/tests.yml/badge.svg)](https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game/actions/workflows/tests.yml)
 
+<p align="center">
+  <img src="docs/media/demo.gif" width="400" alt="A recorded game: Green selects a piece, jumps, and flips Yellow pieces that end up sandwiched; the bot replies; Green wins">
+  <br>
+  <em>A real game recorded from the game screen: select a piece, jump, and flip every enemy piece you sandwich.</em>
+</p>
+
 Engage in epic battles with 2, 3, or 4 players! Tactical Formation challenges you to master the art of strategic deployment and outmaneuver your opponents in a dynamic and engaging board game. Command your unique forces, anticipate your rivals' moves, and dominate the battlefield to claim victory.
 
 > **Origin.** Tactical Formation is the English name for **Cờ Trận**, a folk board game played by children in Đồng Bùa hamlet, Tam Quan commune, Tam Đảo district, Vĩnh Phúc province, Vietnam. Pieces were whatever could be found by the roadside: stones, pebbles, twigs, leaves. This project did not invent the game. It records the rules from memory and brings the game to software so that it is not forgotten.
@@ -51,13 +57,21 @@ GitHub Actions runs the same tests on Linux, Windows and macOS for every push.
 
 ## Game Modes
 
+<p align="center">
+  <img src="docs/media/boards.png" alt="Opening positions: 2 players on a 5×5 board, 3 players on a 7×6 board with two corners removed, 4 players on a 7×7 board with all four corners removed">
+</p>
+
 | Menu | Choice | Description |
 |---|---|---|
 | **Play Human** | 2, 3 or 4 Players | Everyone plays on the same machine, taking turns with the mouse |
 | **Play Bot** | 1 vs Bot (2P) | You (Green) vs a Minimax bot (Yellow) |
-| | 2 Bots (3P) | You (Green) vs 2 Paranoid Minimax bots (Purple, Yellow) |
-| | 3 Bots (4P) | You (Green) vs 3 Paranoid Minimax bots (Blue, Purple, Yellow) |
+| | 1 vs 2 Bots (3P) | You (Green) vs 2 Paranoid Minimax bots (Purple, Yellow) |
+| | 1 vs 3 Bots (4P) | You (Green) vs 3 Paranoid Minimax bots (Blue, Purple, Yellow) |
 | **Continue** | | Shown when a game is unfinished; resumes it |
+
+The menus and the game are in English or Vietnamese: the button in the top
+right corner of the main menu switches, and the choice is remembered. On the
+first run the language follows the computer's language setting.
 
 After choosing a bot game you pick a difficulty. It sets how many moves ahead
 the bots search:
@@ -71,13 +85,23 @@ the bots search:
 Hard is the setting measured in the paper. Bots think in a separate process,
 so the window stays responsive while they search.
 
-**Autosave.** Every game is saved after each move and the save is removed when
-the game ends, so you can close the window at any time and pick the game up
-again with **Continue**. The save file is `autosave.json` in
-`%APPDATA%\TacticalFormation` (Windows),
+**During a game.** The bar at the top left shows whose turn it is. The last
+move is marked on the board: a small ring where it started, an orange ring
+where it landed, and white rings on the pieces it flipped. Bots wait a moment
+before moving so you can follow them. **Menu** (top right) leaves the game; in
+the 2-player bot game the undo button next to it takes back your last move
+and the bot's reply. If you are knocked out of a bot game, you can watch the
+bots finish, start a new game, or go back to the menu. When the game ends,
+the final position stays on screen under the result.
+
+**Autosave.** The game is saved after each of your moves (and every few
+seconds while only bots move) and the save is removed when the game ends, so
+you can leave at any time and pick the game up again with **Continue**.
+Starting a new game asks first if it would replace a saved one. The save file
+is `autosave.json` in `%APPDATA%\TacticalFormation` (Windows),
 `~/Library/Application Support/TacticalFormation` (macOS) or
-`~/.local/share/tactical-formation` (Linux). In the 2-player bot game the
-undo button (top right) takes back your last move and the bot's reply.
+`~/.local/share/tactical-formation` (Linux); the language choice is kept
+next to it in `settings.json`.
 
 ---
 
@@ -111,10 +135,11 @@ Tactical-Formation-The-Board-Game/
 │   └── worker.py           # Runs the search in a separate process
 ├── ui/
 │   ├── screens/            # menu.py, howto.py (How to Play), game.py
-│   └── ...                 # Rendering, input, animation, widgets, theme
+│   └── ...                 # Rendering, input, animation, widgets, theme, i18n (text)
 ├── experiments/            # Headless measurements behind the paper (results/)
 ├── tests/                  # Rule, bot and autosave tests
 ├── tools/make_figures.py   # Renders the board figures used in the paper
+├── tools/make_media.py     # Records the README GIF and board picture (docs/media/)
 ├── docs/                   # Formal model of the 2-player game
 ├── assets/                 # Images and fonts
 └── .github/workflows/      # Runs the tests on every push

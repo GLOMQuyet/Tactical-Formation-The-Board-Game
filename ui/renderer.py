@@ -2,15 +2,17 @@
 
 import pygame
 
-from ui import assets, input as ui_input
+from ui import assets, i18n, input as ui_input
 from ui.animation import PieceSprite
 
 
 WHITE = (255, 255, 255)
 HIGHLIGHT_COLOR = (255, 215, 0)
 VALID_MOVE_COLOR = (50, 205, 50)
-TEXT_COLOR_DARK = (255, 255, 255)
-TEXT_COLOR_MULTI = (0, 255, 255)
+LAST_FROM_COLOR = (255, 215, 0)     # where the last move started
+LAST_TO_COLOR = (255, 140, 0)       # where it landed
+FLIPPED_COLOR = (255, 255, 255)     # pieces it flipped
+TURN_STRIP = (0, 0, 0, 110)
 
 
 class SpriteRegistry:
@@ -68,6 +70,19 @@ def draw_board(win, mode):
             pygame.draw.line(win, WHITE, top_left, bottom_left, 5)
 
 
+def draw_last_move(win, rec, mode):
+    """Mark the last move (a core.history.MoveRecord): start, landing, flips.
+
+    Drawn before the pieces, so the rings show around them.
+    """
+    if rec is None:
+        return
+    pygame.draw.circle(win, LAST_FROM_COLOR, ui_input.pixel_pos(rec.from_pos, mode), 13, 3)
+    for pos, _before in rec.captured:
+        pygame.draw.circle(win, FLIPPED_COLOR, ui_input.pixel_pos(pos, mode), 31, 3)
+    pygame.draw.circle(win, LAST_TO_COLOR, ui_input.pixel_pos(rec.to_pos, mode), 32, 4)
+
+
 def draw_pieces(win, pieces, sprites: SpriteRegistry, mode, selected_piece=None):
     for piece in pieces:
         sprite = sprites.get(piece)
@@ -113,13 +128,11 @@ def nearest_capture_direction(mouse_pos, moved_piece, capture_options, mode):
 
 
 def draw_turn_text(win, mode, current_player, bot_thinking=False):
-    font = assets.big_font()
-    color = TEXT_COLOR_MULTI if len(mode.players) > 2 else WHITE
-    if bot_thinking:
-        text = font.render(f"{current_player.capitalize()} is thinking...", True, color)
-    else:
-        text = font.render(f"{current_player.capitalize()}'s Turn", True, color)
-    if len(mode.players) > 2:
-        win.blit(text, (win.get_width() / 2 - 120, win.get_height() - 100))
-    else:
-        win.blit(text, (10, 10 if not mode.bot_colors else 50))
+    """Top-left bar: the side to move, its piece, and whether a bot is thinking."""
+    key = 'thinking' if bot_thinking else 'turn'
+    text = assets.big_font().render(i18n.t(key, color=i18n.color(current_player)), True, WHITE)
+    strip = pygame.Surface((text.get_width() + 70, 52), pygame.SRCALPHA)
+    pygame.draw.rect(strip, TURN_STRIP, strip.get_rect(), border_radius=10)
+    win.blit(strip, (6, 6))
+    win.blit(assets.piece_image(current_player), (14, 12))
+    win.blit(text, (62, 13))

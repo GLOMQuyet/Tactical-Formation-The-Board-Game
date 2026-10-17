@@ -3,8 +3,9 @@
 The variant differences (board size, player count, AI engine, human vs bot)
 come from the `Mode` passed in. Bots search in a separate process
 (`ai.worker.BotWorker`), so the window keeps responding while they think.
-After every completed move the game is autosaved (`core.savegame`); the save
-is deleted when the game ends.
+The game is autosaved (`core.savegame`) after every human move, and at most
+every few seconds while only bots move; the save is deleted when the game
+ends.
 """
 
 import time
@@ -15,8 +16,15 @@ from ai.worker import BotWorker
 from core import rules, savegame
 from core.history import MoveRecord, undo_record
 from core.state import GameState
-from ui import input as ui_input, renderer
-from ui.widgets import UndoButton, game_over_screen
+from ui import i18n, input as ui_input, renderer
+from ui.widgets import Button, UndoButton, button_font, eliminated_screen, game_over_screen
+
+# How long the final position stays on screen before the result panel (s).
+_RESULT_PAUSE = 1.0
+# Once the human is out of a bot game, the bots move this much faster (ms).
+_SPECTATOR_DELAY_MS = 200
+# Bot moves are saved at most this often (s); human moves are saved at once.
+_BOT_SAVE_INTERVAL = 2.0
 
 
 def run(win, mode, difficulty=None, saved=None):
@@ -50,10 +58,15 @@ def _play(win, mode, difficulty, saved, worker):
     awaiting_capture_choice = False
     game_over = False
     winner = None
+    pause_since = None   # when the game ended or the human was knocked out
+    asked_out = False    # the "you are out" panel has been shown
+    last_save = 0.0
+    unsaved = False
 
     def _reset():
         nonlocal state, move_history, selected_piece, valid_moves, moved_piece
         nonlocal capture_options, awaiting_capture_choice, game_over, winner
+        nonlocal pause_since, asked_out, unsaved
         worker.cancel()
         state = GameState.new(mode)
         move_history = []
@@ -65,8 +78,13 @@ def _play(win, mode, difficulty, saved, worker):
         awaiting_capture_choice = False
         game_over = False
         winner = None
+        pause_since = None
+        asked_out = False
+        unsaved = False
 
-    def _autosave():
+    def _save():
+        nonlocal last_save, unsaved
+        unsaved = False
         if not move_history:
             savegame.delete()
             return
@@ -74,11 +92,33 @@ def _play(win, mode, difficulty, saved, worker):
             savegame.save(state, move_history, difficulty)
         except OSError as exc:   # a full or read-only disk must not end the game
             print(f'Autosave failed: {exc}')
+        last_save = time.monotonic()
 
     def _finish_move():
-        """End the current player's turn and autosave the game."""
+        """End the current player's turn and autosave the game.
+
+        Saving rewrites every move played, which takes a moment in a long
+        game, so a run of bot moves is saved only every few seconds.
+        """
+        nonlocal unsaved
+        mover = state.current_player
         state.advance_turn()
-        _autosave()
+        if (mover in mode.human_colors or state.current_player in mode.human_colors
+                or time.monotonic() - last_save >= _BOT_SAVE_INTERVAL):
+            _save()
+        else:
+            unsaved = True
+
+    def _leave(result):
+        worker.cancel()
+        if unsaved:
+            _save()
+        return result
+
+    def _human_out():
+        """True in a bot game once every human side has been eliminated."""
+        return bool(mode.bot_colors and mode.human_colors
+                    and not any(c in state.active_players for c in mode.human_colors))
 
     def _undo():
         """Take back moves until it is the human's turn before their last move."""
@@ -99,11 +139,12 @@ def _play(win, mode, difficulty, saved, worker):
         sprites.clear()   # drop any half-finished move animation
         selected_piece = None
         valid_moves = []
-        _autosave()
+        _save()
 
     undo_button = None
     if mode.name == 'bot_2':
         undo_button = UndoButton((750, 10), (40, 40), _undo)
+    menu_button = Button(i18n.t('menu'), (640 if undo_button else 690, 10, 100, 40))
 
     while True:
         clock.tick(120 if not mode.bot_colors or mode.name == 'bot_2' else 60)
@@ -113,15 +154,23 @@ def _play(win, mode, difficulty, saved, worker):
         # condition is met (a 4-player game could last hours).
         if not game_over:
             game_over, winner = state.start_turn()
+            if game_over:
+                savegame.delete()
+                unsaved = False
+                pause_since = time.monotonic()
+        spectating = _human_out()
+        if spectating and not asked_out and pause_since is None:
+            pause_since = time.monotonic()
 
         # ── Bot turn: search in the background, apply when done ──────────
-        bot_turn = (not game_over and not awaiting_capture_choice
+        bot_turn = (not game_over and not awaiting_capture_choice and pause_since is None
                     and state.current_player in mode.bot_colors)
+        delay_ms = _SPECTATOR_DELAY_MS if spectating else mode.bot_delay_ms
         if bot_turn and not worker.busy:
             worker.start(state)
             bot_started = time.monotonic()
         elif (bot_turn and worker.done()
-              and (time.monotonic() - bot_started) * 1000 >= mode.bot_delay_ms):
+              and (time.monotonic() - bot_started) * 1000 >= delay_ms):
             result = worker.result()
             if result is not None:
                 move, capture_direction = result
@@ -132,13 +181,14 @@ def _play(win, mode, difficulty, saved, worker):
         # ── Events ────────────────────────────────────────────────────────
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                worker.cancel()
-                return 'exit'
-
-            if undo_button is not None and undo_button.handle_event(event):
+                return _leave('exit')
+            if menu_button.handle(event):
+                return _leave('menu')   # the game stays saved for Continue
+            if (undo_button is not None and not game_over
+                    and undo_button.handle_event(event)):
                 continue   # the click was for the button, not the board
 
-            if event.type != pygame.MOUSEBUTTONDOWN or game_over:
+            if event.type != pygame.MOUSEBUTTONDOWN or game_over or pause_since is not None:
                 continue
             if state.current_player not in mode.human_colors or worker.busy:
                 continue
@@ -164,62 +214,78 @@ def _play(win, mode, difficulty, saved, worker):
                 _finish_move()
                 continue
 
-            if selected_piece is not None:
-                if click in valid_moves:
-                    from_pos = (selected_piece.x, selected_piece.y)
-                    rec = MoveRecord(state.current_player, from_pos, click)
-                    move_history.append(rec)
-                    sprites.start_move_anim(selected_piece, from_pos, click, mode)
-                    state.board.move_piece(selected_piece, click)
-                    sprites.get(selected_piece).selected = False
-                    capture_options = rules.find_captures(
-                        selected_piece, state.board, mode)
-                    if capture_options:
-                        if len(capture_options) == 1:
-                            direction = next(iter(capture_options))
-                            captured = capture_options[direction]
-                            rec.captured.extend(((p.x, p.y), p.color) for p in captured)
-                            for p in captured:
-                                p.color = selected_piece.color
-                            capture_options = {}
-                            _finish_move()
-                        else:
-                            awaiting_capture_choice = True
-                            moved_piece = selected_piece
-                    else:
+            if selected_piece is not None and click in valid_moves:
+                from_pos = (selected_piece.x, selected_piece.y)
+                rec = MoveRecord(state.current_player, from_pos, click)
+                move_history.append(rec)
+                sprites.start_move_anim(selected_piece, from_pos, click, mode)
+                state.board.move_piece(selected_piece, click)
+                sprites.get(selected_piece).selected = False
+                capture_options = rules.find_captures(
+                    selected_piece, state.board, mode)
+                if capture_options:
+                    if len(capture_options) == 1:
+                        direction = next(iter(capture_options))
+                        captured = capture_options[direction]
+                        rec.captured.extend(((p.x, p.y), p.color) for p in captured)
+                        for p in captured:
+                            p.color = selected_piece.color
+                        capture_options = {}
                         _finish_move()
-                    selected_piece = None
-                    valid_moves = []
+                    else:
+                        awaiting_capture_choice = True
+                        moved_piece = selected_piece
                 else:
-                    selected_piece = None
-                    valid_moves = []
-            elif target_piece is not None:
-                if target_piece.color == state.current_player:
+                    _finish_move()
+                selected_piece = None
+                valid_moves = []
+            else:
+                # Select the clicked piece (switching straight from another
+                # one); clicking the selected piece or elsewhere deselects.
+                moves = []
+                if (target_piece is not None and target_piece is not selected_piece
+                        and target_piece.color == state.current_player):
                     moves = rules.legal_moves(target_piece, state.board, mode)
-                    if moves:
-                        selected_piece = target_piece
-                        valid_moves = moves
+                selected_piece = target_piece if moves else None
+                valid_moves = moves
 
         # ── Render ────────────────────────────────────────────────────────
         win.fill((255, 255, 255))
         renderer.draw_board(win, mode)
+        renderer.draw_last_move(win, move_history[-1] if move_history else None, mode)
         renderer.draw_pieces(win, state.pieces, sprites, mode, selected_piece)
         if selected_piece is not None:
             renderer.draw_valid_moves(win, valid_moves, mode)
         if awaiting_capture_choice and capture_options:
             renderer.draw_capture_options(win, moved_piece, capture_options, mode)
 
-        if game_over:
-            savegame.delete()
-            choice = game_over_screen(win, winner or state.current_player or '?')
-            if choice == 'restart':
+        # After a short pause on the final (or knock-out) position, ask what next.
+        if pause_since is not None and time.monotonic() - pause_since >= _RESULT_PAUSE:
+            background = win.copy()
+            pause_since = None
+            if game_over:
+                choice = game_over_screen(win, winner, background)
+                if choice == 'restart':
+                    _reset()
+                    continue
+                return 'exit' if choice == 'quit' else 'menu'
+            asked_out = True
+            choice = eliminated_screen(win, background)
+            if choice == 'quit':
+                return _leave('exit')
+            if choice in ('menu', 'restart'):
+                worker.cancel()
+                savegame.delete()   # the human's part in this game is over
+                if choice == 'menu':
+                    return 'menu'
                 _reset()
-                continue
-            return 'exit' if choice == 'quit' else 'menu'
+            continue   # 'watch': the bots play on
 
-        renderer.draw_turn_text(win, mode, state.current_player, worker.busy)
-        if undo_button is not None:
+        menu_button.draw(win, button_font())
+        if undo_button is not None and not game_over:
             undo_button.draw(win)
+        if not game_over:
+            renderer.draw_turn_text(win, mode, state.current_player, worker.busy)
         pygame.display.update()
 
 

@@ -238,12 +238,23 @@ Cờ Trận dân gian **không có giới hạn số lượt** và không có lu
 
 Bot tính toán ở một tiến trình riêng nên cửa sổ không bị đứng trong lúc bot nghĩ.
 
+### Trong ván cờ
+
+- Thanh góc trên bên trái cho biết đến lượt ai. Nước vừa đi được đánh dấu: vòng
+  nhỏ ở ô xuất phát, vòng cam ở ô đáp, vòng trắng quanh các quân vừa bị lật.
+- Bot chờ một chút trước khi đi để bạn kịp theo dõi.
+- Nút **Menu** (góc trên bên phải) để rời ván; khi đấu bot 2 người, nút hoàn tác
+  bên cạnh rút lại nước vừa đi của bạn cùng nước đáp của bot.
+- Bị loại khỏi ván đấu bot thì có thể xem các bot đánh tiếp, chơi ván mới hoặc
+  về menu. Khi ván kết thúc, thế cờ cuối vẫn hiện phía sau bảng kết quả.
+- Giao diện có tiếng Việt và tiếng Anh: nút ở góc trên bên phải menu chính để
+  đổi, lựa chọn được ghi nhớ.
+
 ### Tự lưu ván
 
-Ván đang chơi được lưu sau mỗi nước và bị xoá khi ván kết thúc. Bạn có thể đóng
-cửa sổ bất cứ lúc nào; lần sau bấm **Continue** ở menu chính để chơi tiếp. Khi
-đấu bot 2 người, nút hoàn tác (góc trên bên phải) rút lại nước vừa đi của bạn
-cùng nước đáp của bot.
+Ván được lưu sau mỗi nước của bạn (và vài giây một lần khi chỉ có bot đi), và bị
+xoá khi ván kết thúc. Bạn có thể rời ván bất cứ lúc nào; lần sau bấm **Chơi
+tiếp** ở menu chính. Bắt đầu ván mới khi đang có ván lưu thì game sẽ hỏi trước.
 
 ---
 
@@ -526,12 +537,26 @@ The difficulty sets how many moves ahead the bots search:
 
 Bots search in a separate process, so the window does not freeze while they think.
 
+### During a Game
+
+- The bar at the top left shows whose turn it is. The last move is marked: a
+  small ring where it started, an orange ring where it landed, and white rings
+  around the pieces it flipped.
+- Bots wait a moment before moving so you can follow them.
+- **Menu** (top right) leaves the game; in the 2-player bot game the undo
+  button next to it takes back your last move together with the bot's reply.
+- If you are knocked out of a bot game you can watch the bots finish, start a
+  new game, or go back to the menu. When the game ends, the final position
+  stays visible behind the result.
+- The interface is in English or Vietnamese: the button in the top right of
+  the main menu switches, and the choice is remembered.
+
 ### Autosave
 
-The game is saved after every move and the save is deleted when the game
-ends. You can close the window at any time and continue later with
-**Continue** in the main menu. In the 2-player bot game, the undo button (top
-right) takes back your last move together with the bot's reply.
+The game is saved after each of your moves (and every few seconds while only
+bots move) and the save is deleted when the game ends. You can leave at any
+time and continue later with **Continue** in the main menu. Starting a new
+game asks first if it would replace a saved one.
 
 ---
 
