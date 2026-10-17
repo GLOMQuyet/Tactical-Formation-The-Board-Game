@@ -4,22 +4,25 @@
 
 A companion AI lets a player practise when no opponent is available.
 
-\subsection{Why Minimax Rather Than MCTS}
+\subsection{Why Not MCTS}
 
-Monte Carlo Tree Search (MCTS)~\citep{coulom2006efficient,browne2012survey}
-is a popular choice for multiplayer games~\citep{sturtevant2008analysis}
-because it needs no explicit evaluation function. \citet{nijssen2013mcts}
-compares max$^n$ MCTS with Best-Reply Search and finds no technique that wins
-in every game: Best-Reply Search is stronger in Focus, while MCTS is stronger
-in Blokus and especially in Rolit, a Reversi variant close to Cờ Trận. We nevertheless chose the Minimax family
-for this version, for two practical reasons. First, the sandwich-flip rule
-gives an explicit signal that is cheap to compute and close to how players
-judge a position (piece count and number of moves), in the spirit of the
-evaluation functions for Othello~\citep{buro1999how}. Second, Minimax with
-Alpha-Beta pruning is simple to implement in pure Python. We have \emph{not}
-compared it experimentally with MCTS or Best-Reply Search, so we do not
-claim that Minimax is stronger; this is a next step
-(Section~\ref{sec:conclusion}).
+The software does not use Monte Carlo Tree Search (MCTS)~\citep{browne2012survey}.
+Plain MCTS evaluates a move by playing random games to the end many times,
+and games of Cờ Trận are very long: the rules have no move limit, and a
+random game lasts a median of about 300 plies in the 2-player mode, 1,300 to
+1,600 plies in the 3-player mode and 3,300 to 3,500 plies in the 4-player
+mode (Section~\ref{sec:eval_branching}). On the machine used in
+Section~\ref{sec:eval}, one such playout in pure Python takes a median of
+14\,ms, 106\,ms and 299\,ms (30 games per mode, file
+\texttt{experiments/results/playout\_cost.csv}). Just 1,000 playouts for a
+single move would therefore take about 14 seconds, almost 2 minutes and
+almost 5 minutes respectively, while the current Minimax bots need 0.17 to 3 seconds per move
+(Table~\ref{tab:timing}). The sandwich-flip rule, by contrast, gives a cheap
+and meaningful evaluation signal, the piece count and the number of moves
+left, in the spirit of the evaluation functions for Othello~\citep{buro1999how}.
+Depth-limited Minimax search is therefore the natural choice. We have not
+compared it experimentally with MCTS and do not claim that either is
+stronger.
 
 \subsection{Adversarial Search}
 \label{ssec:search}

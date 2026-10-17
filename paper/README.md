@@ -25,7 +25,7 @@ paper/
 │   ├── 03_formal_model.tex   # Mô hình toán học (3 trụ cột + Bảo toàn 28 quân)
 │   ├── 04_rules.tex          # Luật chơi (bàn / di chuyển / sandwich / thắng)
 │   ├── 05_variants.tex       # Chế độ 2/3/4 người
-│   ├── 06_ai.tex             # MCTS-vs-Minimax, Paranoid, eval function
+│   ├── 06_ai.tex             # Minimax, Paranoid, eval function, why not MCTS
 │   ├── 07_implementation.tex # Cài đặt phần mềm (Python + Pygame + pygbag)
 │   ├── 08_limitations.tex    # Section riêng (IRON RULE skill)
 │   ├── 09_conclusion.tex     # Kết luận + Hướng phát triển

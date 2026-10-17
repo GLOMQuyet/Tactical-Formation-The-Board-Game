@@ -29,7 +29,7 @@ gần đây Othello $8\times8$ đã được chứng minh là \emph{hòa} với 
 tối ưu của cả hai bên~\citep{takizawa2023othello}. Rolit là biến thể
 Reversi cho tối đa 4 người, và đã được dùng làm trò chơi thử nghiệm cho
 tìm kiếm Paranoid, max$^n$ và Best-Reply
-Search~\citep{schadd2011brs,nijssen2013mcts,nijssen2013policies}. Như vậy,
+Search~\citep{schadd2011brs,nijssen2013mcts}. Như vậy,
 lớp trò chơi kẹp lật kiểu Reversi đã có phiên bản nhiều người. Luật kẹp
 của Cờ Trận gần với Reversi, nhưng có ba khác biệt: quân được \emph{di
 chuyển} chứ không đặt mới; khi có nhiều tia kẹp, người đi chỉ chọn
@@ -52,9 +52,8 @@ một ô tạo thêm quân mới nên tổng số quân tăng~\citep{gebop_ataxx
 
 \emph{Lines of Action}, do Claude Soucie thiết kế và được mô tả trong tuyển
 tập của \citet{sackson1969gamut}, cũng di chuyển quân có sẵn thay vì đặt
-quân mới. Mục tiêu thắng là kết nối các quân của mình. Trò chơi này đã được
-nghiên cứu sâu bằng tìm kiếm cây Monte Carlo~\citep{winands2010loa}, nhưng
-quân bị bắt vẫn bị loại khỏi bàn như ở Cờ Đam. \emph{Focus} (còn gọi là
+quân mới. Mục tiêu thắng là kết nối các quân của mình, và quân bị bắt vẫn
+bị loại khỏi bàn như ở Cờ Đam. \emph{Focus} (còn gọi là
 \emph{Domination}) của Sid Sackson~\citep{sackson1969gamut} giữ lại quân bị
 bắt để có thể đưa trở lại bàn cờ, tức cũng coi bắt quân là chuyển hoá chứ
 không phải loại bỏ.

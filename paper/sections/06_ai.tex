@@ -4,20 +4,24 @@
 
 AI đồng hành cho phép người chơi luyện tập khi không có đối thủ.
 
-\subsection{Vì Sao Chọn Minimax Thay Cho MCTS}
+\subsection{Vì Sao Không Dùng MCTS}
 
-Monte Carlo Tree Search (MCTS)~\citep{coulom2006efficient,browne2012survey}
-là lựa chọn phổ biến cho game nhiều người~\citep{sturtevant2008analysis} vì
-không cần hàm đánh giá tường minh. \citet{nijssen2013mcts} so sánh MCTS dạng
-max$^n$ với Best-Reply Search và thấy không có kỹ thuật nào thắng ở mọi game:
-Best-Reply Search mạnh hơn trong Focus, còn MCTS mạnh hơn trong Blokus và
-nhất là Rolit, một biến thể Reversi gần với Cờ Trận. Chúng tôi vẫn chọn họ Minimax cho phiên bản này vì hai lý do thực
-dụng. Thứ nhất, luật kẹp--lật cho một tín hiệu tường minh, rẻ để tính và gần
-với cách người chơi đánh giá thế cờ (quân số và số nước đi), theo tinh thần
-các hàm đánh giá cho Othello~\citep{buro1999how}. Thứ hai, Minimax với cắt
-tỉa Alpha-Beta đơn giản để cài đặt trong Python thuần. Chúng tôi \emph{chưa}
-so sánh thực nghiệm với MCTS hay Best-Reply Search, nên không khẳng định
-Minimax mạnh hơn; đây là hướng tiếp theo (Mục~\ref{sec:conclusion}).
+Phần mềm không dùng Monte Carlo Tree Search (MCTS)~\citep{browne2012survey}.
+MCTS cổ điển đánh giá một nước đi bằng cách chơi thử ngẫu nhiên đến hết ván
+rất nhiều lần, mà ván Cờ Trận thì rất dài: luật không có giới hạn số nước,
+và một ván chơi ngẫu nhiên kéo dài trung vị khoảng 300 nước ở chế độ 2
+người, 1.300--1.600 nước ở chế độ 3 người và 3.300--3.500 nước ở chế độ 4
+người (Mục~\ref{sec:eval_branching}). Trên cùng máy đo ở
+Mục~\ref{sec:eval}, một lần chơi thử như vậy trong Python thuần mất trung vị
+14\,ms, 106\,ms và 299\,ms (30 ván mỗi chế độ, tệp
+\texttt{experiments/results/playout\_cost.csv}). Chỉ 1.000 lần chơi thử cho
+một nước đi đã tốn khoảng 14 giây, gần 2 phút và gần 5 phút tương ứng, trong khi bot Minimax
+hiện tại chỉ cần 0,17--3 giây mỗi nước (Bảng~\ref{tab:timing}). Ngược lại,
+luật kẹp--lật cho sẵn một tín hiệu đánh giá rẻ và có ý nghĩa là quân số và
+số nước đi còn lại, theo tinh thần các hàm đánh giá cho
+Othello~\citep{buro1999how}. Vì vậy tìm kiếm Minimax có giới hạn độ sâu là
+lựa chọn tự nhiên. Chúng tôi không so sánh thực nghiệm với MCTS và không
+khẳng định thuật toán nào mạnh hơn.
 
 \subsection{Tìm Kiếm Đối Kháng}
 \label{ssec:search}

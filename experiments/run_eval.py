@@ -303,6 +303,35 @@ def run_timing(games, max_plies):
     return summarize_timing()
 
 
+# ── (3b) Cost of one random playout (why the bots do not use MCTS) ───────────
+
+def run_playout_cost(games=30, seed=4321):
+    """Median wall time of one uniform-random game played to its end."""
+    import random
+    _ensure_results()
+    rows = []
+    print(f"\n=== RANDOM PLAYOUT COST ({games} complete games/mode) ===")
+    for label, mode in (('2', MODE_BOT_2), ('3', MODE_PLAY_3), ('4', MODE_PLAY_4)):
+        rng = random.Random(seed)
+        times, plies = [], []
+        for _ in range(games):
+            t0 = time.perf_counter()
+            plies.append(harness.random_playout(mode, rng))
+            times.append(time.perf_counter() - t0)
+        med = statistics.median(times)
+        rows.append([label, games, round(med, 4), statistics.median(plies),
+                     round(med * 1000, 1)])
+        print(f"{label}p: median playout {med*1000:.0f} ms "
+              f"({statistics.median(plies):.0f} plies); 1,000 playouts "
+              f"~ {med*1000:.0f} s")
+    with open(_path('playout_cost.csv'), 'w', newline='') as f:
+        w = csv.writer(f)
+        w.writerow(['players', 'games', 'median_playout_s', 'median_plies',
+                    'est_1000_playouts_s'])
+        w.writerows(rows)
+    return rows
+
+
 # ── (4) Anti-repetition before/after ─────────────────────────────────────────
 
 def run_antirep(games, max_plies, depth=2):
@@ -374,6 +403,8 @@ def main():
     ap.add_argument('--tournament', action='store_true')
     ap.add_argument('--timing', action='store_true')
     ap.add_argument('--antirep', action='store_true')
+    ap.add_argument('--playout-cost', action='store_true',
+                    help='time one random playout to game end per mode')
     ap.add_argument('--firstmove', action='store_true',
                     help='equal-depth self-play, first-mover advantage')
     ap.add_argument('--quick', action='store_true',
@@ -396,7 +427,7 @@ def main():
 
     do_all = args.all or not any(
         [args.branching, args.tournament, args.timing, args.antirep,
-         args.firstmove])
+         args.firstmove, args.playout_cost])
 
     _ensure_results()
     hw = hardware_info()
@@ -427,6 +458,8 @@ def main():
         run_branching(n_games=60, max_plies=SAFETY_CAP)
     if do_all or args.timing:
         run_timing(games=args.timing_games, max_plies=SAFETY_CAP)
+    if do_all or args.playout_cost:
+        run_playout_cost()
     if do_all or args.antirep:
         run_antirep(games=40, max_plies=200)
     if do_all or args.firstmove:

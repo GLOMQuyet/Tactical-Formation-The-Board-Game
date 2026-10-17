@@ -86,22 +86,26 @@ See [study.md](./study.md) for the full rulebook, board diagrams, and strategy t
 
 ```
 Tactical-Formation-The-Board-Game/
-├── main.py                 # Entry point
+├── main.py                 # Entry point (menus, then ui/screens/game.py)
 ├── requirements.txt
 ├── study.md                # Full rulebook & guide
-├── human_two/
-│   ├── play_2.py           # 2-player (human vs human)
-│   └── bot_AI.py           # Minimax bot (human vs bot)
-├── human_three/
-│   ├── play_3.py           # 3-player mode
-│   └── bot_AI_3.py         # MCTS bot for 3-player
-├── human_four/
-│   ├── play_4.py           # 4-player mode
-│   └── bot_AI_4.py         # MCTS bot for 4-player
-├── assets/                 # Images, fonts, sounds
-└── utils/
-    └── utils.py            # Shared utilities
+├── core/                   # Rule engine: board, pieces, rules, game state, modes
+├── ai/
+│   ├── minimax.py          # 2-player bot: Minimax with Alpha-Beta (depth 6)
+│   ├── paranoid.py         # 3/4-player bots: Paranoid Minimax (depth 4 / 3)
+│   └── policy.py           # Picks the engine for the current mode
+├── ui/                     # Pygame rendering, input, animation, game screen
+├── experiments/            # Headless measurements behind the paper (results/)
+├── tests/                  # Rule tests
+├── tools/make_figures.py   # Renders the board figures used in the paper
+├── docs/                   # Formal model of the 2-player game
+├── paper/, paper-en/       # Paper (Vietnamese and English editions)
+├── assets/                 # Images, fonts and sounds
+└── utils/utils.py          # Shared utilities
 ```
+
+The bots use Minimax-family search only; Monte Carlo Tree Search is not used
+(the paper's Section 6 explains why).
 
 ---
 

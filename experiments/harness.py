@@ -135,6 +135,32 @@ def play_np(mode, depth, seed, max_plies=SAFETY_CAP, time_moves=False):
             'reason': 'ply_cap'}
 
 
+def random_playout(mode, rng, max_plies=SAFETY_CAP):
+    """Play one uniform-random game to its end; return the number of plies.
+
+    This is the rollout a plain Monte Carlo Tree Search would run, so timing
+    it gives the cost of MCTS-style evaluation (see paper Section 6.1).
+    """
+    state = GameState.new(mode)
+    ply = 0
+    while ply < max_plies:
+        if len(state.active_players) <= 1:
+            break
+        cur = state.current_player
+        moves = rules.all_moves(cur, state.board, mode)
+        if not moves:
+            if mode.eliminate_on_no_moves:
+                state.active_players.remove(cur)
+                if state.active_players:
+                    state.turn_index %= len(state.active_players)
+                continue
+            break
+        rules.apply_move(state.board, rng.choice(moves), mode)
+        state.advance_turn()
+        ply += 1
+    return ply
+
+
 def random_states(mode, n_games, max_plies, seed, lengths=None):
     """Yield (phase_fraction, n_moves, n_actions) for states under random play.
 

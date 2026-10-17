@@ -30,7 +30,7 @@ world champion, and Othello $8\times8$ has recently been proven a
 \emph{draw} under optimal play by both sides~\citep{takizawa2023othello}.
 Rolit is a Reversi variant for up to 4 players, and it has been used as a
 test domain for Paranoid, max$^n$ and Best-Reply
-Search~\citep{schadd2011brs,nijssen2013mcts,nijssen2013policies}. The
+Search~\citep{schadd2011brs,nijssen2013mcts}. The
 Reversi-like class of sandwich-flip games therefore already has a
 multiplayer version. The sandwich rule of Cờ Trận is close to Reversi, with
 three differences: pieces are \emph{moved} rather than placed; when several
@@ -57,10 +57,8 @@ piece count grows~\citep{gebop_ataxx}.
 
 \emph{Lines of Action}, designed by Claude Soucie and described in the
 collection of \citet{sackson1969gamut}, also moves existing pieces instead
-of placing new ones; the winning objective is to connect one's pieces. It
-has been studied in depth with Monte Carlo tree
-search~\citep{winands2010loa}, but a captured piece is still removed from
-the board, as in Checkers. \emph{Focus} (also called \emph{Domination}) by
+of placing new ones; the winning objective is to connect one's pieces, and
+a captured piece is still removed from the board, as in Checkers. \emph{Focus} (also called \emph{Domination}) by
 Sid Sackson~\citep{sackson1969gamut} keeps captured pieces so that they can
 return to the board, so it too treats capture as transformation rather than
 removal.

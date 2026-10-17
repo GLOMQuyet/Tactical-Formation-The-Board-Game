@@ -1,0 +1,4 @@
+players,games,median_playout_s,median_plies,est_1000_playouts_s
+2,30,0.0139,291.5,13.9
+3,30,0.1061,1583.5,106.1
+4,30,0.2987,3466.5,298.7
