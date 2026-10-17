@@ -5,6 +5,8 @@
 > new origin section, rewritten related work, and re-run experiments. The
 > page counts, word counts and element counts below describe the June
 > version. The two editions are still kept section-for-section in step.
+> On 2026-10-17 the PDF metadata of both editions was set to the current
+> title and to the author "Trương Văn Quyết", so item 3 below no longer applies.
 
 This report compares the English edition in `paper-en/` against the Vietnamese
 original in `paper/`. The goal was a **faithful 1:1 mirror**: identical
