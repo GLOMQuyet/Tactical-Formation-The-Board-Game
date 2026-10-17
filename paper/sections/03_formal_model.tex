@@ -3,11 +3,11 @@
 \label{app:formal}
 
 Phụ lục này đặc tả Cờ Trận bằng toán học, \emph{độc lập với mọi
-cách cài đặt phần mềm}, bổ sung cho phần trình bày chính bằng hình ảnh bàn
-cờ thật ở Mục~\ref{sec:rules} (đủ để nắm luật chơi). Trọng tâm đặt
+cách cài đặt phần mềm}, bổ sung cho phần trình bày bằng hình ảnh ở
+Mục~\ref{sec:rules} (đủ để nắm luật chơi). Trọng tâm đặt
 vào cốt lõi của cờ: quân đi theo \textbf{hướng} nào và \textbf{ăn quân}
 ra sao. Mô hình dựng trên ba trụ cột---\textbf{trạng thái}, \textbf{hành
-động}, \textbf{phần thưởng}---và một tiên đề xuyên suốt: \emph{bàn cờ
+động}, \textbf{phần thưởng}---và một nguyên tắc xuyên suốt: \emph{bàn cờ
 luôn có đúng 28 quân; ăn quân là đổi phe, không bao giờ loại bỏ}. Phần
 mở rộng cho chế độ 3--4 người được nêu ở Mục~\ref{sec:variants}.
 
@@ -29,21 +29,21 @@ Bàn cờ chế độ 2 người gồm 41 ô trên hai lớp:
 Mỗi ô tâm nằm chính giữa bốn ô đỉnh bao quanh. Hàm loại
 $\kappa(x)\in\{\mathsf V,\mathsf C\}$ cho biết ô $x$ là đỉnh hay tâm.
 Hai phe là $\mathcal C=\{\mathrm Y,\mathrm G\}$ (Vàng, Xanh); đối thủ của
-$c$ viết là $\bar c$; ô trống ký hiệu $\varnothing$. \textbf{Xanh đi
-trước.}
+$c$ viết là $\bar c$; ô trống ký hiệu $\varnothing$. Theo quy ước, Xanh đi
+trước (Mục~\ref{ssec:turn_order}).
 
 Trò chơi có đúng \textbf{28 quân}; mỗi phe xuất phát với 14 quân
 ($=10$ quân đỉnh $+\,4$ quân tâm). Mỗi quân $p$ mang ba thuộc tính:
 \begin{itemize}[noitemsep,topsep=2pt]
   \item \textbf{loại} $\kappa(p)\in\{\mathsf V,\mathsf C\}$---\emph{bất
-        biến suốt ván}: quân đỉnh sống cả đời trên ô đỉnh, quân tâm trên
-        ô tâm;
+        biến suốt ván}: quân đỉnh luôn ở trên ô đỉnh, quân tâm luôn ở
+        trên ô tâm;
   \item \textbf{vị trí} $x_p$---đổi khi quân nhảy;
   \item \textbf{phe} $c_p\in\{\mathrm Y,\mathrm G\}$---đổi khi quân bị ăn.
 \end{itemize}
 
 \begin{quote}
-\textbf{Định luật Bảo toàn 28 quân.} Không quân nào được thêm vào hay
+\textbf{Bất biến bảo toàn 28 quân.} Không quân nào được thêm vào hay
 bị loại khỏi bàn; ăn quân là \emph{đổi phe} một quân có sẵn. Do đó tại
 mọi trạng thái
 \begin{equation}
@@ -58,8 +58,7 @@ trực tiếp của định nghĩa}---vì bắt quân được định nghĩa l�
 một quân có sẵn (không thêm, không loại), tổng số quân hiển nhiên không
 đổi---chứ không phải một định lý sâu cần chứng minh công phu. Giá trị của
 nó nằm ở \emph{hệ quả đối với lối chơi}: ván cờ không bao giờ suy biến
-thành tàn cuộc thưa quân, toàn bộ 28 quân luôn là tài nguyên chiến thuật
-sống.
+thành tàn cuộc thưa quân, cả 28 quân luôn còn tham gia ván cờ.
 
 Bất biến~\eqref{eq:conservation} phân biệt Cờ Trận với cả Cờ
 Đam (ăn $=$ loại) lẫn Reversi (số quân tăng theo lượt đặt), và xếp nó vào
@@ -84,8 +83,8 @@ b:\mathcal B\to\{\mathrm Y,\mathrm G,\varnothing\},\qquad
 \label{eq:state}
 \end{equation}
 $b$ là \emph{cấu hình bàn} (ô nào mang màu gì), $\mathrm{turn}$ là phe
-đến lượt. Biết vị trí và phe của cả 28 quân cộng với ai đang đi là biết
-toàn bộ trạng thái---trò chơi \emph{thông tin hoàn hảo}, không có thông
+đến lượt. Vị trí và phe của 28 quân cùng phe đến lượt xác định toàn
+bộ trạng thái; đây là trò chơi \emph{thông tin hoàn hảo}, không có thông
 tin ẩn. Trạng thái xuất phát là $s_0=(b_0,\mathrm G)$ (quy ước Xanh đi
 trước; khi chơi thật, ai đi trước do thoả thuận) với $b_0$ đặt theo
 \eqref{eq:starty}--\eqref{eq:startg}. Hàm đếm quân $N_c(s)$ thoả
@@ -131,7 +130,7 @@ Hình~\ref{fig:jumps}).
 \subsection{Cách ăn quân---cốt lõi của cờ}
 \label{ssec:capture}
 
-Ý tưởng trong một câu: \emph{đáp xuống đâu, nhìn quanh đó}---từ ô đáp,
+Tóm tắt: từ ô đáp,
 theo từng hướng, nếu thấy một dãy quân địch liền nhau mà ngay sau dãy là
 một quân mình, thì cả dãy bị \emph{kẹp} và \emph{đổi phe} theo mình.
 Hướng ăn dùng cùng tập hướng với hướng đi: quân đỉnh xét
@@ -199,7 +198,7 @@ $\delta=\varnothing$). Phần thưởng từng bước là tổng-zero:
 \qquad (c=\mathrm{turn}).
 \label{eq:reward}
 \end{equation}
-Bốn hệ quả ``kế toán''---tất cả đều là hệ quả của \emph{ăn $=$ đổi phe}:
+Bốn hệ quả trực tiếp của \emph{ăn $=$ đổi phe}:
 \begin{enumerate}[label=(\arabic*),noitemsep,topsep=2pt]
   \item \textbf{Tổng-zero từng bước:} $r_{\mathrm Y}(s,a)+r_{\mathrm G}(s,a)=0$.
   \item \textbf{Ăn $k$ quân đổi chênh lệch quân số $2k$:} mình $+k$,
@@ -266,23 +265,25 @@ toả} (còn quân nhưng không quân nào nhảy được). Một phe tạm h�
 \subsection{Chặn trên độ phức tạp}
 \label{ssec:complexity}
 
-Định luật Bảo toàn~\eqref{eq:conservation} cho phép chặn kích thước không
-gian trạng thái khá gọn. Loại quân bất biến nên luôn có đúng 20 quân đỉnh
+Việc loại quân bất biến cho phép chặn kích thước không gian trạng
+thái khá gọn. Loại quân bất biến nên luôn có đúng 20 quân đỉnh
 (trên 25 ô đỉnh) và 8 quân tâm (trên 16 ô tâm); mỗi quân mang một trong
 hai màu. Bỏ qua tính khả đạt, số cấu hình bàn bị chặn bởi
 \begin{equation}
 |\mathcal S| \;\le\; 2\cdot
 \underbrace{\binom{25}{20}2^{20}}_{\text{lớp đỉnh}}\cdot
 \underbrace{\binom{16}{8}\,2^{8}}_{\text{lớp tâm}}
-\;\approx\; 3.7\times10^{17},
+\;\approx\; 3{,}7\times10^{17},
 \label{eq:statespace}
 \end{equation}
-(thừa số $2$ cho lượt đi). Đây là chặn trên lỏng---nhỏ hơn nhiều bậc so
-với Cờ Đam ($\sim5\times10^{20}$, đã giải~\citep{schaeffer2007checkers})
----cho thấy chế độ 2 người nằm trong tầm tìm kiếm heuristic mà không cần
-học sâu.
+(thừa số $2$ cho lượt đi). Đây là chặn trên lỏng, tính cả những trạng thái
+không bao giờ xảy ra trong ván thật. Nó nhỏ hơn khoảng ba bậc độ lớn so với
+Cờ Đam (khoảng $5\times10^{20}$ thế cờ), trò chơi đã được giải yếu năm
+2007~\citep{schaeffer2007checkers}. Giải trọn chế độ 2 người của Cờ Trận vì
+thế có thể là một hướng nghiên cứu khả thi, dù vẫn cần tài nguyên tính toán
+lớn.
 
-Về \emph{branching factor}, một hành động là bộ ba $(x,x',\delta)$. Vì ăn
+Về \emph{hệ số phân nhánh}, một hành động là bộ ba $(x,x',\delta)$. Vì ăn
 quân là đổi phe, một phe có thể nắm gần như toàn bộ 28 quân, nên không thể
 chặn theo 14 quân ban đầu. Nhưng \emph{loại} quân thì bất biến: toàn bàn
 luôn có đúng 20 quân đỉnh và 8 quân tâm. Quân đỉnh có $\le 8$ ô đáp, và từ
@@ -294,24 +295,10 @@ một hành động); quân tâm có $\le 4$ ô đáp và $\le 4$ tia. Do đó s
 \label{eq:branchbound}
 \end{equation}
 Ràng buộc cú nhảy~\eqref{eq:jump} (cần bệ \emph{và} ô đáp trống) khiến
-branching factor thực tế nhỏ hơn nhiều; giá trị đo đạc được báo cáo ở
+hệ số phân nhánh thực tế nhỏ hơn nhiều; giá trị đo đạc được báo cáo ở
 Mục~\ref{sec:eval}.
 
-Về \emph{không gian trạng thái}, vì loại quân bất biến, 20 quân đỉnh luôn
-nằm trên 25 ô đỉnh và 8 quân tâm trên 16 ô tâm; mỗi quân thuộc một trong
-hai phe, cộng thêm phe đến lượt. Số trạng thái do đó bị chặn trên bởi
-\begin{equation}
-|\mathcal S| \;\le\; \binom{25}{20}\binom{16}{8}\,2^{28}\cdot 2
-\;\approx\; 3{,}7\times10^{17}.
-\label{eq:statespace}
-\end{equation}
-Chặn trên này tính cả những trạng thái không bao giờ xảy ra trong ván thật.
-Nó nhỏ hơn khoảng ba bậc độ lớn so với Cờ Đam (khoảng $5\times10^{20}$ thế
-cờ), trò chơi đã được giải yếu năm 2007~\citep{schaeffer2007checkers}. Giải
-trọn chế độ 2 người của Cờ Trận vì thế có thể là một hướng nghiên cứu khả
-thi, dù vẫn cần tài nguyên tính toán lớn.
-
-\subsection{Trò chơi trong một dòng}
+\subsection{Tổng hợp mô hình}
 \label{ssec:onelinerule}
 
 Gộp lại, mô hình hoàn chỉnh là bộ
@@ -326,11 +313,7 @@ hàm chuyển~\eqref{eq:t3}, kết thúc~\eqref{eq:terminal}, xuất phát từ 
 Mỗi phe tối đa hoá $\sum_t r_c(s_t,a_t)+(\pm W)$---ăn càng nhiều quân càng
 tốt, và trên hết là thắng.
 
-\paragraph{Hai cách đọc tác nhân.} Có thể coi \emph{hai người chơi} là
-tác nhân ra quyết định (chuẩn lý thuyết trò chơi), khi đó 28 quân là 28
-\emph{thực thể bền vững}: loại không đổi, vị trí và phe thay đổi, không bao
-giờ biến mất. Hoặc đọc theo kiểu \emph{28 quân là 28 tác nhân chia hai
-đội}---bị ăn nghĩa là một quân \emph{đào tẩu} sang đội đối phương; đội
-không mất tác nhân nào, chỉ mất lòng trung thành của quân ấy, và tổng hai
-đội vẫn là 28. Hai cách đọc mô tả cùng một $\mathcal G$; cách thứ hai nhấn
-mạnh đúng tinh thần ``luôn 28 quân, ăn là đổi phe''.
+\paragraph{Cách đọc theo tác nhân.} Ngoài cách coi hai người chơi là hai
+tác nhân ra quyết định, cũng có thể coi 28 quân là 28 tác nhân chia làm hai
+đội: khi bị ăn, một quân chuyển sang đội kia, nên tổng số quân của hai đội
+luôn là 28. Hai cách đọc mô tả cùng một trò chơi $\mathcal G$.

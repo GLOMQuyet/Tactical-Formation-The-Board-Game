@@ -2,7 +2,7 @@
 \section{Implementation and Software}
 \label{sec:impl}
 
-The game is written in Python~3 with the Pygame~2 library. The source is
+The software is written in Python~3 with the Pygame~2 library. The source is
 open at:
 \url{https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game}.
 
@@ -35,12 +35,13 @@ engine depends on neither the interface nor the AI}:
   \item Applying a move is the transition function
         $T$~\eqref{eq:t1}--\eqref{eq:t3}: jump, flip along the chosen
         direction, pass the turn---purely deterministic, creating no piece
-        and deleting no piece (the invariant~\eqref{eq:conservation} is
-        checked by an assertion that the total piece count $=28$ in
-        \texttt{tests/}).
+        and deleting no piece The invariant~\eqref{eq:conservation} is
+        checked by tests that play many random games in all three modes and
+        assert that the total piece count, and each piece's layer, stays
+        unchanged after every move.
 \end{itemize}
-The bots in \texttt{ai/} call only those three operations (generate moves,
-apply, evaluate): \texttt{minimax.py} implements Minimax Alpha-Beta for
+The bots in \texttt{ai/} use only the operations of \texttt{core/}
+(generate, apply and undo moves) plus their own evaluation function: \texttt{minimax.py} implements Minimax Alpha-Beta for
 the 2-player mode, and \texttt{paranoid.py} implements Paranoid Minimax for
 the 3--4 player mode (Section~\ref{ssec:search}). Both are fully separated from the rule engine and can be
 swapped for another algorithm without touching \texttt{core/}.

@@ -253,5 +253,45 @@ class TestBestMoveContract(unittest.TestCase):
         self.assertIn(move, legal)
 
 
+class TestPieceConservation(unittest.TestCase):
+    """Capture changes a piece's side; it never adds or removes a piece."""
+
+    def _random_game_keeps_counts(self, mode, seed, max_plies=400):
+        import random
+        rng = random.Random(seed)
+        s = GameState.new(mode)
+        total = len(s.pieces)
+        kinds = sorted((p.x % 1, p.y % 1) for p in s.pieces)
+        for _ in range(max_plies):
+            if len(s.active_players) <= 1:
+                break
+            cur = s.current_player
+            moves = rules.all_moves(cur, s.board, mode)
+            if not moves:
+                if mode.eliminate_on_no_moves:
+                    s.active_players.remove(cur)
+                    if s.active_players:
+                        s.turn_index %= len(s.active_players)
+                    continue
+                break
+            rules.apply_move(s.board, rng.choice(moves), mode)
+            s.advance_turn()
+            self.assertEqual(len(s.pieces), total)
+            # every piece stays on its own layer (vertex or centre)
+            self.assertEqual(sorted((p.x % 1, p.y % 1) for p in s.pieces), kinds)
+
+    def test_conservation_2p(self):
+        for seed in range(20):
+            self._random_game_keeps_counts(MODE_PLAY_2, seed)
+
+    def test_conservation_3p(self):
+        for seed in range(10):
+            self._random_game_keeps_counts(MODE_PLAY_3_HUMAN, seed)
+
+    def test_conservation_4p(self):
+        for seed in range(10):
+            self._random_game_keeps_counts(MODE_PLAY_4_HUMAN, seed)
+
+
 if __name__ == '__main__':
     unittest.main()

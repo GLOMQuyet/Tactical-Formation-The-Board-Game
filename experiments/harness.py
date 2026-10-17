@@ -47,8 +47,11 @@ def play_2p(mode, depth_by_color, seed, max_plies=SAFETY_CAP, time_moves=False):
     while plies < max_plies:
         cur = state.current_player
         if not rules.is_alive(cur, state.board, mode):
+            # loser_pieces == 0: wiped out; > 0: blockaded with pieces left
             return {'winner': _other_2p(mode, cur), 'plies': plies,
-                    'move_times': move_times, 'reason': 'no_move'}
+                    'move_times': move_times, 'reason': 'no_move',
+                    'loser_pieces': sum(1 for p in state.board.pieces
+                                        if p.color == cur)}
         d = depth_by_color[cur]
         t0 = time.perf_counter()
         res = minimax.best_move(state.board, cur, mode, depth=d,

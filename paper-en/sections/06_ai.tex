@@ -36,9 +36,8 @@ moves (mobility) of side $c$.
 \paragraph{2-player mode---Minimax Alpha-Beta.} The two sides are fully
 opposed, so the bot uses classic Minimax with Alpha-Beta
 pruning~\citep{knuth1975alphabeta}: our side maximises, the opponent minimises,
-alternating via the \textsc{max} flag. The evaluation function is designed
-to \emph{think like a player}---both wanting to capture pieces and wanting
-to squeeze the opponent's space of moves---by normalising both terms to
+alternating via the \textsc{max} flag. The evaluation function combines two
+goals, capturing pieces and restricting the opponent's moves, by normalising both terms to
 $[-1,1]$ and then assigning weights $0.7$ and $0.3$ (see the reasoning in
 Section~\ref{ssec:pitfalls}):
 \begin{equation}
@@ -109,8 +108,10 @@ Reply Search to future work.
   \end{tabular}
 \end{table}
 
-The AI runs in a background thread (\texttt{asyncio.run\_in\_executor}) so
-that the interface does not freeze while it computes.
+In the 3--4 player modes the AI runs in a background thread, started with
+\texttt{asyncio.run\_in\_executor}, so the interface does not freeze while a
+bot thinks. In the 2-player mode the bot currently runs on the main
+thread, so the interface pauses while it computes its move.
 
 \subsection{Pruning effectiveness and move ordering}
 \label{ssec:ordering}
@@ -121,11 +122,10 @@ which moves are visited~\citep{knuth1975alphabeta}.
 Cờ Trận offers a cheap and natural ordering heuristic: because
 each action \emph{foresees} the number of pieces it captures,
 $|a|=|F_\delta|$ (Section~\ref{ssec:capture}), the bot visits moves in
-\emph{decreasing} order of $|a|$. A move that captures many pieces is
-usually strong and so is often the best move, helping pruning trigger
-early. When $|a|$ is equal, the bot prefers a move that increases mobility
-per Equation~\eqref{eq:eval}. To exploit this ordering fully, both engines
-use \emph{make/unmake} of moves instead of copying the state at every node.
+\emph{decreasing} order of $|a|$; the 2-player engine also visits first the
+best move stored in its transposition table (see below). A move that
+captures many pieces is usually a good candidate, so pruning happens
+earlier. For speed, both engines use \emph{make/unmake} of moves instead of copying the state at every node.
 The 2-player engine additionally uses a \textbf{transposition table} keyed
 by a Zobrist hash---storing the upper/lower/exact Alpha-Beta bounds and
 prioritising the recorded best move---to avoid recomputing move sequences
@@ -163,18 +163,20 @@ beneficial, instead of a fixed greedy rule.
 \paragraph{Pitfall \#2 --- Wrong focus in the evaluation function.}
 \emph{Cause.} The original evaluation function, $10(N_c-N_{\bar
 c})+(M_c-M_{\bar c})$, weighted piece count ten times more heavily than
-mobility. But because pieces are conserved, ``capturing everything'' is
-nearly impossible; the real path to victory is to squeeze the opponent out
-of moves. The bot thus optimised the wrong objective---hoarding pieces
+mobility. But because pieces are conserved, capturing every opponent piece
+is very hard; games actually end when one side is blockaded. In 100 games
+between two depth-2 bots (Section~\ref{sec:eval_tournament}), no game ended
+with the loser out of pieces: all 100 ended with the loser blockaded while it
+still held a median of 8 pieces. The bot thus optimised the wrong objective---hoarding pieces
 instead of blockading. Moreover, the two terms have different units
 (counting pieces versus counting moves), so the $10\!:\!1$ weight ratio
 carries no clear meaning.
 \emph{Fix.} Normalise both terms to $[-1,1]$ and then assign weights that
 reflect a player's intuition: $0.7$ for capturing pieces, $0.3$ for
 blocking the opponent's moves (Equations~\eqref{eq:eval}
-and~\eqref{eq:evalpar}). A smaller weight for mobility but on the
-\emph{same scale} makes it genuinely steer toward a blockade once the
-piece-count advantage has saturated.
+and~\eqref{eq:evalpar}). The mobility term has the smaller weight,
+but because both terms are on the \emph{same scale} it still has a real
+effect on the bot's choices.
 
 \paragraph{Pitfall \#3 --- Determinism and move repetition.}
 \emph{Cause (two layers).} (i)~\emph{Determinism}: $\arg\max$ always

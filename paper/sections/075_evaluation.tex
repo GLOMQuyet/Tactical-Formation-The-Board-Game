@@ -7,14 +7,15 @@
 \section{Đánh Giá Thực Nghiệm}
 \label{sec:eval}
 
-Mục này định lượng ba khía cạnh của Cờ Trận: (i) độ phức tạp
-không gian trạng thái qua \emph{branching factor}, (ii) sức mạnh tương
-đối của AI qua giải đấu bot-vs-bot, và (iii) hiệu năng thời gian thực.
+Mục này định lượng ba khía cạnh: (i) bề rộng cây trò chơi qua \emph{hệ số
+phân nhánh} (branching factor, số nước đi hợp lệ mỗi lượt) và độ dài ván,
+(ii) sức mạnh tương đối của AI qua các ván đấu giữa bot, và (iii) thời gian
+suy nghĩ của bot.
 Mục tiêu là xác nhận không gian nước đi \emph{đủ rộng và không suy biến}
-(branching factor), và rằng độ sâu tìm kiếm \emph{thực sự chuyển hoá thành
-sức mạnh chơi} (độ sâu lớn hơn thắng độ sâu nhỏ hơn một cách ổn định)---chính
-sự phân tách theo kỹ năng này, chứ không phải branching factor, mới là bằng
-chứng cho chiều sâu chiến thuật.
+(hệ số phân nhánh), và rằng độ sâu tìm kiếm \emph{thực sự chuyển hoá thành
+sức mạnh chơi} (độ sâu lớn hơn thắng độ sâu nhỏ hơn một cách ổn định). Sự
+phân tách theo độ sâu là một dấu hiệu, dù chưa phải bằng chứng đầy đủ, cho
+thấy các quyết định trong Cờ Trận có hệ quả về sau.
 
 \subsection{Thiết Lập Thí Nghiệm}
 \label{sec:eval_setup}
@@ -26,18 +27,18 @@ tái lập. Vì Cờ Trận không có giới hạn số nước hay luật hoà
 (Mục~\ref{sec:provenance}), mọi ván trong các thí nghiệm của mục này đều
 được chơi đến khi có bên thắng. Mã đo chỉ đặt một giới hạn an toàn $10^5$
 nước để phòng trường hợp ván lặp vô hạn, và không ván nào chạm tới giới hạn
-này. Mỗi cặp đấu gồm 50 ván; để khử lợi thế tay đi đầu, hai bot luân
+này. Mỗi cặp đấu gồm 50 ván; để cân bằng lợi thế đi trước, hai bot luân
 phiên đi đầu (mỗi bên đi đầu 25 ván). Bot dùng cùng hàm đánh giá
 ở Phương trình~\eqref{eq:eval}, chỉ khác độ sâu tìm kiếm. Do mỗi nước ở độ
 sâu~6 tốn vài giây trên thông dịch Python thuần (xem
 Mục~\ref{sec:eval_timing}), số ván được chọn ở mức 50/cặp---đủ để chênh lệch
 do độ sâu hiện ra rõ ràng mà vẫn nằm trong ngân sách tính toán.
 
-\subsection{Branching Factor và Không Gian Trạng Thái}
+\subsection{Hệ Số Phân Nhánh và Độ Dài Ván}
 \label{sec:eval_branching}
 
-Bảng~\ref{tab:branching} báo cáo số nước đi hợp lệ trung bình (branching
-factor) theo giai đoạn ván (đầu/giữa/cuối theo phần ba độ dài ván). Số liệu
+Bảng~\ref{tab:branching} báo cáo số nước đi hợp lệ trung bình mỗi lượt (hệ số
+phân nhánh) theo giai đoạn ván (đầu/giữa/cuối theo phần ba độ dài ván). Số liệu
 đo trên 60 ván chơi trọn vẹn mỗi chế độ, tức khoảng 20 nghìn thế cờ mẫu ở
 chế độ 2 người, 94 nghìn ở chế độ 3 người và 215 nghìn ở chế độ 4 người.
 Các thế cờ mẫu được sinh
@@ -52,7 +53,7 @@ thường kéo dài 3--4 tiếng (Mục~\ref{sec:provenance}).
 
 \begin{table}[H]
   \centering
-  \caption{Branching factor trung bình (số nước di chuyển hợp lệ) theo giai
+  \caption{Hệ số phân nhánh trung bình (số nước di chuyển hợp lệ) theo giai
   đoạn và chế độ chơi. Tính cả lựa chọn hướng kẹp, số \emph{hành động} đầy
   đủ chỉ cao hơn không đáng kể (2 người $\approx 11{,}6$; 3 người
   $\approx 18{,}9$; 4 người $\approx 21{,}1$). Mỗi chế độ 60 ván ngẫu nhiên
@@ -71,25 +72,25 @@ thường kéo dài 3--4 tiếng (Mục~\ref{sec:provenance}).
   \end{tabular}
 \end{table}
 
-\noindent Ở chế độ 2 người, branching factor trung bình $\approx 11$ và gần
+\noindent Ở chế độ 2 người, hệ số phân nhánh trung bình $\approx 11$ và gần
 như không đổi qua các giai đoạn ván. Đây là hệ quả của bất biến bảo toàn
 quân số: số quân, và do đó số nước nhảy tiềm năng, không cạn dần như ở các
-game có loại quân. Ở chế độ 3 và 4 người, branching factor \emph{tăng dần}
+game có loại quân. Ở chế độ 3 và 4 người, hệ số phân nhánh \emph{tăng dần}
 theo ván, từ khoảng 16 ở đầu ván lên 20--23 ở cuối ván, và chế độ 4 người
 cao nhất. Chúng tôi chưa phân tích nguyên nhân của xu hướng này. Cả ba chế
-độ đều có branching cao hơn Reversi, vốn khoảng 10 nước mỗi
+độ đều có hệ số phân nhánh cao hơn Reversi, vốn khoảng 10 nước mỗi
 lượt~\citep{allis1994searching}. Các giá trị này nằm xa dưới chặn trên giải
 tích $|\mathcal A(s)|\le 1408$ (Phụ lục~\ref{app:formal}), xác nhận ràng buộc
 cú nhảy thắt chặt không gian nước đi thực tế; việc định vị độ phức tạp của
 một game so với các game đã được giải là thông lệ đánh giá tiêu
 chuẩn~\citep{herik2002games}; Phụ lục~\ref{app:formal} ước lượng không gian
-trạng thái chế độ 2 người tối đa khoảng $3{,}7\times10^{17}$~\eqref{eq:statespace}. Cần nhấn mạnh: branching factor đo \emph{bề
+trạng thái chế độ 2 người tối đa khoảng $3{,}7\times10^{17}$~\eqref{eq:statespace}. Cần nhấn mạnh: hệ số phân nhánh đo \emph{bề
 rộng} của cây trò chơi, không trực tiếp đo \emph{chiều sâu} chiến thuật; nó
 chỉ cho thấy không gian nước đi đủ phong phú và không suy biến về cuối ván.
 Bằng chứng cho chiều sâu chiến thuật---rằng các quyết định thực sự có ý
 nghĩa---đến từ giải đấu ở Mục~\ref{sec:eval_tournament}.
 
-\subsection{Giải Đấu Bot-vs-Bot}
+\subsection{Các Ván Đấu Giữa Bot}
 \label{sec:eval_tournament}
 
 Để kiểm tra AI khai thác được độ sâu tìm kiếm, chúng tôi cho các bot
@@ -97,16 +98,16 @@ khác độ sâu đấu đối kháng (Bảng~\ref{tab:tournament}).
 
 \begin{table}[H]
   \centering
-  \caption{Kết quả bot-vs-bot, chế độ 2 người (A là bên độ sâu cao hơn;
+  \caption{Kết quả các ván đấu giữa bot, chế độ 2 người (A là bên độ sâu cao hơn;
   mỗi cặp 50 ván, luân phiên đi đầu 25/25). Khoảng tin cậy 95\% của
-  win-rate tính theo phương pháp Wilson. Luật không có hoà; mọi ván trong
+  tỉ lệ thắng tính theo phương pháp Wilson. Luật không có hoà; mọi ván trong
   cả ba cặp đều kết thúc với một bên thắng.}
   \label{tab:tournament}
   \setlength{\tabcolsep}{4.5pt}
   \begin{tabular}{lccccc}
     \toprule
     \textbf{Cặp đấu (độ sâu)} & \textbf{Số ván} & \textbf{Thắng A}
-      & \textbf{Thắng B} & \textbf{Win-rate A}
+      & \textbf{Thắng B} & \textbf{Tỉ lệ thắng A}
       & \textbf{CI 95\%} \\
     \midrule
     d=6 vs d=2 & 50 & 50 & 0 & 100.0\,\% & [92.9,\,100.0] \\
@@ -117,7 +118,7 @@ khác độ sâu đấu đối kháng (Bảng~\ref{tab:tournament}).
 \end{table}
 
 \paragraph{Ước lượng Elo.}
-Từ win-rate $p$ của bên mạnh, chênh lệch Elo ước lượng theo
+Từ tỉ lệ thắng $p$ của bên mạnh, chênh lệch Elo ước lượng theo
 $\Delta\mathrm{Elo} = -400\,\log_{10}(1/p - 1)$. Lấy bot độ sâu~2 làm
 mốc 1000 Elo: cặp d=4 vs d=2 (90{,}0\%) cho $\Delta\mathrm{Elo}\approx{+}382$,
 tức độ sâu~4 $\approx 1382$ Elo; cặp d=6 vs d=4 (86{,}0\%) cho ${+}315$.
@@ -134,9 +135,10 @@ bot \emph{cùng độ sâu} ($d{=}2$) tự đánh 100 ván (seed cố định). 
 đáng chú ý: bên đi \emph{sau} (Vàng) thắng 61 ván, bên đi \emph{trước}
 (Xanh) thắng 39 ván. Mọi ván đều phân thắng bại; ván dài nhất kéo dài 313
 nước. Tỉ lệ thắng của bên đi trước chỉ $39{,}0\%$ (khoảng tin cậy Wilson
-95\% $[30{,}0,\,48{,}8]$, nằm trọn dưới $50\%$). Như vậy ở độ sâu 2, \emph{đi
-sau có lợi thế} một cách có ý nghĩa thống kê---trực giác hợp lý cho một
-game kẹp-lật, nơi đi sau cho phép phản đòn sau khi đối thủ đã lộ thế. Đây
+95\% $[30{,}0,\,48{,}8]$, nằm trọn dưới $50\%$). Như vậy, với bot độ sâu~2, \emph{đi sau có lợi
+thế} có ý nghĩa thống kê. Một giả thuyết là trong trò chơi kẹp--lật, bên đi
+sau được phản đòn sau khi đối thủ đã lộ thế; chúng tôi chưa kiểm chứng giả
+thuyết này. Đây
 là quan sát ở \emph{một} độ sâu cố định; lợi thế này có thể thay đổi theo
 độ sâu và là hướng khảo sát cân bằng tiếp theo.
 
@@ -152,7 +154,7 @@ với đúng các cấu hình ở Bảng~\ref{tab:ai_params}.
   bot tự đánh trọn vẹn cho mỗi cấu hình (2 người: 919 nước; 3 người: 2.029
   nước; 4 người: 1.179 nước). Ba cấu hình chạy song song, mỗi cấu hình một
   tiến trình trên một nhân riêng; mỗi lần tìm kiếm vẫn là đơn luồng như trong
-  trò chơi.}
+  phần mềm.}
   \label{tab:timing}
   \begin{tabular}{lccc}
     \toprule
@@ -171,17 +173,18 @@ với đúng các cấu hình ở Bảng~\ref{tab:ai_params}.
 
 Ba quan sát nổi lên từ các số đo trên.
 
-\textbf{(1) Không gian nước đi rộng và không suy biến.} Branching factor
+\textbf{(1) Không gian nước đi rộng và không suy biến.} Hệ số phân nhánh
 $\approx 11$ ở chế độ 2 người và $\approx 18$--$20$ ở chế độ 3--4 người
-(Bảng~\ref{tab:branching}) cho thấy mỗi lượt có nhiều lựa chọn. Branching
-không giảm về cuối ván ở chế độ nào: ổn định ở chế độ 2 người và còn tăng ở
-chế độ 3--4 người, khác hẳn các game có loại quân nơi branching cạn dần về
-cuối ván. Trò chơi vì vậy không bị suy biến thành tàn cuộc đơn giản. Bản
-thân branching không chứng minh chiều sâu chiến thuật; nó đặt điều kiện cần
-(không gian không tầm thường), còn bằng chứng đủ đến từ quan sát (2).
+(Bảng~\ref{tab:branching}) cho thấy mỗi lượt có nhiều lựa chọn. Hệ số phân
+nhánh không giảm về cuối ván ở chế độ nào: ổn định ở chế độ 2 người và còn tăng ở
+chế độ 3--4 người, khác hẳn các game có loại quân, nơi hệ số phân nhánh
+giảm dần về cuối ván. Trò chơi vì vậy không bị suy biến thành tàn cuộc đơn giản. Bản
+thân hệ số phân nhánh không chứng minh chiều sâu chiến thuật; nó chỉ cho
+thấy một điều kiện cần (không gian nước đi không tầm thường), còn dấu hiệu
+mạnh hơn đến từ quan sát (2).
 
-\textbf{(2) Độ sâu tìm kiếm chuyển hoá thành sức mạnh chơi (bằng chứng cho
-chiều sâu chiến thuật).} Win-rate xếp hạng đơn điệu theo độ sâu---d=6 thắng
+\textbf{(2) Độ sâu tìm kiếm chuyển hoá thành sức mạnh chơi (dấu hiệu của
+chiều sâu chiến thuật).} Tỉ lệ thắng xếp hạng đơn điệu theo độ sâu---d=6 thắng
 d=2 tuyệt đối (100\%), d=4 thắng d=2 (90\%), và d=6 thắng d=4 (86\%)
 (Bảng~\ref{tab:tournament})---mọi ván đều phân thắng bại, và các
 khoảng tin cậy 95\% đều nằm trên $50\%$ một cách rõ rệt. Việc nhìn xa hơn

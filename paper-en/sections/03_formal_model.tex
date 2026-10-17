@@ -3,12 +3,12 @@
 \label{app:formal}
 
 This appendix specifies Cờ Trận mathematically,
-\emph{independently of any software implementation}, complementing the main
-presentation through real board images in Section~\ref{sec:rules} (which is
+\emph{independently of any software implementation}, complementing the
+presentation through images in Section~\ref{sec:rules} (which is
 enough to grasp the rules). The focus is on the core of the game: which
 \textbf{direction} a piece moves in and how it \textbf{captures}. The model
 rests on three pillars---\textbf{state}, \textbf{action},
-\textbf{reward}---and one axiom throughout: \emph{the board always has
+\textbf{reward}---and one principle throughout: \emph{the board always has
 exactly 28 pieces; capture is a change of side, never removal}. The
 extension to the 3--4 player modes is given in Section~\ref{sec:variants}.
 
@@ -31,22 +31,23 @@ Each centre cell lies exactly in the middle of the four surrounding vertex
 cells. The type function $\kappa(x)\in\{\mathsf V,\mathsf C\}$ tells whether
 cell $x$ is a vertex or a centre. The two sides are $\mathcal C=\{\mathrm
 Y,\mathrm G\}$ (Yellow, Green); the opponent of $c$ is written $\bar c$; an
-empty cell is denoted $\varnothing$. \textbf{Green moves first.}
+empty cell is denoted $\varnothing$. By convention, Green moves first
+(Section~\ref{ssec:turn_order}).
 
 The game has exactly \textbf{28 pieces}; each side starts with 14 pieces
 ($=10$ vertex pieces $+\,4$ centre pieces). Each piece $p$ carries three
 attributes:
 \begin{itemize}[noitemsep,topsep=2pt]
   \item \textbf{type} $\kappa(p)\in\{\mathsf V,\mathsf C\}$---\emph{invariant
-        for the whole game}: a vertex piece lives its entire life on vertex
-        cells, a centre piece on centre cells;
+        for the whole game}: a vertex piece always stays on vertex cells, a
+        centre piece on centre cells;
   \item \textbf{position} $x_p$---changes when the piece jumps;
   \item \textbf{side} $c_p\in\{\mathrm Y,\mathrm G\}$---changes when the
         piece is captured.
 \end{itemize}
 
 \begin{quote}
-\textbf{The 28-Piece Conservation Law.} No piece is ever added to or
+\textbf{The 28-piece conservation invariant.} No piece is ever added to or
 removed from the board; capture is a \emph{change of side} of an existing
 piece. Therefore, at every state
 \begin{equation}
@@ -62,7 +63,7 @@ that follows directly from the definition}---because capture is defined as
 the total piece count obviously does not change---rather than a deep theorem
 needing an elaborate proof. Its value lies in its \emph{consequence for
 play}: the game never degenerates into a sparse endgame, and all 28 pieces
-always remain a live tactical resource.
+always stay in play.
 
 The invariant~\eqref{eq:conservation} distinguishes Cờ Trận from
 both Checkers (capture $=$ removal) and Reversi (the piece count grows with
@@ -88,8 +89,8 @@ b:\mathcal B\to\{\mathrm Y,\mathrm G,\varnothing\},\qquad
 \label{eq:state}
 \end{equation}
 $b$ is the \emph{board configuration} (which cell holds which colour), and
-$\mathrm{turn}$ is the side to move. Knowing the position and side of all 28
-pieces plus who is to move is to know the entire state---the game is one of
+$\mathrm{turn}$ is the side to move. The position and side of all 28
+pieces together with the side to move determine the entire state; the game is one of
 \emph{perfect information}, with no hidden information. The starting state is
 $s_0=(b_0,\mathrm G)$ (by convention Green moves first; in real play the
 first mover is agreed among the players) with $b_0$ placed per
@@ -140,7 +141,7 @@ Figure~\ref{fig:jumps}).
 \subsection{Capturing---the core of the game}
 \label{ssec:capture}
 
-The idea in one sentence: \emph{wherever you land, look around it}---from the
+In short: from the
 landing cell, along each direction, if you see a run of consecutive opponent
 pieces immediately followed by one of your own pieces, then the whole run is
 \emph{sandwiched} and \emph{changes side} to yours. Capturing uses the same
@@ -218,7 +219,7 @@ The size of an action is the number of pieces it captures, $|a|:=|F_\delta|$
 \qquad (c=\mathrm{turn}).
 \label{eq:reward}
 \end{equation}
-Four ``accounting'' corollaries---all consequences of \emph{capture $=$
+Four direct consequences of \emph{capture $=$
 change of side}:
 \begin{enumerate}[label=(\arabic*),noitemsep,topsep=2pt]
   \item \textbf{Zero-sum per step:} $r_{\mathrm Y}(s,a)+r_{\mathrm G}(s,a)=0$.
@@ -287,7 +288,7 @@ lost---the condition is checked only at the moment its turn arrives. The
 \subsection{Complexity upper bounds}
 \label{ssec:complexity}
 
-The Conservation Law~\eqref{eq:conservation} allows a fairly compact bound
+The invariance of piece types allows a fairly compact bound
 on the size of the state space. Because the piece type is invariant, there
 are always exactly 20 vertex pieces (over 25 vertex cells) and 8 centre
 pieces (over 16 centre cells); each piece carries one of two colours.
@@ -299,10 +300,12 @@ Ignoring reachability, the number of board configurations is bounded by
 \;\approx\; 3.7\times10^{17},
 \label{eq:statespace}
 \end{equation}
-(a factor of $2$ for the turn). This is a loose upper bound---many orders of
-magnitude smaller than Checkers ($\sim5\times10^{20}$,
-solved~\citep{schaeffer2007checkers})---showing that the 2-player mode is
-within reach of heuristic search without deep learning.
+(a factor of $2$ for the turn). This is a loose upper bound that includes
+states which never arise in real play. It is about three orders of magnitude
+below Checkers (about $5\times10^{20}$ positions), which was weakly solved in
+2007~\citep{schaeffer2007checkers}. Solving the 2-player mode of Cờ Trận
+may therefore be a feasible research direction, although it would still need
+substantial computing resources.
 
 As for the \emph{branching factor}, an action is the triple
 $(x,x',\delta)$. Because capture is a change of side, one side can hold
@@ -321,22 +324,7 @@ The jump constraint~\eqref{eq:jump} (requiring both a springboard \emph{and}
 an empty landing cell) makes the actual branching factor much smaller; the
 measured values are reported in Section~\ref{sec:eval}.
 
-As for the \emph{state space}, because the kind of a piece is invariant, the
-20 vertex pieces always occupy 25 vertex cells and the 8 centre pieces 16
-centre cells; each piece belongs to one of the two sides, and one side is to
-move. The number of states is therefore bounded by
-\begin{equation}
-|\mathcal S| \;\le\; \binom{25}{20}\binom{16}{8}\,2^{28}\cdot 2
-\;\approx\; 3.7\times10^{17}.
-\label{eq:statespace}
-\end{equation}
-This bound includes states that never arise in real play. It is about three
-orders of magnitude below Checkers (about $5\times10^{20}$ positions), which
-was weakly solved in 2007~\citep{schaeffer2007checkers}. Solving the
-2-player mode of Cờ Trận may therefore be a feasible research direction,
-although it would still need substantial computing resources.
-
-\subsection{The game in one line}
+\subsection{The model in summary}
 \label{ssec:onelinerule}
 
 Putting it together, the complete model is the tuple
@@ -352,12 +340,7 @@ termination~\eqref{eq:terminal}, starting from $s_0$. Each side maximises
 $\sum_t r_c(s_t,a_t)+(\pm W)$---capture as many pieces as possible, and above
 all, win.
 
-\paragraph{Two readings of the agents.} One may regard the \emph{two
-players} as the decision-making agents (the game-theory standard), in which
-case the 28 pieces are 28 \emph{persistent entities}: type fixed, position
-and side changing, never disappearing. Or one may read it as \emph{28 pieces
-being 28 agents split into two teams}---being captured means a piece
-\emph{defects} to the opposing team; no team loses an agent, only that
-piece's loyalty, and the two teams still total 28. Both readings describe the
-same $\mathcal G$; the second emphasises exactly the spirit of ``always 28
-pieces, capture is a change of side''.
+\paragraph{An agent-based reading.} Besides regarding the two players as the
+two decision-making agents, one may regard the 28 pieces as 28 agents split
+into two teams: a captured piece moves to the other team, so the two teams
+always total 28. Both readings describe the same game $\mathcal G$.

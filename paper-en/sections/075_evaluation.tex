@@ -8,13 +8,13 @@
 \label{sec:eval}
 
 This section quantifies three aspects of Cờ Trận: (i) the
-state-space complexity via the \emph{branching factor}, (ii) the relative
+breadth of the game tree via the \emph{branching factor} and game length, (ii) the relative
 strength of the AI via a bot-vs-bot tournament, and (iii) real-time
 performance. The goal is to confirm that the move space is \emph{broad and
 non-degenerate} (branching factor), and that search depth \emph{actually
 translates into playing strength} (greater depth beats lesser depth
-consistently)---it is this separation by skill, rather than the branching
-factor, that is the evidence for tactical depth.
+consistently). Separation by depth is a sign, though not full proof,
+that decisions in Cờ Trận have lasting consequences.
 
 \subsection{Experimental Setup}
 \label{sec:eval_setup}
@@ -27,7 +27,7 @@ Trận has no move limit and no draw rule (Section~\ref{sec:provenance}),
 every game in the experiments of this section is played until one side
 wins. The measurement code sets only a safety cap of $10^5$ plies against an
 endless loop, and no game reached it. Each pairing
-consists of 50 games; to cancel the first-mover advantage, the two bots
+consists of 50 games; to balance the first-mover advantage, the two bots
 alternate going first (each leads 25 games). The bots use the same
 evaluation function from Equation~\eqref{eq:eval}, differing only in search
 depth. Because each move at depth~6 costs several seconds on the pure Python
@@ -140,10 +140,11 @@ To probe a basic balance aspect of the 2-player mode, we have two bots of
 notable: the \emph{second} mover (Yellow) wins 61 games and the \emph{first}
 mover (Green) wins 39. Every game ended with a winner; the longest lasted
 313 plies. The first mover's win rate is only $39.0\%$ (95\% Wilson
-confidence interval $[30.0,\,48.8]$, lying entirely below $50\%$). Thus at depth 2,
-\emph{moving second is advantageous} in a statistically significant
-way---a sensible intuition for a sandwich-flip game, where moving second
-allows a counterstrike after the opponent has revealed its position. This
+confidence interval $[30.0,\,48.8]$, lying entirely below $50\%$). Thus, for depth-2 bots,
+\emph{moving second is advantageous} in a statistically significant way.
+One hypothesis is that in a sandwich-flip game the second mover can
+counterstrike after the opponent has revealed its position; we have not
+tested this hypothesis. This
 is an observation at \emph{one} fixed depth; the advantage may change with
 depth and is a next step for the balance study.
 

@@ -367,12 +367,15 @@ def run_first_move(games, depth, max_plies):
     mode = MODE_BOT_2          # 'green' moves first, 'yellow' second
     g_wins = y_wins = unfinished = 0
     longest = 0
+    loser_pieces = []
     print(f"\n=== FIRST-MOVE ADVANTAGE (2-player, d={depth} vs d={depth}, "
           f"{games} games) ===")
     for i in range(games):
         res = harness.play_2p(mode, {'green': depth, 'yellow': depth},
                               seed=314159 + i, max_plies=max_plies)
         longest = max(longest, res['plies'])
+        if 'loser_pieces' in res:
+            loser_pieces.append(res['loser_pieces'])
         w = res['winner']
         if w == 'green':
             g_wins += 1
@@ -387,12 +390,21 @@ def run_first_move(games, depth, max_plies):
         w = csv.writer(f)
         w.writerow(['depth', 'games', 'first_mover_wins', 'second_mover_wins',
                     'unfinished', 'first_winrate_pct', 'ci95_lo', 'ci95_hi',
-                    'longest_game_plies'])
+                    'longest_game_plies', 'ended_wipeout', 'ended_blockade',
+                    'median_loser_pieces'])
         w.writerow([depth, games, g_wins, y_wins, unfinished, round(wr * 100, 1),
-                    round(lo, 1), round(hi, 1), longest])
+                    round(lo, 1), round(hi, 1), longest,
+                    sum(1 for n in loser_pieces if n == 0),
+                    sum(1 for n in loser_pieces if n > 0),
+                    statistics.median(loser_pieces) if loser_pieces else ''])
     print(f"first-mover (green) {g_wins}  second (yellow) {y_wins}  "
           f"unfinished {unfinished}  -> first-mover win-rate {wr*100:.1f}% "
           f"(Wilson95 [{lo:.1f}, {hi:.1f}]), longest game {longest} plies")
+    if loser_pieces:
+        print(f"endings: wiped out {sum(1 for n in loser_pieces if n == 0)}, "
+              f"blockaded {sum(1 for n in loser_pieces if n > 0)} "
+              f"(loser kept a median of {statistics.median(loser_pieces)} "
+              f"pieces, min {min(loser_pieces)}, max {max(loser_pieces)})")
     return g_wins, y_wins, unfinished
 
 

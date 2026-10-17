@@ -9,13 +9,13 @@ từng được ghi thành văn bản. Luật chơi cho cả ba chế độ 2, 3
 thuộc họ các trò chơi ăn quân bằng đổi phe, cùng với Reversi, Cờ gánh và
 Ming Mang. Điểm riêng của nó là tổ hợp gồm di chuyển chỉ bằng cú nhảy kiểu
 Halma, kẹp thẳng hàng nhưng chỉ chọn một hướng, và bàn cờ hai lớp đỉnh--tâm.
-Mô hình toán học hình thức cho chế độ 2 người làm rõ Định luật Bảo toàn
+Mô hình toán học hình thức cho chế độ 2 người làm rõ bất biến bảo toàn
 28 quân, phát biểu hình thức cho nguyên tắc ``ăn = đổi phe, không loại bỏ''.
 
 AI đồng hành dựa trên tìm kiếm Minimax với cắt tỉa Alpha-Beta (biến thể
 Paranoid cho chế độ nhiều người) chơi hợp lý trong ngân sách thời gian
-tương tác và cho phép người chơi tự luyện tập khi không có đối thủ. Giải
-đấu bot-vs-bot xác nhận tìm kiếm sâu hơn thắng ổn định. Phần mềm mã nguồn
+tương tác và cho phép người chơi tự luyện tập khi không có đối thủ. Các
+ván đấu giữa bot cho thấy tìm kiếm sâu hơn thắng ổn định. Phần mềm mã nguồn
 mở là hình thức lưu giữ thứ hai bên cạnh văn bản: ai cũng có thể chơi lại
 Cờ Trận, kể cả khi không còn người nào trong làng nhớ luật.
 
@@ -28,8 +28,8 @@ Cờ Trận, kể cả khi không còn người nào trong làng nhớ luật.
   \item Mở rộng mô hình toán học hình thức sang chế độ 3 và 4 người,
         phân tích sự tồn tại của chiến lược cân bằng và động lực
         liên minh.
-  \item Phân tích định lượng độ cân bằng của trò chơi qua mô phỏng
-        bot-vs-bot hàng trăm ván, ước lượng lợi thế tay đi đầu nếu có.
+  \item Phân tích định lượng độ cân bằng của trò chơi qua hàng trăm
+        ván đấu giữa bot, ước lượng lợi thế tay đi đầu nếu có.
   \item So sánh thực nghiệm Paranoid Minimax với Best-Reply
         Search~\citep{schadd2011brs}.
   \item Cải thiện hàm đánh giá AI với các đặc trưng chiến lược phức

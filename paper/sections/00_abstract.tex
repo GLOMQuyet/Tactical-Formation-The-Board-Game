@@ -6,33 +6,32 @@
 
 \begin{abstract}
 % (1) Vấn đề / bối cảnh
-Nhiều trò chơi cờ dân gian Việt Nam chỉ được truyền miệng giữa trẻ em
-trong làng và đang dần bị lãng quên. \textbf{Cờ Trận} là một trò chơi như
+Nhiều trò chơi cờ dân gian Việt Nam chỉ được truyền miệng nên dễ bị lãng
+quên. \textbf{Cờ Trận} là một trò chơi như
 vậy, được chơi ở thôn Đồng Bùa, xã Tam Quan, huyện Tam Đảo, tỉnh Vĩnh
 Phúc. Người chơi dùng bất cứ thứ gì nhặt được ven đường làm quân cờ: đá,
 sỏi, cành cây, lá. Theo hiểu biết của chúng tôi, trò chơi này chưa từng
 được ghi chép thành văn bản.
 % (2) Tôi đã làm gì
-Bài báo ghi lại đầy đủ luật Cờ Trận cho cả ba chế độ 2, 3 và 4 người, dựa
-trên hồi ức của tác giả, người đã chơi trò này suốt những năm học từ lớp
-5 đến lớp 9. Trong bài, trò chơi được gọi bằng tên tiếng Anh
-\emph{Tactical Formation}. Quân cờ di chuyển bằng cách nhảy qua một quân
+Bài báo ghi lại luật Cờ Trận cho cả ba chế độ 2, 3 và 4 người, dựa trên
+hồi ức của tác giả, người đã chơi trò này từ lớp 5 đến lớp 9. Tên tiếng
+Anh \emph{Tactical Formation} do tác giả đặt. Quân cờ di chuyển bằng cách nhảy qua một quân
 kề bên, của bất kỳ phe nào, và quân bị nhảy qua vẫn ở nguyên trên bàn.
-Sau khi đáp, quân vừa đi kẹp dãy quân địch nằm thẳng hàng giữa nó và một
-quân cùng phe, làm cả dãy đổi sang phe mình. Bàn cờ có hai lớp vị trí: ô
+Sau khi đáp, nếu có dãy quân địch nằm thẳng hàng giữa quân vừa đi và một
+quân cùng phe, người chơi chọn một dãy như vậy và cả dãy đổi sang phe mình. Bàn cờ có hai lớp vị trí: ô
 đỉnh và ô tâm. Quân ở ô đỉnh đi được 8 hướng, quân ở ô tâm đi được 4
 hướng.
 % (3) Kết quả / đóng góp
-Chúng tôi xây dựng mô hình toán học hình thức cho chế độ 2 người, phát
-biểu \emph{Định luật Bảo toàn 28 quân} (ăn quân là đổi phe, không loại
-bỏ). Chúng tôi cũng cài đặt trò chơi thành phần mềm mã nguồn mở, kèm AI
+Chúng tôi xây dựng mô hình toán học hình thức cho chế độ 2 người, trong
+đó tổng số quân là một bất biến: ăn quân là đổi phe, không loại bỏ quân. Chúng tôi cũng cài đặt trò chơi thành phần mềm mã nguồn mở, kèm AI
 dựa trên tìm kiếm Minimax với cắt tỉa Alpha-Beta (biến thể Paranoid cho
-chế độ nhiều người). Thực nghiệm đo branching factor và thời gian suy nghĩ
-mỗi nước. Giải đấu bot-vs-bot ở chế độ 2 người cho thấy bot tìm kiếm sâu
-hơn thắng ổn định.
+chế độ nhiều người). Thực nghiệm đo hệ số phân nhánh, độ dài ván
+và thời gian suy nghĩ của bot. Ở chế độ 2 người, bot tìm kiếm sâu hơn
+thắng ổn định; trong 100 ván giữa hai bot cùng độ sâu, bên thua luôn bị
+phong toả khi vẫn còn quân, không ván nào kết thúc vì hết quân.
 % (4) Ý nghĩa
-Bằng văn bản, mô hình hình thức và một phần mềm ai cũng chơi được, bài
-báo góp phần giữ lại một trò chơi dân gian trước khi nó mất hẳn.
+Qua bản ghi luật, mô hình hình thức và một phần mềm ai cũng chơi được,
+bài báo góp phần lưu giữ một trò chơi dân gian đang bị mai một.
 \end{abstract}
 
 \vspace{0.4em}

@@ -4,10 +4,10 @@
 
 Trò chơi dân gian là một phần của di sản văn hoá phi vật thể. Theo Công
 ước của UNESCO, di sản này được \emph{trao truyền từ thế hệ này sang thế
-hệ khác}~\citep{unesco2003ich}. Phần lớn trò chơi cờ dân gian Việt Nam
-không có sách vở hay luật thành văn. Luật chơi chỉ sống trong trí nhớ của
-những đứa trẻ cùng chơi với nhau. Khi lớp trẻ ấy lớn lên và thôi chơi, trò
-chơi có thể biến mất mà không để lại dấu vết. Một số trò đã được ghi chép
+hệ khác}~\citep{unesco2003ich}. Nhiều trò chơi cờ dân gian Việt Nam
+không có luật thành văn; luật chơi chỉ được lưu giữ trong trí nhớ của những
+người từng chơi. Khi lớp người chơi ấy lớn lên và thôi chơi, trò chơi có
+thể biến mất mà không để lại dấu vết. Một số trò đã được ghi chép
 và số hoá, chẳng hạn Cờ gánh ở Quảng Nam~\citep{mytour_coganh}. Nhiều trò
 khác thì chưa.
 
@@ -17,8 +17,8 @@ trong làng. Tác giả chơi Cờ Trận suốt những năm học từ lớp 5
 Ngày nay hầu như không còn ai trong làng nhớ trò chơi này, và chính tác giả
 cũng đã quên đi một phần. Bài báo này ra đời từ mong muốn giữ cho Cờ Trận
 không bị lãng quên: ghi lại luật chơi, mô hình hoá nó bằng toán học, và
-đưa nó vào một phần mềm mà ai cũng có thể chơi. Trong bài, chúng tôi gọi
-trò chơi bằng tên tiếng Anh \emph{Tactical Formation}. Tác giả \emph{không}
+đưa nó vào một phần mềm mà ai cũng có thể chơi. Tên tiếng Anh \emph{Tactical
+Formation} do tác giả đặt cho người đọc quốc tế. Tác giả \emph{không}
 phải người sáng tạo ra Cờ Trận và không biết ai đã sáng tạo ra nó.
 Mục~\ref{sec:provenance} trình bày chi tiết nguồn gốc và cách ghi chép.
 
@@ -39,16 +39,16 @@ Bài báo có các đóng góp sau:
         ghi chép về nguồn gốc của trò chơi. Cấu hình xuất phát 3 người được
         ghi đúng như trò chơi dân gian, dù không cân đối; xem
         Mục~\ref{sec:limitations}.
-  \item Mô tả cấu trúc bàn cờ hai lớp (đỉnh và tâm) và phân tích ảnh
-        hưởng của nó đến không gian chiến thuật.
+  \item Mô tả cấu trúc bàn cờ hai lớp (đỉnh và tâm) cùng các hướng đi và
+        hướng ăn tương ứng của từng loại quân.
   \item Mô hình toán học hình thức cho chế độ 2 người chơi, kèm
-        \emph{Định luật Bảo toàn 28 quân} cô đọng nguyên tắc \emph{ăn =
-        đổi phe}.
+        bất biến bảo toàn 28 quân (\emph{ăn = đổi phe}) và chặn trên cho
+        số hành động và số trạng thái.
   \item Xây dựng AI đồng hành dựa trên Minimax và Paranoid Minimax, kèm
         lý do không dùng MCTS.
-  \item Đánh giá thực nghiệm trò chơi và AI qua branching factor (2--4
-        người), giải đấu bot-vs-bot (chế độ 2 người) và hiệu năng thời
-        gian thực.
+  \item Đánh giá thực nghiệm trò chơi và AI qua hệ số phân nhánh và độ
+        dài ván (2--4 người), các ván đấu giữa bot (chế độ 2 người) và thời
+        gian suy nghĩ của bot.
   \item Phát hành phần mềm mã nguồn mở, như một hình thức số hoá và bảo
         tồn trò chơi, để cộng đồng có thể chơi và nghiên cứu tiếp.
 \end{enumerate}

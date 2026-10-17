@@ -2,14 +2,15 @@
 \section{Luật Chơi Qua Hình Ảnh}
 \label{sec:rules}
 
-Đây là phần chính trình bày luật chơi bằng \emph{ảnh chụp trực tiếp từ
-trò chơi} thay cho công thức, đủ để người đọc không chuyên toán nắm được
+Mục này trình bày luật chơi bằng \emph{ảnh chụp màn hình phần mềm} thay
+cho công thức, đủ để người đọc không chuyên toán nắm được
 toàn bộ trò chơi; đặc tả toán học hình thức tương ứng (chế độ 2 người) nằm
 ở Phụ lục~\ref{app:formal}. Quy ước: quân \textbf{Xanh} tô xanh lá, quân
 \textbf{Vàng} tô vàng; quân \emph{đỉnh} nằm trên giao điểm lưới ô vuông,
-quân \emph{tâm} nằm giữa bốn đỉnh. Các chỉ dấu trong ảnh đều do chính trò
-chơi vẽ: \emph{vòng vàng} đánh dấu quân đang được chọn, \emph{chấm xanh}
-là ô đáp hợp lệ, và \emph{đường vàng} chỉ hướng ăn (sandwich) từ ô đáp.
+quân \emph{tâm} nằm giữa bốn đỉnh. Các chỉ dấu trong ảnh đều do phần mềm vẽ: \emph{vòng vàng} đánh dấu quân đang được chọn, \emph{chấm xanh}
+là ô đáp hợp lệ, và \emph{đường vàng} chỉ tia kẹp từ ô đáp. Ký hiệu
+$\mathrm G@(x,y)$ chỉ quân Xanh tại ô $(x,y)$, tương tự $\mathrm Y@(x,y)$ cho
+quân Vàng.
 
 \subsection{Bàn cờ---41 ô trên hai lớp}
 \label{ssec:vis_board}
@@ -17,7 +18,7 @@ là ô đáp hợp lệ, và \emph{đường vàng} chỉ hướng ăn (sandwich
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.5\linewidth]{figures/board_2p_empty.png}
-  \caption{Cấu trúc bàn cờ chế độ 2 người (ảnh chụp trực tiếp từ trò chơi):
+  \caption{Cấu trúc bàn cờ chế độ 2 người (ảnh chụp màn hình phần mềm):
   25 ô \textbf{đỉnh} (giao điểm của lưới ô vuông, toạ độ nguyên như
   $(0,0),(2,3)$) cộng 16 ô \textbf{tâm} (giao điểm các đường chéo, nửa
   nguyên như $(0.5,0.5)$), mỗi ô tâm nằm chính giữa bốn ô đỉnh. Tổng 41 ô.
@@ -49,7 +50,7 @@ là ô đáp hợp lệ, và \emph{đường vàng} chỉ hướng ăn (sandwich
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.5\linewidth]{figures/board_2p.png}
-  \caption{28 quân ở vị trí xuất phát (ảnh chụp trực tiếp từ trò chơi):
+  \caption{28 quân ở vị trí xuất phát (ảnh chụp màn hình phần mềm):
   Vàng và Xanh lá, mỗi phe 14 quân ($=10$ đỉnh $+\,4$ tâm) chiếm hai hàng
   ở hai phía đối diện của bàn; ba hàng giữa để trống. Đối chiếu công
   thức~\eqref{eq:starty}--\eqref{eq:startg}.}
@@ -71,8 +72,8 @@ là ô đáp hợp lệ, và \emph{đường vàng} chỉ hướng ăn (sandwich
     \caption{Quân \textbf{tâm}---chỉ 4 hướng chéo (mỗi bước qua một ô
     đỉnh kề). Đi ngang--dọc sẽ rơi khỏi lớp tâm.}
   \end{subfigure}
-  \caption{Các hướng đi (ảnh từ trò chơi; quân được chọn có vòng vàng, các
-  \emph{chấm xanh} là ô đáp hợp lệ do trò chơi tô sẵn), tương ứng tập
+  \caption{Các hướng đi (ảnh chụp màn hình phần mềm; quân được chọn có vòng vàng, các
+  \emph{chấm xanh} là ô đáp hợp lệ do phần mềm tô sẵn), tương ứng tập
   $D_{\mathsf V}$ và $D_{\mathsf C}$ ở~\eqref{eq:dirs}.}
   \label{fig:dirs}
 \end{figure}
@@ -80,7 +81,7 @@ là ô đáp hợp lệ, và \emph{đường vàng} chỉ hướng ăn (sandwich
 \subsection{Cú nhảy---cách di chuyển duy nhất}
 \label{ssec:vis_jump}
 
-Quân \emph{chỉ} di chuyển bằng cách nhảy: bay qua một ô kề có quân làm
+Quân \emph{chỉ} di chuyển bằng cách nhảy: nhảy qua một ô kề có quân làm
 \emph{bệ} (phe nào cũng được) và đáp xuống ô trống ngay sau đó; quân làm
 bệ đứng nguyên. Hình~\ref{fig:jumps} minh hoạ ba loại nhảy.
 
@@ -97,7 +98,7 @@ bệ đứng nguyên. Hình~\ref{fig:jumps} minh hoạ ba loại nhảy.
   % Ví dụ 3: tâm nhảy chéo
   \includegraphics[height=2.3cm]{figures/jump3_before.png}\;$\rightarrow$\;%
   \includegraphics[height=2.3cm]{figures/jump3_after.png}
-  \caption{Ba ví dụ nhảy (ảnh từ trò chơi, trước $\rightarrow$ sau; vòng
+  \caption{Ba ví dụ nhảy (ảnh chụp màn hình phần mềm, trước $\rightarrow$ sau; vòng
   vàng = quân được chọn, chấm xanh = ô đáp hợp lệ). \textbf{Trên:} quân
   đỉnh nhảy ngang qua bệ $(2,2)$, đáp $(3,2)$. \textbf{Giữa:} quân đỉnh
   nhảy chéo dùng ô \emph{tâm} $(1.5,1.5)$ làm bệ, đáp ô đỉnh $(2,2)$.
@@ -109,7 +110,7 @@ bệ đứng nguyên. Hình~\ref{fig:jumps} minh hoạ ba loại nhảy.
 \subsection{Cách bắt quân---kẹp và lật}
 \label{ssec:vis_capture}
 
-\emph{Đáp xuống đâu, nhìn quanh đó}: từ ô đáp, theo từng hướng, một dãy
+Việc ăn quân được xét từ ô đáp: theo từng hướng, một dãy
 quân địch liền nhau mà ngay sau là một quân mình thì bị kẹp và đổi phe.
 Hình~\ref{fig:capture} cho một tình huống có \emph{hai} hướng ăn được;
 Bảng~\ref{tab:capture_rays} liệt kê chi tiết.
@@ -118,13 +119,13 @@ Bảng~\ref{tab:capture_rays} liệt kê chi tiết.
   \centering
   \begin{subfigure}[b]{0.42\linewidth}\centering
     \includegraphics[height=4cm]{figures/capture_before.png}
-    \caption{Vừa đáp $(1,2)$: trò chơi tô \emph{hai} tia ăn được (vàng).}
+    \caption{Vừa đáp $(1,2)$: phần mềm tô \emph{hai} tia ăn được (vàng).}
   \end{subfigure}\hfill
   \begin{subfigure}[b]{0.42\linewidth}\centering
     \includegraphics[height=4cm]{figures/capture_after.png}
     \caption{Sau khi chọn tia chéo và lật (3 quân).}
   \end{subfigure}
-  \caption{Quân Xanh vừa đáp $(1,2)$ (ảnh từ trò chơi). Có hai hướng ăn
+  \caption{Quân Xanh vừa đáp $(1,2)$ (ảnh chụp màn hình phần mềm). Có hai hướng ăn
   được; người đi chọn \emph{một}. Chọn tia chéo: ba quân Vàng
   $(1.5,2.5),(2,3),(2.5,3.5)$ đổi thành Xanh, còn $Y@(2,2)$ của tia ngang
   \emph{vẫn Vàng}---hướng không chọn thì không lật.}
@@ -149,9 +150,9 @@ Bảng~\ref{tab:capture_rays} liệt kê chi tiết.
 \end{table}
 
 \noindent\textbf{Luật chọn:} có kẹp thì \emph{phải} ăn, và chọn đúng
-\emph{một} hướng. Chính sách ``luôn chọn hướng ăn nhiều nhất'' mà bot hay
-dùng chỉ là chiến thuật, không phải luật---người chơi có quyền ăn ít hơn
-để giăng bẫy.
+\emph{một} hướng. Chọn hướng ăn được nhiều quân nhất chỉ là một chiến
+thuật, không phải luật; người chơi có thể chọn hướng ăn ít hơn để giăng
+bẫy.
 
 \subsection{Một nước đi diễn ra thế nào---ba bước}
 \label{ssec:vis_move}
@@ -170,8 +171,8 @@ dùng chỉ là chiến thuật, không phải luật---người chơi có quy�
     \includegraphics[width=\linewidth]{figures/move_c.png}
     \caption{C. Sau lật, đổi lượt.}
   \end{subfigure}
-  \caption{Một nước đi đầy đủ (ảnh từ trò chơi). (A) $G@(0,2)$ nhảy qua bệ $Y@(1,2)$, đáp
-  $(2,2)$. (B) tia phải phát hiện kẹp $Y@(3,2)$ giữa quân mới và $G@(4,2)$.
+  \caption{Một nước đi đầy đủ (ảnh chụp màn hình phần mềm). (A) $G@(0,2)$ nhảy qua bệ $Y@(1,2)$, đáp
+  $(2,2)$. (B) tia sang phải kẹp $Y@(3,2)$ giữa quân vừa đáp và $G@(4,2)$.
   (C) $Y@(3,2)$ đổi sang Xanh; bệ nhảy $Y@(1,2)$ \emph{vẫn Vàng}; đến lượt
   Vàng. Ba bước ứng với~\eqref{eq:t1}--\eqref{eq:t3}.}
   \label{fig:fullmove}
@@ -189,8 +190,9 @@ $\to$ Vàng.
 \subsection{Khi nào ván kết thúc}
 \label{ssec:vis_end}
 
-Đến lượt phe nào mà phe đó không còn quân nào nhảy được thì thua ngay
-(điều kiện~\eqref{eq:terminal}). Có hai kiểu thua, Hình~\ref{fig:endgame}.
+Ở chế độ 2 người, đến lượt phe nào mà phe đó không còn quân nào nhảy được
+thì thua ngay (điều kiện~\eqref{eq:terminal}); chế độ 3--4 người được trình
+bày ở Mục~\ref{ssec:elimination}. Có hai kiểu thua, Hình~\ref{fig:endgame}.
 
 \begin{figure}[H]
   \centering

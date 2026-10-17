@@ -34,8 +34,8 @@ lý kết cuộc. Ký hiệu $N_c$ là số quân và $M_c$ là số nước đi
 \paragraph{Chế độ 2 người---Minimax Alpha-Beta.} Hai phe đối kháng hoàn
 toàn nên bot dùng Minimax cổ điển với cắt tỉa
 Alpha-Beta~\citep{knuth1975alphabeta}: phe mình cực đại, đối thủ cực tiểu, luân
-phiên qua cờ \textsc{max}. Hàm đánh giá được thiết kế để \emph{nghĩ như người chơi}---vừa thích ăn
-quân, vừa muốn bóp không gian đi của đối thủ---bằng cách chuẩn hoá cả hai
+phiên qua cờ \textsc{max}. Hàm đánh giá kết hợp hai mục tiêu, ăn quân và hạn chế
+số nước đi của đối thủ, bằng cách chuẩn hoá cả hai
 số hạng về $[-1,1]$ rồi gán trọng số $0.7$ và $0.3$
 (xem lý do ở Mục~\ref{ssec:pitfalls}):
 \begin{equation}
@@ -49,7 +49,7 @@ Khi một phe không còn sống, điểm kết cuộc kèm thưởng thắng nh
 \label{eq:term2}
 \end{equation}
 ($+$ nếu đối thủ thua, $-$ nếu mình thua; $d$ là độ sâu còn lại). Giá trị
-kết cuộc áp đảo mọi điểm eval $\in[-1,1]$, nên việc thu nhỏ thang đo không
+kết cuộc lớn hơn hẳn mọi giá trị đánh giá trong $[-1,1]$, nên việc thu nhỏ thang đo không
 làm bot bỏ lỡ nước thắng/thua thực sự.
 
 \paragraph{Chế độ 3--4 người---Paranoid Minimax.} Với $\ge 3$ phe, điểm
@@ -103,8 +103,10 @@ phát triển.
   \end{tabular}
 \end{table}
 
-AI chạy trong background thread (\texttt{asyncio.run\_in\_executor})
-để không làm đứng giao diện trong khi tính toán.
+Ở chế độ 3--4 người, AI chạy trong một luồng nền
+(\texttt{asyncio.run\_in\_executor}) nên giao diện không bị đứng khi bot
+suy nghĩ. Ở chế độ 2 người, bot hiện chạy trên luồng chính, nên giao diện
+tạm dừng trong lúc bot tính nước.
 
 \subsection{Hiệu quả cắt tỉa và sắp thứ tự nước đi}
 \label{ssec:ordering}
@@ -114,11 +116,10 @@ Hiệu quả của cắt tỉa Alpha-Beta phụ thuộc mạnh vào thứ tự d
 
 Cờ Trận cho một heuristic sắp xếp rẻ và tự nhiên: vì mỗi hành
 động \emph{thấy trước} số quân ăn được $|a|=|F_\delta|$
-(Mục~\ref{ssec:capture}), bot duyệt các nước theo $|a|$ \emph{giảm dần}.
-Nước ăn nhiều quân thường mạnh nên hay là nước tốt nhất, giúp việc cắt
-tỉa kích hoạt sớm. Khi $|a|$ bằng nhau, ưu tiên nước làm tăng mobility
-theo Phương trình~\eqref{eq:eval}. Để khai thác triệt để thứ tự này, cả hai
-engine dùng \emph{cập nhật/hoàn-tác nước} (make/unmake) thay cho việc sao
+(Mục~\ref{ssec:capture}), bot duyệt các nước theo $|a|$ \emph{giảm dần}; riêng engine 2 người
+còn duyệt trước tiên nước tốt nhất đã lưu trong bảng chuyển vị (xem dưới).
+Nước ăn nhiều quân thường là ứng viên tốt, nên cắt tỉa xảy ra sớm hơn. Để
+tăng tốc, cả hai engine dùng \emph{cập nhật/hoàn-tác nước} (make/unmake) thay cho việc sao
 chép trạng thái ở mỗi nút. Riêng engine 2 người còn dùng một \textbf{bảng
 băm chuyển vị} (transposition table) khoá theo băm Zobrist---lưu cận
 trên/dưới/đúng theo Alpha-Beta và ưu tiên duyệt nước tốt nhất đã ghi---để
@@ -144,7 +145,7 @@ hướng kẹp, chỉ giữ hướng lật \emph{nhiều quân nhất} ($\arg\ma
 |F_\delta|$). Bot không bao giờ xét nước ăn ít hơn, kể cả khi nước ăn to
 mở ra phản đòn kẹp lại. Vì quân bảo toàn, một nước ăn 5 quân có thể bị
 đối thủ lật lại $\ge 6$ quân ngay lượt sau---đúng kiểu ``nhử mồi'' mà luật
-sandwich cho phép.
+kẹp cho phép.
 \emph{Khắc phục.} Thay tập hành động $\mathcal A(c,s)$ bằng tập \emph{mở
 rộng} $\mathcal A^{+}$: mỗi ô đáp có $k\ge 2$ hướng kẹp sinh ra $k$ hành
 động riêng, mỗi hành động ứng với một hướng. Bot do đó cân nhắc cả nước
@@ -153,16 +154,19 @@ là có lợi, thay vì một quy tắc tham lam cố định.
 
 \paragraph{Nhược điểm \#2 --- Sai trọng tâm hàm đánh giá.}
 \emph{Nguyên nhân.} Hàm đánh giá ban đầu, $10(N_c-N_{\bar c})+(M_c-M_{\bar
-c})$, đặt trọng số quân số gấp mười lần mobility. Nhưng vì quân bảo toàn,
-``ăn sạch'' gần như bất khả; đường thắng thực tế là bóp cho đối thủ hết
-nước đi. Bot vì thế tối ưu sai mục tiêu---gom quân thay vì phong toả.
+c})$, đặt trọng số quân số gấp mười lần mobility. Nhưng vì quân được bảo toàn,
+ăn hết quân đối thủ rất khó; ván cờ thực tế kết thúc khi một phe bị phong
+toả. Trong 100 ván giữa hai bot độ sâu~2 (Mục~\ref{sec:eval_tournament}),
+không ván nào kết thúc vì bên thua hết quân: cả 100 ván kết thúc khi bên
+thua bị phong toả trong lúc vẫn còn trung vị 8 quân. Bot vì thế tối ưu sai
+mục tiêu---gom quân thay vì phong toả.
 Ngoài ra hai số hạng khác đơn vị (đếm quân so với đếm nước đi) nên tỉ số
 trọng số $10\!:\!1$ không mang ý nghĩa rõ ràng.
 \emph{Khắc phục.} Chuẩn hoá cả hai số hạng về $[-1,1]$ rồi gán trọng số
 phản ánh trực giác người chơi: $0.7$ cho ăn quân, $0.3$ cho chặn nước đi
-đối thủ (Phương trình~\eqref{eq:eval} và~\eqref{eq:evalpar}). Trọng số nhỏ
-hơn cho mobility nhưng \emph{cùng thang đo} khiến nó thực sự định hướng về
-phong toả khi ưu thế quân số đã bão hoà.
+đối thủ (Phương trình~\eqref{eq:eval} và~\eqref{eq:evalpar}). Trọng số của số
+nước đi nhỏ hơn, nhưng vì hai số hạng \emph{cùng thang đo} nên số hạng này
+vẫn ảnh hưởng thật sự tới lựa chọn của bot.
 
 \paragraph{Nhược điểm \#3 --- Tất định và lặp nước.}
 \emph{Nguyên nhân (hai tầng).} (i)~\emph{Tất định}: phép $\arg\max$ luôn
