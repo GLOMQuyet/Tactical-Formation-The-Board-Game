@@ -75,14 +75,6 @@ uv run python -m unittest discover -s tests
 GitHub Actions runs the same tests on Linux, Windows and macOS for every push,
 including the menus and the game screen (headless).
 
-For a longer check, `tools/fuzz_play.py` plays the real game screen with a
-scripted, careless player (misclicks, undo, leaving and resuming) and checks
-every frame against the rules and the autosave:
-
-```bash
-uv run python tools/fuzz_play.py bot_4:easy 1
-```
-
 ### Ready-to-run copy (no Python needed)
 
 ```bash
@@ -167,8 +159,7 @@ piece at the far end of the line you want to flip.
 
 The file is generated from `core/modes.py` by `tools/make_ludii.py` and checked
 against this game's rules: 55 random games played to the end in Ludii 1.3.14
-(about 119,000 decisions) matched move for move, including the winners
-(`tools/check_ludii.py`, with `tools/ludii/LudiiTrace.java`). Ludii stops any game
+(about 119,000 decisions) matched move for move, including the winners. Ludii stops any game
 after 1,250 turns and scores it as a draw; the folk game itself has no move limit.
 
 ---
@@ -208,10 +199,8 @@ Tactical-Formation-The-Board-Game/
 ├── experiments/            # Headless measurements behind the paper (results/)
 ├── tests/                  # Rules, bots, autosave, interface text and screens
 ├── tools/make_figures.py   # Renders the board figures used in the paper
-├── tools/make_media.py     # Records the README GIF and board picture (docs/media/)
 ├── tools/build_app.py      # Builds a ready-to-run copy with PyInstaller
-├── tools/fuzz_play.py      # Plays the game screen with a scripted player and checks it
-├── tools/make_ludii.py     # Writes the Ludii version (docs/ludii/); check_ludii.py checks it
+├── tools/make_ludii.py     # Writes the Ludii version (docs/ludii/)
 ├── docs/                   # Formal model of the 2-player game
 ├── assets/                 # Images and fonts
 └── .github/workflows/      # Runs the tests on every push

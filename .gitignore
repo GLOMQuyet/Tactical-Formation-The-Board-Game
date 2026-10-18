@@ -173,6 +173,9 @@ tactical/
 # Drafts for arXiv, BoardGameGeek and press: kept locally, not published here.
 /promo/
 
+# Development-only tools (test player, Ludii checker, README media): kept locally.
+/dev/
+
 # Paper sources are kept locally, outside this repository.
 # Published paper: https://doi.org/10.5281/zenodo.23437471
 paper/
