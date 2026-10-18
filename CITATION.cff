@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: >-
   If you use this software or the rules it records, please cite the paper
-  (preferred citation below) and, for the software itself, this archive.
+  (preferred citation below) and, for the software itself, this repository.
 title: "Tactical Formation: rule engine, game and experiments for a Vietnamese folk board game"
 type: software
 authors:
