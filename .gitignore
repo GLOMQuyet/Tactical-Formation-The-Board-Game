@@ -170,6 +170,9 @@ tactical/
 # Editor settings (the LaTeX setup for the local paper sources lives here).
 .vscode/
 
+# Drafts for arXiv, BoardGameGeek and press: kept locally, not published here.
+/promo/
+
 # Paper sources are kept locally, outside this repository.
 # Published paper: https://doi.org/10.5281/zenodo.23437471
 paper/

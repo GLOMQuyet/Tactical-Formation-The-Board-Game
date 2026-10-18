@@ -157,6 +157,22 @@ next to it in `settings.json`.
 
 ---
 
+## Play in Ludii
+
+[`docs/ludii/Tactical Formation.lud`](docs/ludii/Tactical%20Formation.lud) describes the
+game for [Ludii](https://ludii.games), the general game system with a large library
+of traditional games (2, 3 or 4 players under *Options → Players*). Load it with
+*File → Load Game from File*. After a jump, if lines are sandwiched, click your own
+piece at the far end of the line you want to flip.
+
+The file is generated from `core/modes.py` by `tools/make_ludii.py` and checked
+against this game's rules: 55 random games played to the end in Ludii 1.3.14
+(about 119,000 decisions) matched move for move, including the winners
+(`tools/check_ludii.py`, with `tools/ludii/LudiiTrace.java`). Ludii stops any game
+after 1,250 turns and scores it as a draw; the folk game itself has no move limit.
+
+---
+
 ## How to Play (Quick Rules)
 
 1. **Move** — click a piece, then click a highlighted dot to jump over an adjacent piece
@@ -195,6 +211,7 @@ Tactical-Formation-The-Board-Game/
 ├── tools/make_media.py     # Records the README GIF and board picture (docs/media/)
 ├── tools/build_app.py      # Builds a ready-to-run copy with PyInstaller
 ├── tools/fuzz_play.py      # Plays the game screen with a scripted player and checks it
+├── tools/make_ludii.py     # Writes the Ludii version (docs/ludii/); check_ludii.py checks it
 ├── docs/                   # Formal model of the 2-player game
 ├── assets/                 # Images and fonts
 └── .github/workflows/      # Runs the tests on every push
