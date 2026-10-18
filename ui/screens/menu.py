@@ -8,10 +8,10 @@ so every screen follows the language chosen on the main menu.
 
 import pygame
 
-from ui import assets, i18n
+from ui import assets, display, i18n
 from ui.theme import (BTN_BACK, BTN_EXIT, BTN_HOWTO, BTN_LANG, BTN_NORMAL, BTN_RESUME,
                       FPS, HEIGHT, NOTE_BACKING, TITLE_COLOR, WHITE, WIDTH)
-from ui.widgets import Button, make_buttons
+from ui.widgets import Button, make_buttons, pressed
 
 # Sub-menu buttons start below the title and subtitle.
 _SUBMENU_TOP = HEIGHT // 2 - 70
@@ -25,10 +25,11 @@ def describe(saved):
 
 
 def _choose(win, font, font_small, bg, title, subtitle, buttons, results,
-            notes=(), title_y=HEIGHT // 2 - 160, extra=()):
+            notes=(), title_y=HEIGHT // 2 - 160, extra=(), escape=None):
     """Draw a menu and return the result of the clicked button ('exit' on close).
 
-    `extra` holds (button, result, font) for small buttons drawn with their own font.
+    `extra` holds (button, result, font) for small buttons drawn with their own
+    font. Esc returns `escape` (the "back" choice), if given.
     """
     clock = pygame.time.Clock()
     while True:
@@ -45,9 +46,11 @@ def _choose(win, font, font_small, bg, title, subtitle, buttons, results,
             backing.fill(NOTE_BACKING)
             win.blit(backing, rect.inflate(24, 10))
             win.blit(n, rect)
-        for event in pygame.event.get():
+        for event in display.events():
             if event.type == pygame.QUIT:
                 return 'exit'
+            if escape is not None and pressed(event, pygame.K_ESCAPE):
+                return escape
             for button, result in zip(buttons, results):
                 if button.handle(event):
                     return result
@@ -58,7 +61,7 @@ def _choose(win, font, font_small, bg, title, subtitle, buttons, results,
             b.draw(win, font_small)
         for button, _result, button_font in extra:
             button.draw(win, button_font)
-        pygame.display.flip()
+        display.present()
 
 
 def main_menu(win, font, font_small, bg, saved=None):
@@ -89,7 +92,7 @@ def human_menu(win, font, font_small, bg):
                             i18n.t('back')],
                            [BTN_NORMAL, BTN_NORMAL, BTN_NORMAL, BTN_BACK], top=_SUBMENU_TOP)
     return _choose(win, font, font_small, bg, i18n.t('play_human'), i18n.t('choose_players'),
-                   buttons, ['play_2', 'play_3', 'play_4', 'menu'])
+                   buttons, ['play_2', 'play_3', 'play_4', 'menu'], escape='menu')
 
 
 def bot_menu(win, font, font_small, bg):
@@ -98,7 +101,7 @@ def bot_menu(win, font, font_small, bg):
                            [BTN_NORMAL, BTN_NORMAL, BTN_NORMAL, BTN_BACK], top=_SUBMENU_TOP,
                            width=320)
     return _choose(win, font, font_small, bg, i18n.t('vs_bot'), i18n.t('you_are_green'),
-                   buttons, ['bot_2', 'bot_3', 'bot_4', 'menu'])
+                   buttons, ['bot_2', 'bot_3', 'bot_4', 'menu'], escape='menu')
 
 
 def difficulty_menu(win, font, font_small, bg, mode):
@@ -107,7 +110,7 @@ def difficulty_menu(win, font, font_small, bg, mode):
                            [BTN_NORMAL, BTN_NORMAL, BTN_NORMAL, BTN_BACK], top=_SUBMENU_TOP)
     return _choose(win, font, font_small, bg, i18n.t('difficulty'),
                    i18n.t(f'game_{mode.name}'), buttons, ['easy', 'medium', 'hard', 'back'],
-                   notes=((i18n.t('difficulty_note'), _SUBMENU_TOP + 300),))
+                   notes=((i18n.t('difficulty_note'), _SUBMENU_TOP + 300),), escape='back')
 
 
 def unfinished_game_menu(win, font, font_small, bg, saved):
@@ -119,4 +122,4 @@ def unfinished_game_menu(win, font, font_small, bg, saved):
                            [BTN_NORMAL, BTN_RESUME, BTN_BACK], top=_SUBMENU_TOP, width=320)
     return _choose(win, font, font_small, bg, i18n.t('unfinished'), i18n.t('replace_note'),
                    buttons, ['new', 'continue', 'back'],
-                   notes=((describe(saved), _SUBMENU_TOP + 240),))
+                   notes=((describe(saved), _SUBMENU_TOP + 240),), escape='back')

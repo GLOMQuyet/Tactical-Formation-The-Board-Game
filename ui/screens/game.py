@@ -16,8 +16,9 @@ from ai.worker import BotWorker
 from core import rules, savegame
 from core.history import MoveRecord, undo_record
 from core.state import GameState
-from ui import i18n, input as ui_input, renderer
-from ui.widgets import Button, UndoButton, button_font, eliminated_screen, game_over_screen
+from ui import display, i18n, input as ui_input, renderer
+from ui.widgets import (Button, UndoButton, button_font, eliminated_screen, game_over_screen,
+                        pressed)
 
 # How long the final position stays on screen before the result panel (s).
 _RESULT_PAUSE = 1.0
@@ -179,11 +180,16 @@ def _play(win, mode, difficulty, saved, worker):
                     _finish_move()
 
         # ── Events ────────────────────────────────────────────────────────
-        for event in pygame.event.get():
+        for event in display.events():
             if event.type == pygame.QUIT:
                 return _leave('exit')
-            if menu_button.handle(event):
+            if menu_button.handle(event) or pressed(event, pygame.K_ESCAPE):
                 return _leave('menu')   # the game stays saved for Continue
+            if (undo_button is not None and not game_over
+                    and (pressed(event, pygame.K_BACKSPACE)
+                         or pressed(event, pygame.K_z) and event.mod & pygame.KMOD_CTRL)):
+                _undo()
+                continue
             if (undo_button is not None and not game_over
                     and undo_button.handle_event(event)):
                 continue   # the click was for the button, not the board
@@ -193,7 +199,7 @@ def _play(win, mode, difficulty, saved, worker):
             if state.current_player not in mode.human_colors or worker.busy:
                 continue
 
-            mouse_pos = pygame.mouse.get_pos()
+            mouse_pos = event.pos
             click = ui_input.board_pos(mouse_pos, mode)
             target_piece = state.board.piece_at(click) if click is not None else None
 
@@ -258,6 +264,7 @@ def _play(win, mode, difficulty, saved, worker):
             renderer.draw_valid_moves(win, valid_moves, mode)
         if awaiting_capture_choice and capture_options:
             renderer.draw_capture_options(win, moved_piece, capture_options, mode)
+        renderer.draw_scores(win, mode, state.pieces, state.active_players)
 
         # After a short pause on the final (or knock-out) position, ask what next.
         if pause_since is not None and time.monotonic() - pause_since >= _RESULT_PAUSE:
@@ -286,7 +293,7 @@ def _play(win, mode, difficulty, saved, worker):
             undo_button.draw(win)
         if not game_over:
             renderer.draw_turn_text(win, mode, state.current_player, worker.busy)
-        pygame.display.update()
+        display.present()
 
 
 def _apply_bot_move(state, move, sprites, mode, move_history, capture_direction=None):

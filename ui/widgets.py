@@ -2,7 +2,7 @@
 
 import pygame
 
-from ui import assets, i18n
+from ui import assets, display, i18n
 from ui.theme import (BTN_HOVER, BTN_NORMAL, FPS, HEIGHT, OVERLAY_PANEL, OVERLAY_SHADE,
                       TITLE_COLOR, WHITE, WIDTH)
 
@@ -66,15 +66,20 @@ class UndoButton:
         return False
 
 
+def pressed(event, *keys):
+    """True if `event` is a key press of one of `keys`."""
+    return event.type == pygame.KEYDOWN and event.key in keys
+
+
 def button_font():
     return assets.font('assets/fonts/Roboto-Regular.ttf', 26)
 
 
-def choice_overlay(win, background, title, options, subtitle=None):
+def choice_overlay(win, background, title, options, subtitle=None, escape=None):
     """Show a panel with `title` and buttons over a dimmed `background`.
 
-    `options` is a list of (label, result). Returns the chosen result, or
-    'quit' if the window is closed.
+    `options` is a list of (label, result). Returns the chosen result, `escape`
+    when Esc is pressed (if given), or 'quit' if the window is closed.
     """
     width, height = win.get_size()
     clock = pygame.time.Clock()
@@ -97,22 +102,25 @@ def choice_overlay(win, background, title, options, subtitle=None):
         win.blit(title_surf, title_surf.get_rect(center=(panel.centerx, panel.top + 45)))
         if sub_surf is not None:
             win.blit(sub_surf, sub_surf.get_rect(center=(panel.centerx, panel.top + 88)))
-        for event in pygame.event.get():
+        for event in display.events():
             if event.type == pygame.QUIT:
                 return 'quit'
+            if escape is not None and pressed(event, pygame.K_ESCAPE):
+                return escape
             for button, (_label, result) in zip(buttons, options):
                 if button.handle(event):
                     return result
         for b in buttons:
             b.draw(win, button_font())
-        pygame.display.update()
+        display.present()
 
 
 def game_over_screen(win, winner, background):
     """Result over the final board. Returns 'restart', 'menu' or 'quit'."""
     title = i18n.t('wins', color=i18n.color(winner)) if winner else '?'
     return choice_overlay(win, background, title,
-                          [(i18n.t('new_game'), 'restart'), (i18n.t('main_menu'), 'menu')])
+                          [(i18n.t('new_game'), 'restart'), (i18n.t('main_menu'), 'menu')],
+                          escape='menu')
 
 
 def eliminated_screen(win, background):
@@ -120,4 +128,4 @@ def eliminated_screen(win, background):
     return choice_overlay(win, background, i18n.t('you_are_out'),
                           [(i18n.t('watch'), 'watch'), (i18n.t('new_game'), 'restart'),
                            (i18n.t('main_menu'), 'menu')],
-                          subtitle=i18n.t('bots_play_on'))
+                          subtitle=i18n.t('bots_play_on'), escape='watch')

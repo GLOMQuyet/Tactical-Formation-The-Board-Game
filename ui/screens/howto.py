@@ -4,9 +4,9 @@ import math
 
 import pygame
 
-from ui import assets, i18n
+from ui import assets, display, i18n
 from ui.theme import BTN_BACK, BTN_EXIT, BTN_LANG, BTN_NORMAL, FPS, WHITE, WIDTH
-from ui.widgets import Button
+from ui.widgets import Button, pressed
 
 # diagram palette
 _CG  = (50,  205,  50)
@@ -447,14 +447,14 @@ def how_to_play_screen(win, font, font_small, bg):
         btn_back.text = 'Đóng'    if lang == 'vi' else 'Close'
         btn_lang.text = _CONTENT[lang]['lang_btn']
 
-        for event in pygame.event.get():
+        for event in display.events():
             if event.type == pygame.QUIT:
                 return 'exit'
-            if btn_back.handle(event):
+            if btn_back.handle(event) or pressed(event, pygame.K_ESCAPE):
                 return 'menu'
-            if btn_prev.handle(event) and page > 0:
+            if (btn_prev.handle(event) or pressed(event, pygame.K_LEFT)) and page > 0:
                 page -= 1
-            if btn_next.handle(event) and page < TOTAL - 1:
+            if (btn_next.handle(event) or pressed(event, pygame.K_RIGHT)) and page < TOTAL - 1:
                 page += 1
             if btn_lang.handle(event):
                 i18n.toggle()   # the whole game follows this choice
@@ -465,4 +465,4 @@ def how_to_play_screen(win, font, font_small, bg):
         btn_back.draw(win, font_small)
         btn_lang.draw(win, font_small)
 
-        pygame.display.flip()
+        display.present()

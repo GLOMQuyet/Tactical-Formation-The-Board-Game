@@ -3,7 +3,9 @@
 Run with: uv run python -m unittest tests.test_ai
 """
 
+import os
 import random
+import tempfile
 import time
 import unittest
 
@@ -115,6 +117,14 @@ def _broken(_snapshot):
     raise ValueError('bug in search')
 
 
+def _die_once(_snapshot):
+    flag = os.environ['TF_TEST_FLAG']
+    if not os.path.exists(flag):
+        open(flag, 'w').close()
+        os._exit(1)            # the worker process dies in the middle of a search
+    return 'recovered'
+
+
 class TestBotWorker(unittest.TestCase):
     def setUp(self):
         self.worker = BotWorker()
@@ -161,6 +171,18 @@ class TestBotWorker(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.worker.result()
         self.assertFalse(self.worker.busy)
+
+    def test_a_dead_worker_process_is_replaced(self):
+        with tempfile.TemporaryDirectory() as folder:
+            os.environ['TF_TEST_FLAG'] = os.path.join(folder, 'died')
+            worker = BotWorker(_die_once, stall_seconds=2)
+            try:
+                worker.start(GameState.new(MODE_BOT_2))
+                _wait(worker, timeout=30)
+                self.assertEqual(worker.result(), 'recovered')
+            finally:
+                worker.close()
+                del os.environ['TF_TEST_FLAG']
 
     def test_hashes_match_across_processes(self):
         # The bots' anti-repetition compares hashes made by the game with

@@ -180,7 +180,6 @@ def random_states(mode, n_games, max_plies, seed, lengths=None):
     rng = random.Random(seed)
     for g in range(n_games):
         state = GameState.new(mode)
-        trace = []  # (ply, color)
         records = []
         ply = 0
         while ply < max_plies:

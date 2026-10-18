@@ -240,8 +240,9 @@ Bot tính toán ở một tiến trình riêng nên cửa sổ không bị đứ
 
 ### Trong ván cờ
 
-- Thanh góc trên bên trái cho biết đến lượt ai. Nước vừa đi được đánh dấu: vòng
-  nhỏ ở ô xuất phát, vòng cam ở ô đáp, vòng trắng quanh các quân vừa bị lật.
+- Thanh góc trên bên trái cho biết đến lượt ai; dải ở cuối màn hình cho biết số
+  quân của từng phe (phe đã bị loại bị gạch ngang). Nước vừa đi được đánh dấu:
+  vòng nhỏ ở ô xuất phát, vòng cam ở ô đáp, vòng trắng quanh các quân vừa bị lật.
 - Bot chờ một chút trước khi đi để bạn kịp theo dõi.
 - Nút **Menu** (góc trên bên phải) để rời ván; khi đấu bot 2 người, nút hoàn tác
   bên cạnh rút lại nước vừa đi của bạn cùng nước đáp của bot.
@@ -249,6 +250,10 @@ Bot tính toán ở một tiến trình riêng nên cửa sổ không bị đứ
   về menu. Khi ván kết thúc, thế cờ cuối vẫn hiện phía sau bảng kết quả.
 - Giao diện có tiếng Việt và tiếng Anh: nút ở góc trên bên phải menu chính để
   đổi, lựa chọn được ghi nhớ.
+- Cửa sổ tự vừa màn hình (laptop 1366×768 sẽ mở nhỏ hơn) và kéo giãn được.
+  Phím tắt: **F11** toàn màn hình; **Esc** rời ván (ván vẫn được lưu) hoặc quay
+  lại menu trước; **Ctrl+Z** hoặc **Backspace** hoàn tác khi đấu bot 2 người;
+  **← →** lật trang hướng dẫn.
 
 ### Tự lưu ván
 
@@ -539,9 +544,10 @@ Bots search in a separate process, so the window does not freeze while they thin
 
 ### During a Game
 
-- The bar at the top left shows whose turn it is. The last move is marked: a
-  small ring where it started, an orange ring where it landed, and white rings
-  around the pieces it flipped.
+- The bar at the top left shows whose turn it is; the strip at the bottom shows
+  each side's pieces (sides that are out are struck through). The last move is
+  marked: a small ring where it started, an orange ring where it landed, and
+  white rings around the pieces it flipped.
 - Bots wait a moment before moving so you can follow them.
 - **Menu** (top right) leaves the game; in the 2-player bot game the undo
   button next to it takes back your last move together with the bot's reply.
@@ -550,6 +556,10 @@ Bots search in a separate process, so the window does not freeze while they thin
   stays visible behind the result.
 - The interface is in English or Vietnamese: the button in the top right of
   the main menu switches, and the choice is remembered.
+- The window fits the screen (a 1366×768 laptop opens it smaller) and can be
+  resized. Keys: **F11** full screen; **Esc** leaves the game (it stays saved)
+  or goes back one menu; **Ctrl+Z** or **Backspace** undoes in the 2-player bot
+  game; **← →** turn the How to Play pages.
 
 ### Autosave
 

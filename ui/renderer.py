@@ -13,6 +13,7 @@ LAST_FROM_COLOR = (255, 215, 0)     # where the last move started
 LAST_TO_COLOR = (255, 140, 0)       # where it landed
 FLIPPED_COLOR = (255, 255, 255)     # pieces it flipped
 TURN_STRIP = (0, 0, 0, 110)
+SCORE_OUT = (150, 150, 150)         # count of a side that is out
 
 
 class SpriteRegistry:
@@ -136,3 +137,39 @@ def draw_turn_text(win, mode, current_player, bot_thinking=False):
     win.blit(strip, (6, 6))
     win.blit(assets.piece_image(current_player), (14, 12))
     win.blit(text, (62, 13))
+
+
+def draw_scores(win, mode, pieces, active_players):
+    """Bottom strip: how many pieces each side has, in turn order.
+
+    Sides that are out of the game are dimmed and struck through; their
+    pieces stay on the board and can still be flipped.
+    """
+    counts = {color: 0 for color in mode.players}
+    for p in pieces:
+        counts[p.color] += 1
+    font = assets.small_font()
+    cells = []
+    for color in mode.players:
+        out = color not in active_players
+        icon = assets.image(f'assets/{color}_piece.png', size=(28, 28)).copy()
+        if out:
+            icon.set_alpha(90)
+        text = font.render(str(counts[color]), True, SCORE_OUT if out else WHITE)
+        cells.append((icon, text, out))
+    widths = [28 + 6 + text.get_width() for _icon, text, _out in cells]
+    gap = 28
+    total = sum(widths) + gap * (len(cells) - 1)
+    strip = pygame.Surface((total + 32, 40), pygame.SRCALPHA)
+    pygame.draw.rect(strip, TURN_STRIP, strip.get_rect(), border_radius=10)
+    left = (win.get_width() - strip.get_width()) // 2
+    top = win.get_height() - 48
+    win.blit(strip, (left, top))
+    x = left + 16
+    for (icon, text, out), width in zip(cells, widths):
+        win.blit(icon, (x, top + 6))
+        win.blit(text, (x + 34, top + 20 - text.get_height() // 2))
+        if out:
+            pygame.draw.line(win, SCORE_OUT, (x - 2, top + 20), (x + width + 2, top + 20), 2)
+        x += width + gap
+

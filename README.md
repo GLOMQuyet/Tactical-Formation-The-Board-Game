@@ -8,7 +8,12 @@
   <em>A real game recorded from the game screen: select a piece, jump, and flip every enemy piece you sandwich.</em>
 </p>
 
-Engage in epic battles with 2, 3, or 4 players! Tactical Formation challenges you to master the art of strategic deployment and outmaneuver your opponents in a dynamic and engaging board game. Command your unique forces, anticipate your rivals' moves, and dominate the battlefield to claim victory.
+A board game for 2, 3 or 4 players. Every move is a jump over a neighbouring
+piece; land so that enemy pieces sit in a straight line between your pieces
+and the whole line changes to your colour. Nothing is ever removed: captured
+pieces change colour, and a side that can no longer move is out. The last side
+left wins. Play on one computer with friends, or against bots at three levels
+of difficulty, in English or Vietnamese.
 
 > **Origin.** Tactical Formation is the English name for **Cờ Trận**, a folk board game played by children in Đồng Bùa hamlet, Tam Quan commune, Tam Đảo district, Vĩnh Phúc province, Vietnam. Pieces were whatever could be found by the roadside: stones, pebbles, twigs, leaves. This project did not invent the game. It records the rules from memory and brings the game to software so that it is not forgotten.
 
@@ -51,7 +56,27 @@ runs start immediately. An 800×800 window opens with the main menu.
 uv run python -m unittest discover -s tests
 ```
 
-GitHub Actions runs the same tests on Linux, Windows and macOS for every push.
+GitHub Actions runs the same tests on Linux, Windows and macOS for every push,
+including the menus and the game screen (headless).
+
+For a longer check, `tools/fuzz_play.py` plays the real game screen with a
+scripted, careless player (misclicks, undo, leaving and resuming) and checks
+every frame against the rules and the autosave:
+
+```bash
+uv run python tools/fuzz_play.py bot_4:easy 1
+```
+
+### Ready-to-run copy (no Python needed)
+
+```bash
+uv run tools/build_app.py
+```
+
+This makes `dist/TacticalFormation-<system>.zip`: one program on Windows and
+Linux, an app on macOS. The `build` workflow does the same on GitHub for all
+three systems; pushing a version tag (for example `v1.1.0`) publishes the zips
+on a GitHub release.
 
 ---
 
@@ -85,14 +110,25 @@ the bots search:
 Hard is the setting measured in the paper. Bots think in a separate process,
 so the window stays responsive while they search.
 
-**During a game.** The bar at the top left shows whose turn it is. The last
-move is marked on the board: a small ring where it started, an orange ring
-where it landed, and white rings on the pieces it flipped. Bots wait a moment
-before moving so you can follow them. **Menu** (top right) leaves the game; in
+**During a game.** The bar at the top left shows whose turn it is, and the
+strip at the bottom how many pieces each side has (sides that are out are
+struck through). The last move is marked on the board: a small ring where it
+started, an orange ring where it landed, and white rings on the pieces it
+flipped. Bots wait a moment before moving so you can follow them. **Menu** (top right) leaves the game; in
 the 2-player bot game the undo button next to it takes back your last move
 and the bot's reply. If you are knocked out of a bot game, you can watch the
 bots finish, start a new game, or go back to the menu. When the game ends,
 the final position stays on screen under the result.
+
+**Window and keys.** The window fits the screen (on a 1366×768 laptop it opens
+smaller) and can be resized; the board scales with it.
+
+| Key | Action |
+|---|---|
+| F11 | Full screen on/off |
+| Esc | Leave the game (it stays saved) or go back one menu |
+| Ctrl+Z or Backspace | Undo, in the 2-player bot game |
+| ← → | Turn the pages of How to Play |
 
 **Autosave.** The game is saved after each of your moves (and every few
 seconds while only bots move) and the save is removed when the game ends, so
@@ -135,11 +171,14 @@ Tactical-Formation-The-Board-Game/
 │   └── worker.py           # Runs the search in a separate process
 ├── ui/
 │   ├── screens/            # menu.py, howto.py (How to Play), game.py
+│   ├── display.py          # The window: scaling, full screen, mouse positions
 │   └── ...                 # Rendering, input, animation, widgets, theme, i18n (text)
 ├── experiments/            # Headless measurements behind the paper (results/)
-├── tests/                  # Rule, bot and autosave tests
+├── tests/                  # Rules, bots, autosave, interface text and screens
 ├── tools/make_figures.py   # Renders the board figures used in the paper
 ├── tools/make_media.py     # Records the README GIF and board picture (docs/media/)
+├── tools/build_app.py      # Builds a ready-to-run copy with PyInstaller
+├── tools/fuzz_play.py      # Plays the game screen with a scripted player and checks it
 ├── docs/                   # Formal model of the 2-player game
 ├── assets/                 # Images and fonts
 └── .github/workflows/      # Runs the tests on every push

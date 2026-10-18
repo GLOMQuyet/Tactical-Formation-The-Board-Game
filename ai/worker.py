@@ -4,10 +4,13 @@ A thread is not enough: the search is pure Python, and a thread would share
 the interpreter lock with the game loop, slowing both the search and the
 redraws. A worker process runs on its own core instead. It is started once
 and reused for every move; `cancel()` (undo, restart, leaving the game) stops
-a search that is still running.
+a search that is still running. If the worker process dies (for example when
+the computer runs out of memory) its search would never finish, so a search
+that takes far longer than any real one is started again in a new process.
 """
 
 import multiprocessing
+import time
 
 from ai.policy import compute_move
 from core.state import GameState
@@ -16,14 +19,20 @@ from core.state import GameState
 # process that already runs SDL threads.
 _CONTEXT = multiprocessing.get_context('spawn')
 
+# The slowest search measured (Hard, 2 players) takes about 10 s.
+STALL_SECONDS = 120
+
 
 class BotWorker:
-    def __init__(self, search=compute_move):
+    def __init__(self, search=compute_move, stall_seconds=STALL_SECONDS):
         # `search` runs in the worker process, so it must be a module-level
         # function (picklable). Tests pass small fakes.
         self._search = search
+        self._stall_seconds = stall_seconds
         self._pool = None
         self._pending = None   # multiprocessing AsyncResult of the current search
+        self._snapshot = None
+        self._started = 0.0
 
     def warm_up(self):
         """Start the worker process now, so the first bot move does not wait for it."""
@@ -44,12 +53,27 @@ class BotWorker:
             mode=state.mode,
             position_history=list(state.position_history),
         )
+        self._snapshot = snapshot
+        self._submit()
+
+    def _submit(self):
         self.warm_up()
-        self._pending = self._pool.apply_async(self._search, (snapshot,))
+        self._started = time.monotonic()
+        self._pending = self._pool.apply_async(self._search, (self._snapshot,))
 
     def done(self):
-        """True once the current search has finished."""
-        return self._pending is not None and self._pending.ready()
+        """True once the current search has finished.
+
+        A search running past `stall_seconds` is restarted in a new process.
+        """
+        if self._pending is None:
+            return False
+        if self._pending.ready():
+            return True
+        if time.monotonic() - self._started > self._stall_seconds:
+            self.close()
+            self._submit()
+        return False
 
     def result(self):
         """Collect the finished search: (move, capture_direction) or None.

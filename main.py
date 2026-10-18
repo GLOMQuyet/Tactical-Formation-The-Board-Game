@@ -9,9 +9,8 @@ import pygame
 
 from core import savegame
 from core.modes import ALL_MODES, with_difficulty
-from ui import assets, i18n
+from ui import assets, display, i18n
 from ui.screens import game, howto, menu
-from ui.theme import HEIGHT, WIDTH
 
 _HUMAN_GAMES = ('play_2', 'play_3', 'play_4')
 _BOT_GAMES = ('bot_2', 'bot_3', 'bot_4')
@@ -22,8 +21,7 @@ def main():
     # (pygame.init() would also open the audio device).
     pygame.display.init()
     pygame.font.init()
-    win = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption('Tactical Formation')
+    win = display.open_window('Tactical Formation', assets.image('assets/green_piece.png'))
 
     font = assets.font('assets/fonts/Roboto-Bold.ttf', 42)
     font_small = assets.font('assets/fonts/Roboto-Regular.ttf', 28)

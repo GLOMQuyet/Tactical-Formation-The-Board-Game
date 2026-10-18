@@ -1,0 +1,50 @@
+name: build
+
+# Ready-to-run copies of the game for Windows, macOS and Linux.
+# Run by hand from the Actions tab (the zips are kept as run artifacts), or
+# push a version tag such as v1.1.0 to publish them on a GitHub release.
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Run the tests first
+        run: uv run python -m unittest discover -s tests
+      - name: Build
+        run: uv run tools/build_app.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TacticalFormation-${{ runner.os }}
+          path: dist/*.zip
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: zips
+          merge-multiple: true
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release create "${GITHUB_REF_NAME}" zips/*.zip
+          --repo "${GITHUB_REPOSITORY}"
+          --title "Tactical Formation ${GITHUB_REF_NAME}"
+          --generate-notes
