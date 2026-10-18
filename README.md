@@ -23,6 +23,20 @@ of difficulty, in English or Vietnamese.
 
 ## Quick Start
 
+### Download (no Python needed)
+
+Ready-to-run copies for Windows, macOS (Apple Silicon) and Linux are on the
+[latest release](https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game/releases/latest).
+Unzip and start `TacticalFormation`. The copies are not signed, so the first
+start asks you to confirm:
+
+- **Windows:** "Windows protected your PC" → *More info* → *Run anyway*.
+- **macOS:** right-click the app → *Open*; on macOS 15, open it once, then
+  *System Settings* → *Privacy & Security* → *Open Anyway*.
+- **Linux:** run `./TacticalFormation` (after `chmod +x TacticalFormation` if needed).
+
+To run from the source code instead:
+
 ### Requirements
 
 - [uv](https://docs.astral.sh/uv/getting-started/installation/). uv installs the
