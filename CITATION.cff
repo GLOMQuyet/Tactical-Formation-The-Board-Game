@@ -1,0 +1,38 @@
+cff-version: 1.2.0
+message: >-
+  If you use this software or the rules it records, please cite the paper
+  (preferred citation below) and, for the software itself, this archive.
+title: "Tactical Formation: rule engine, game and experiments for a Vietnamese folk board game"
+type: software
+authors:
+  - family-names: Truong
+    given-names: Van Quyet
+    affiliation: Independent Researcher, Vietnam
+version: 1.1.0
+date-released: 2026-10-18
+doi: 10.5281/zenodo.23437469
+license: MIT
+repository-code: "https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game"
+keywords:
+  - Vietnamese folk game
+  - traditional board game
+  - intangible cultural heritage
+  - game AI
+  - Minimax
+  - Paranoid Minimax
+abstract: >-
+  Software for Tactical Formation, a Vietnamese folk board game for 2–4
+  players: a rule engine, a playable game with Minimax and Paranoid Minimax
+  bots, and the experiments behind the paper that documents the game.
+preferred-citation:
+  type: article
+  title: "Tactical Formation: Documenting and Analysing a Vietnamese Folk Board Game for 2–4 Players"
+  authors:
+    - family-names: Truong
+      given-names: Van Quyet
+      affiliation: Independent Researcher, Vietnam
+  year: 2026
+  doi: 10.5281/zenodo.23437471
+  publisher:
+    name: Zenodo
+  notes: Preprint

@@ -1,6 +1,8 @@
 # Tactical Formation — The Board Game
 
 [![tests](https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game/actions/workflows/tests.yml/badge.svg)](https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game/actions/workflows/tests.yml)
+[![paper DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23437471.svg)](https://doi.org/10.5281/zenodo.23437471)
+[![latest release](https://img.shields.io/github/v/release/GLOMQuyet/Tactical-Formation-The-Board-Game)](https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game/releases/latest)
 
 <p align="center">
   <img src="docs/media/demo.gif" width="400" alt="A recorded game: Green selects a piece, jumps, and flips Yellow pieces that end up sandwiched; the bot replies; Green wins">
@@ -200,6 +202,32 @@ Tactical-Formation-The-Board-Game/
 
 The bots use Minimax-family search only; Monte Carlo Tree Search is not used
 (Section 6 of the [paper](https://doi.org/10.5281/zenodo.23437471) explains why).
+
+---
+
+## How to Cite
+
+If you write about the game or use the software, please cite the paper:
+
+> Truong, V. Q. (2026). *Tactical Formation: Documenting and Analysing a
+> Vietnamese Folk Board Game for 2–4 Players* [Preprint]. Zenodo.
+> https://doi.org/10.5281/zenodo.23437471
+
+```bibtex
+@misc{truong2026tactical,
+  author    = {Truong, Van Quyet},
+  title     = {Tactical Formation: Documenting and Analysing a Vietnamese Folk Board Game for 2--4 Players},
+  year      = {2026},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.23437471},
+  note      = {Preprint}
+}
+```
+
+The software itself is archived at
+[doi:10.5281/zenodo.23437469](https://doi.org/10.5281/zenodo.23437469) (all
+versions); GitHub's *Cite this repository* button (from `CITATION.cff`) gives
+both references.
 
 ---
 
