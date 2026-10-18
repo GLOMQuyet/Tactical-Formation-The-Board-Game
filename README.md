@@ -231,10 +231,8 @@ If you write about the game or use the software, please cite the paper
 }
 ```
 
-The software itself is archived at
-[doi:10.5281/zenodo.23437469](https://doi.org/10.5281/zenodo.23437469) (all
-versions); GitHub's *Cite this repository* button (from `CITATION.cff`) gives
-both references.
+GitHub's *Cite this repository* button (from `CITATION.cff`) gives both the
+paper and the software reference.
 
 ---
 
