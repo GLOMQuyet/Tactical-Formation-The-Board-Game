@@ -224,7 +224,8 @@ The bots use Minimax-family search only; Monte Carlo Tree Search is not used
 
 ## How to Cite
 
-If you write about the game or use the software, please cite the paper:
+If you write about the game or use the software, please cite the paper
+(author: Truong Van Quyet, ORCID [0009-0001-8117-922X](https://orcid.org/0009-0001-8117-922X)):
 
 > Truong, V. Q. (2026). *Tactical Formation: Documenting and Analysing a
 > Vietnamese Folk Board Game for 2–4 Players* [Preprint]. Zenodo.
