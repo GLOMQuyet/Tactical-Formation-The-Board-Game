@@ -302,7 +302,7 @@ function describe(saved) {
 
 function menuScreen({ title, subtitle, notes = [], buttons, top = [], art = null, footer = null }) {
   const el = $('menu');
-  el.replaceChildren(
+  el.replaceChildren(...[
     h('div', { class: 'top' }, ...top),
     h('div', { class: 'middle' },
       art,
@@ -310,7 +310,8 @@ function menuScreen({ title, subtitle, notes = [], buttons, top = [], art = null
       subtitle ? h('p', { class: 'subtitle' }, subtitle) : null,
       ...notes.map((n) => h('p', { class: 'note' }, n)),
       ...buttons),
-    footer);
+    footer,
+  ].filter(Boolean));
   showScreen('menu');
   const first = el.querySelector('.middle .btn');
   if (first && matchMedia('(hover: hover)').matches) first.focus({ preventScroll: true });
