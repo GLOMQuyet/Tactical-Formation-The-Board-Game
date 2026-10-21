@@ -29,7 +29,7 @@ of difficulty, in English or Vietnamese.
 ### Play in your browser
 
 **https://glomquyet.github.io/Tactical-Formation-The-Board-Game/** (also on
-[itch.io](https://glomquyet.itch.io/co-tran))
+[itch.io](https://glomquyets.itch.io/co-tran))
 
 Nothing to install: it runs on phones, tablets and computers, in English or
 Vietnamese, with the same game modes, bots and look as the download below.
