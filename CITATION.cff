@@ -13,6 +13,7 @@ version: 1.1.0
 date-released: 2026-10-18
 license: MIT
 repository-code: "https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game"
+url: "https://glomquyet.github.io/Tactical-Formation-The-Board-Game/"
 keywords:
   - Vietnamese folk game
   - traditional board game
@@ -23,7 +24,8 @@ keywords:
 abstract: >-
   Software for Tactical Formation, a Vietnamese folk board game for 2–4
   players: a rule engine, a playable game with Minimax and Paranoid Minimax
-  bots, and the experiments behind the paper that documents the game.
+  bots for computers and web browsers, and the experiments behind the paper
+  that documents the game.
 preferred-citation:
   type: article
   title: "Tactical Formation: Documenting and Analysing a Vietnamese Folk Board Game for 2–4 Players"
