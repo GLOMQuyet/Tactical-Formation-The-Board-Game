@@ -1,5 +1,5 @@
 // Replays games recorded by tests/test_web.py in the browser version's
-// engine (web/js/engine.js) and compares everything with the Python engine:
+// engine (web/src/engine/engine.js) and compares everything with the Python engine:
 // the list of moves at every turn, the position, the turn and the winner,
 // and at some turns the moves the bot considers best.
 //
@@ -9,8 +9,8 @@
 import { readFileSync } from 'node:fs';
 import {
   COLORS, DIRS, GameState, MODES, expandedMoves, makeMove, pointOf,
-} from '../web/js/engine.js';
-import { scoreMinimax, scoreParanoid, tiesOf } from '../web/js/ai.js';
+} from '../web/src/engine/engine.js';
+import { scoreMinimax, scoreParanoid, tiesOf } from '../web/src/engine/ai.js';
 
 class Mismatch extends Error {}
 

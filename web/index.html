@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Cờ Trận · Tactical Formation – a Vietnamese folk board game</title>
 <meta name="description" content="Play Cờ Trận (Tactical Formation), a Vietnamese folk board game for 2 to 4 players, in your browser: with friends on one phone or computer, or against the computer.">
-<meta name="theme-color" content="#121629">
+<meta name="theme-color" content="#3b2a1a">
 <link rel="icon" href="img/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="img/icon-180.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -20,39 +20,10 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="The Cờ Trận board: white lines on wood, with green and yellow pieces">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="stylesheet" href="css/app.css">
-<script type="module" src="js/app.js"></script>
 </head>
 <body>
-<main id="app">
-  <!-- Menus are drawn by js/app.js in the current language. -->
-  <section id="menu" class="screen menu" aria-live="polite"></section>
-
-  <section id="howto" class="screen howto" hidden></section>
-
-  <section id="game" class="screen game" hidden>
-    <header class="bar">
-      <div class="turn" role="status" aria-live="polite">
-        <svg class="turn-stone" viewBox="-1 -1 2 2" aria-hidden="true"><circle r="0.8"/></svg>
-        <span id="turn-text"></span>
-      </div>
-      <button id="undo" class="small" type="button"></button>
-      <button id="leave" class="small" type="button"></button>
-    </header>
-    <div class="play-area">
-      <svg id="board" xmlns="http://www.w3.org/2000/svg" role="img"></svg>
-      <div class="status">
-        <p id="hint" class="hint"></p>
-        <footer id="scores" class="scores"></footer>
-      </div>
-    </div>
-    <div id="overlay" class="overlay" hidden></div>
-  </section>
-
-  <div id="toast" class="toast" role="status" hidden></div>
-</main>
-<noscript>
-  <p class="noscript">Cờ Trận needs JavaScript to run. / Cờ Trận cần bật JavaScript để chơi.</p>
-</noscript>
+<div id="root"></div>
+<noscript><p style="padding:24px;text-align:center">Cờ Trận needs JavaScript to run. / Cờ Trận cần bật JavaScript để chơi.</p></noscript>
+<script type="module" src="/src/main.tsx"></script>
 </body>
 </html>

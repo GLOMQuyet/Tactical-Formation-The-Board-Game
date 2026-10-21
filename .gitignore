@@ -185,3 +185,7 @@ paper-en/
 experiments/results/*.log
 experiments/results_full.log
 
+
+# Browser version: npm packages and the build output (made by the web workflow)
+web/node_modules/
+web/dist/

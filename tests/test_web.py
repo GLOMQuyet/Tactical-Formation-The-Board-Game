@@ -1,7 +1,7 @@
 """The browser version (web/) plays by exactly the same rules as this game.
 
-web/js/ is a second implementation of the rules and the bots, in JavaScript,
-so that the game runs in a web browser, also on phones. These tests play
+web/src/engine/ is a second implementation of the rules and the bots, in
+JavaScript, so that the game runs in a web browser, also on phones. These tests play
 random games with the Python engine and replay them in the JavaScript engine
 with Node.js (tests/web_replay.mjs). At every turn both must agree on the
 list of moves (with the capture lines each move offers), the position after

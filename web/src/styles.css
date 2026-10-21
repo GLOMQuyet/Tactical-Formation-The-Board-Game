@@ -1,0 +1,404 @@
+/* The look of the desktop game (ui/theme.py, ui/widgets.py, ui/renderer.py):
+   Roboto, gold titles, framed buttons, dark translucent strips. */
+
+@font-face {
+  font-family: Roboto;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./assets/fonts/Roboto-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: Roboto;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./assets/fonts/Roboto-Bold.woff2') format('woff2');
+}
+
+:root {
+  --btn: rgb(65 105 225);
+  --btn-hover: rgb(70 130 180);
+  --back: rgb(100 100 100);
+  --exit: rgb(180 50 50);
+  --howto: rgb(30 140 100);
+  --lang: rgb(100 60 160);
+  --resume: rgb(200 130 20);
+  --share: rgb(45 52 80);
+  --gold: rgb(255 215 0);
+  --strip: rgb(0 0 0 / 0.43);
+  --note: rgb(0 0 0 / 0.59);
+  --panel: rgb(10 14 35 / 0.9);
+  --howto-panel: rgb(8 12 35 / 0.84);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: #12100d;
+  color: #fff;
+  font: 400 16px/1.35 Roboto, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+a { color: var(--gold); }
+
+.screen {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: #12100d;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+/* ── Buttons (ui/widgets.py Button) ─────────────────────────────────────── */
+
+.btn {
+  min-height: 50px;
+  padding: 8px 18px;
+  border: 2px solid #fff;
+  border-radius: 8px;
+  background: var(--btn);
+  color: #fff;
+  font: 400 clamp(17px, 1.6vmin + 11px, 24px)/1.2 Roboto, system-ui, sans-serif;
+  cursor: pointer;
+  transition: background-color 0.12s, filter 0.12s, transform 0.05s;
+}
+
+.btn:hover:not(:disabled) { filter: brightness(1.12); }
+.btn-normal:hover:not(:disabled) { background: var(--btn-hover); filter: none; }
+.btn:active:not(:disabled) { transform: translateY(1px); }
+.btn:disabled { opacity: 0.4; cursor: default; }
+.btn:focus-visible, .undo:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.btn-resume { background: var(--resume); }
+.btn-howto { background: var(--howto); }
+.btn-back { background: var(--back); }
+.btn-exit { background: var(--exit); }
+.btn-lang { background: var(--lang); }
+.btn-share { background: var(--share); }
+
+.btn-small {
+  min-height: 40px;
+  padding: 4px 14px;
+  font-size: clamp(15px, 1.2vmin + 10px, 20px);
+}
+
+.note {
+  margin: 0;
+  padding: 5px 12px;
+  background: var(--note);
+  font-size: clamp(14px, 1.1vmin + 9px, 18px);
+  text-align: center;
+}
+
+/* ── Menus (ui/screens/menu.py) ─────────────────────────────────────────── */
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: max(12px, env(safe-area-inset-top)) 16px max(14px, env(safe-area-inset-bottom));
+}
+
+.corner {
+  align-self: stretch;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  min-height: 40px;
+}
+
+.menu-column {
+  flex: 1;
+  width: 100%;
+  max-width: 620px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 16px 0;
+}
+
+.title {
+  margin: 0;
+  color: var(--gold);
+  font-weight: 700;
+  font-size: clamp(32px, 4.2vmin + 16px, 50px);
+  line-height: 1.1;
+  text-align: center;
+  text-shadow: 0 2px 3px rgb(0 0 0 / 0.75), 0 0 14px rgb(0 0 0 / 0.55);
+}
+
+.subtitle {
+  margin: -4px 0 6px;
+  font-size: clamp(17px, 1.7vmin + 11px, 26px);
+  text-align: center;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 0.9), 0 0 10px rgb(0 0 0 / 0.7);
+}
+
+.menu-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: min(100%, 300px);
+}
+
+.menu-buttons.wide { width: min(100%, 340px); }
+
+.menu-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: 460px;
+  border-radius: 8px;
+}
+
+.menu-footer a { color: #e8e4d8; }
+
+/* ── How to Play (ui/screens/howto.py) ──────────────────────────────────── */
+
+.howto { padding: 8px; }
+
+.howto-panel {
+  min-height: calc(100dvh - 16px);
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  padding: max(14px, env(safe-area-inset-top)) clamp(14px, 3vw, 34px) max(14px, env(safe-area-inset-bottom));
+  border-radius: 12px;
+  background: var(--howto-panel);
+}
+
+.howto-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--gold);
+}
+
+.howto-head h1 {
+  flex: 1;
+  margin: 0;
+  color: var(--gold);
+  font-size: clamp(22px, 2vmin + 14px, 32px);
+}
+
+.howto-body {
+  flex: 1;
+  display: grid;
+  gap: 16px;
+  align-content: start;
+  padding: 14px 0;
+}
+
+.howto-lines p {
+  margin: 0;
+  white-space: pre-wrap;
+  font-size: clamp(15px, 1.2vmin + 10px, 21px);
+  line-height: 1.32;
+}
+
+.howto-figure svg {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  height: auto;
+  font-family: Roboto, system-ui, sans-serif;
+}
+
+.howto-page {
+  margin: 0 0 8px;
+  text-align: center;
+  color: rgb(160 160 180);
+}
+
+.howto-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+.howto-nav .btn { min-height: 46px; padding: 6px 8px; }
+
+@media (min-width: 760px) {
+  .howto-body { grid-template-columns: 1fr 1fr; align-items: center; }
+}
+
+/* ── Game (ui/screens/game.py, ui/renderer.py) ──────────────────────────── */
+
+.game {
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right))
+           max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+  overflow: hidden;
+}
+
+.game-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.strip {
+  border-radius: 10px;
+  background: var(--strip);
+}
+
+.turn {
+  flex: 0 1 auto;
+  min-width: 0;
+  margin-right: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 6px 14px 6px 8px;
+  font-weight: 700;
+  font-size: clamp(18px, 1.8vmin + 10px, 30px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.turn img { width: 34px; height: 34px; flex: none; }
+.turn span { overflow: hidden; text-overflow: ellipsis; }
+.turn.thinking img { animation: think 1s ease-in-out infinite; }
+@keyframes think { 50% { opacity: 0.45; } }
+
+.undo {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: rgb(105 105 105);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.undo img { display: block; width: 100%; height: 100%; }
+.undo:disabled { opacity: 0.45; cursor: default; }
+
+.play-area {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* As big as fits: the full width, or the height the bars leave, times the
+   board's width-to-height ratio. */
+.board {
+  display: block;
+  width: min(100%, calc((100vh - 170px) * var(--aspect, 1)));
+  width: min(100%, calc((100dvh - 170px) * var(--aspect, 1)));
+  height: auto;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.hint { border-radius: 8px; }
+.hint.empty { visibility: hidden; }
+.hint.strong { color: var(--gold); font-weight: 700; }
+
+.scores {
+  display: flex;
+  gap: 24px;
+  padding: 5px 18px;
+  font-size: clamp(17px, 1.4vmin + 11px, 24px);
+  font-variant-numeric: tabular-nums;
+}
+
+.score { display: flex; align-items: center; gap: 7px; }
+.score img { width: 26px; height: 26px; }
+.score.out { opacity: 0.45; text-decoration: line-through; color: rgb(150 150 150); }
+
+/* A phone held sideways: the counts go beside the board. */
+@media (orientation: landscape) and (max-height: 520px) {
+  .play-area { flex-direction: row; gap: 16px; }
+  .board { width: auto; height: calc(100vh - 72px); height: calc(100dvh - 72px); max-width: 68vw; }
+  .status { max-width: 30vw; }
+  .scores { flex-direction: column; gap: 6px; }
+  .menu-column { gap: 8px; padding: 4px 0; }
+  .btn { min-height: 42px; }
+}
+
+/* ── Result panel (ui/widgets.py choice_overlay) ────────────────────────── */
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgb(0 0 0 / 0.43);
+}
+
+.panel {
+  width: min(460px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 26px 20px 24px;
+  border: 2px solid var(--gold);
+  border-radius: 14px;
+  background: var(--panel);
+  box-shadow: 0 18px 40px rgb(0 0 0 / 0.5);
+  text-align: center;
+}
+
+.panel h2 {
+  margin: 0;
+  color: var(--gold);
+  font-size: clamp(26px, 2vmin + 18px, 36px);
+}
+
+.panel p { margin: 0 0 6px; font-size: clamp(16px, 1vmin + 12px, 22px); }
+.panel .btn { width: min(300px, 100%); }
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: max(24px, env(safe-area-inset-bottom));
+  z-index: 10;
+  transform: translateX(-50%);
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: var(--panel);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .turn.thinking img { animation: none; }
+}

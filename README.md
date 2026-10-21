@@ -28,11 +28,12 @@ of difficulty, in English or Vietnamese.
 
 ### Play in your browser
 
-**https://glomquyet.github.io/Tactical-Formation-The-Board-Game/**
+**https://glomquyet.github.io/Tactical-Formation-The-Board-Game/** (also on
+[itch.io](https://glomquyet.itch.io/co-tran))
 
 Nothing to install: it runs on phones, tablets and computers, in English or
-Vietnamese, with the same game modes and bots as the download below. Games
-are saved in the browser, so you can close the page and continue later.
+Vietnamese, with the same game modes, bots and look as the download below.
+Games are saved in the browser, so you can close the page and continue later.
 
 ### Download (no Python needed)
 
@@ -162,22 +163,27 @@ next to it in `settings.json`.
 
 ## The browser version
 
-[`web/`](web/) is the game for web browsers: plain HTML, CSS and JavaScript,
-with no build step and nothing loaded from other sites. It is a second
-implementation of the rules and the bots (`web/js/engine.js`, `web/js/ai.js`),
-written so that the game also runs on phones. To keep the two the same,
-`tests/test_web.py` plays random games with the Python engine and replays them
-in the JavaScript one with Node.js: at every turn both must give the same list
-of moves, the same position, the same turn and the same winner, and at sampled
-turns the two bots must find the same best moves. The `web` workflow runs this
-check and then publishes `web/` on GitHub Pages.
+[`web/`](web/) is the game for web browsers, written in React and TypeScript and
+built with [Vite](https://vite.dev). It uses the desktop game's pictures, font
+and colours, and the same screens: menus, How to Play, the board, the result
+panel.
 
-To try it from the source code, serve the folder and open the address it prints
-(opening `index.html` directly from disk does not work, because browsers do not
-load JavaScript modules from files):
+The rules and the bots are a second implementation in JavaScript
+([`web/src/engine/`](web/src/engine/)), written so that the game also runs on
+phones. To keep the two the same, `tests/test_web.py` plays random games with
+the Python engine and replays them in the JavaScript one with Node.js: at every
+turn both must give the same list of moves, the same position, the same turn
+and the same winner, and at sampled turns the two bots must find the same best
+moves. The `web` workflow runs this check, builds the app and publishes it on
+GitHub Pages.
+
+To work on it ([Node.js](https://nodejs.org) 20.19 or later):
 
 ```bash
-uv run python -m http.server -d web 8000
+cd web
+npm install
+npm run dev      # a local server that reloads on every change
+npm run build    # type check, then the finished site in web/dist/
 ```
 
 ---
@@ -229,7 +235,7 @@ Tactical-Formation-The-Board-Game/
 │   ├── screens/            # menu.py, howto.py (How to Play), game.py
 │   ├── display.py          # The window: scaling, full screen, mouse positions
 │   └── ...                 # Rendering, input, animation, widgets, theme, i18n (text)
-├── web/                    # The browser version: index.html, css/, js/ (rules, bots, interface), img/
+├── web/                    # The browser version (React + TypeScript): src/engine/ (rules, bots), src/components/
 ├── experiments/            # Headless measurements behind the paper (results/)
 ├── tests/                  # Rules, bots, autosave, interface text and screens, browser version
 ├── tools/make_figures.py   # Renders the board figures used in the paper
