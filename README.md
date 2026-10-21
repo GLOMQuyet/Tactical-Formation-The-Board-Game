@@ -3,6 +3,7 @@
 [![tests](https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game/actions/workflows/tests.yml/badge.svg)](https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game/actions/workflows/tests.yml)
 [![paper DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23437471.svg)](https://doi.org/10.5281/zenodo.23437471)
 [![latest release](https://img.shields.io/github/v/release/GLOMQuyet/Tactical-Formation-The-Board-Game)](https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game/releases/latest)
+[![play in your browser](https://img.shields.io/badge/play-in%20your%20browser-4169e1)](https://glomquyet.github.io/Tactical-Formation-The-Board-Game/)
 
 <p align="center">
   <img src="docs/media/demo.gif" width="400" alt="A recorded game: Green selects a piece, jumps, and flips Yellow pieces that end up sandwiched; the bot replies; Green wins">
@@ -24,6 +25,14 @@ of difficulty, in English or Vietnamese.
 ---
 
 ## Quick Start
+
+### Play in your browser
+
+**https://glomquyet.github.io/Tactical-Formation-The-Board-Game/**
+
+Nothing to install: it runs on phones, tablets and computers, in English or
+Vietnamese, with the same game modes and bots as the download below. Games
+are saved in the browser, so you can close the page and continue later.
 
 ### Download (no Python needed)
 
@@ -73,7 +82,9 @@ uv run python -m unittest discover -s tests
 ```
 
 GitHub Actions runs the same tests on Linux, Windows and macOS for every push,
-including the menus and the game screen (headless).
+including the menus and the game screen (headless). The tests for the browser
+version (`tests/test_web.py`) need [Node.js](https://nodejs.org) and are skipped
+without it.
 
 ### Ready-to-run copy (no Python needed)
 
@@ -149,6 +160,28 @@ next to it in `settings.json`.
 
 ---
 
+## The browser version
+
+[`web/`](web/) is the game for web browsers: plain HTML, CSS and JavaScript,
+with no build step and nothing loaded from other sites. It is a second
+implementation of the rules and the bots (`web/js/engine.js`, `web/js/ai.js`),
+written so that the game also runs on phones. To keep the two the same,
+`tests/test_web.py` plays random games with the Python engine and replays them
+in the JavaScript one with Node.js: at every turn both must give the same list
+of moves, the same position, the same turn and the same winner, and at sampled
+turns the two bots must find the same best moves. The `web` workflow runs this
+check and then publishes `web/` on GitHub Pages.
+
+To try it from the source code, serve the folder and open the address it prints
+(opening `index.html` directly from disk does not work, because browsers do not
+load JavaScript modules from files):
+
+```bash
+uv run python -m http.server -d web 8000
+```
+
+---
+
 ## Play in Ludii
 
 [`docs/ludii/Tactical Formation.lud`](docs/ludii/Tactical%20Formation.lud) describes the
@@ -196,14 +229,15 @@ Tactical-Formation-The-Board-Game/
 │   ├── screens/            # menu.py, howto.py (How to Play), game.py
 │   ├── display.py          # The window: scaling, full screen, mouse positions
 │   └── ...                 # Rendering, input, animation, widgets, theme, i18n (text)
+├── web/                    # The browser version: index.html, css/, js/ (rules, bots, interface), img/
 ├── experiments/            # Headless measurements behind the paper (results/)
-├── tests/                  # Rules, bots, autosave, interface text and screens
+├── tests/                  # Rules, bots, autosave, interface text and screens, browser version
 ├── tools/make_figures.py   # Renders the board figures used in the paper
 ├── tools/build_app.py      # Builds a ready-to-run copy with PyInstaller
 ├── tools/make_ludii.py     # Writes the Ludii version (docs/ludii/)
 ├── docs/                   # Formal model of the 2-player game
 ├── assets/                 # Images and fonts
-└── .github/workflows/      # Runs the tests on every push
+└── .github/workflows/      # Tests on every push; builds releases; publishes web/ on GitHub Pages
 ```
 
 The bots use Minimax-family search only; Monte Carlo Tree Search is not used
