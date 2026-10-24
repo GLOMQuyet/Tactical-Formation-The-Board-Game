@@ -247,7 +247,7 @@ Tactical-Formation-The-Board-Game/
 ```
 
 The bots use Minimax-family search only; Monte Carlo Tree Search is not used
-(Section 6 of the [paper](https://doi.org/10.5281/zenodo.23437471) explains why).
+(Appendix C of the [paper](https://doi.org/10.5281/zenodo.23437471) explains why).
 
 ---
 
