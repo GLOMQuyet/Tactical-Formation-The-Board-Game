@@ -18,7 +18,7 @@ pieces change colour, and a side that can no longer move is out. The last side
 left wins. Play on one computer with friends, or against bots at three levels
 of difficulty, in English or Vietnamese.
 
-> **Origin.** Tactical Formation is the English name for **Cờ Trận**, a folk board game played by children in Đồng Bùa hamlet, Tam Quan commune, Tam Đảo district, Vĩnh Phúc province, Vietnam. Pieces were whatever could be found by the roadside: stones, pebbles, twigs, leaves. This project did not invent the game. It records the rules from memory and brings the game to software so that it is not forgotten.
+> **Origin.** Tactical Formation is the English name for **Cờ Trận**, a Vietnamese folk board game whose inventor and place of origin are unknown. Pieces were whatever could be found by the roadside: stones, pebbles, twigs, leaves. This project did not invent the game. It records the rules from memory and brings the game to software so that it is not forgotten.
 
 > Full game rules and strategy guide: [study.md](./study.md)
 
