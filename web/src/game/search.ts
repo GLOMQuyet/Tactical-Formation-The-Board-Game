@@ -1,8 +1,10 @@
 // One bot search, as run by the worker (or on the page as a fallback).
 // Like compute_move_in_time in ai/policy.py, it searches 1, 2, ... plies up
 // to the depth; a ply still running at the time limit is given up and the
-// move of the deepest finished one is played. When time allows, the move is
-// exactly that of a search at the full depth.
+// move of the deepest finished one is played (one ply always finishes, so
+// there is always a move). When time allows, the move is one a search at the
+// full depth could play; only the random pick among equally good moves may
+// fall differently.
 
 import { Board, MODES, type ExpandedMove } from '../engine/engine.js';
 import { OutOfTime, computeMove, withTimeLimit } from '../engine/ai.js';

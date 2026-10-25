@@ -3,6 +3,7 @@
 Run with: uv run python -m unittest tests.test_ai
 """
 
+import dataclasses
 import os
 import random
 import tempfile
@@ -87,13 +88,17 @@ class TestTimeBudget(unittest.TestCase):
             timed = policy.compute_move_in_time(state, budget=60)
         self.assertEqual(timed, full)   # the same move as one search at full depth
 
-    def test_without_time_it_still_answers_with_a_legal_move(self):
+    def test_without_time_it_plays_the_one_ply_move(self):
         for key in ('bot_2', 'bot_3', 'bot_4'):
             state = GameState.new(with_difficulty(ALL_MODES[key], 'hard'))
-            started = time.perf_counter()
-            move, _direction = policy.compute_move_in_time(state, budget=0)
-            self.assertLess(time.perf_counter() - started, 1.0, key)   # one shallow search
-            self.assertIn(move, rules.all_moves(state.current_player, state.board, state.mode), key)
+            one_ply = dataclasses.replace(state, mode=dataclasses.replace(state.mode, ai_depth=1))
+            with mock.patch.object(random, 'choice', side_effect=lambda ties: ties[0]):
+                started = time.perf_counter()
+                timed = policy.compute_move_in_time(state, budget=0)
+                elapsed = time.perf_counter() - started
+                expected = compute_move(one_ply)
+            self.assertLess(elapsed, 1.0, key)   # one shallow search
+            self.assertEqual(timed, expected, key)
 
 
 class TestDifficulty(unittest.TestCase):

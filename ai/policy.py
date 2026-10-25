@@ -37,7 +37,9 @@ def compute_move_in_time(state, budget=TIME_BUDGET):
 
     A deeper search that is still running after `budget` seconds is given up,
     and the move of the deepest finished one is played (one ply always
-    finishes). When time allows, the result is exactly that of `compute_move`.
+    finishes, so there is always a move). When time allows, the move is one
+    `compute_move` could play: the same search, though the random pick among
+    equally good moves may fall differently.
     """
     stop = time.perf_counter() + budget
     result = None
