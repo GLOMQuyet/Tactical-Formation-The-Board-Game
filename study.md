@@ -73,10 +73,12 @@ Bàn cờ có **hai lớp vị trí** tồn tại đồng thời:
 | Chế độ | Kích thước | Phạm vi tọa độ | Góc bị loại |
 |---|---|---|---|
 | 2 người | 5×5 đỉnh | 0–4 × 0–4 | Không |
-| 3 người | 7×7 đỉnh | 0–6 × 0–6 | 4 góc |
+| 3 người | 7×6 đỉnh | 0–6 × 0–5 | 2 góc dưới |
 | 4 người | 7×7 đỉnh | 0–6 × 0–6 | 4 góc |
 
-Ở chế độ 3–4 người, **4 góc và tâm tương ứng bị loại** khỏi bàn chơi (quân không thể đứng ở đó).
+Các góc bị loại cùng với tâm kề góc đó không thuộc bàn chơi (quân không thể đứng ở đó):
+ở chế độ 3 người là **2 góc dưới** `(0, 5)`, `(6, 5)` và tâm `(0.5, 4.5)`, `(5.5, 4.5)`;
+ở chế độ 4 người là **cả 4 góc** và 4 tâm kề góc.
 
 ---
 
@@ -378,10 +380,12 @@ The board has **two coexisting layers of positions**:
 | Mode | Board Size | Coordinate Range | Excluded Corners |
 |---|---|---|---|
 | 2 players | 5×5 vertices | 0–4 × 0–4 | None |
-| 3 players | 7×7 vertices | 0–6 × 0–6 | 4 corners |
+| 3 players | 7×6 vertices | 0–6 × 0–5 | 2 bottom corners |
 | 4 players | 7×7 vertices | 0–6 × 0–6 | 4 corners |
 
-In 3–4 player mode, **the 4 corner vertices and their adjacent centers are excluded** from the board (no piece may stand there).
+The removed corner vertices and the centers next to them are not part of the board (no piece may stand there):
+in 3-player mode **the 2 bottom corners** `(0, 5)`, `(6, 5)` and the centers `(0.5, 4.5)`, `(5.5, 4.5)`;
+in 4-player mode **all 4 corners** and the 4 centers next to them.
 
 ---
 

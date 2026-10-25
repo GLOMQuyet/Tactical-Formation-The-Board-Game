@@ -37,15 +37,26 @@ Games are saved in the browser, so you can close the page and continue later.
 
 ### Download (no Python needed)
 
-Ready-to-run copies for Windows, macOS (Apple Silicon) and Linux are on the
-[latest release](https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game/releases/latest).
-Unzip and start `TacticalFormation`. The copies are not signed, so the first
-start asks you to confirm:
+Ready-to-run copies are on the
+[latest release](https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game/releases/latest),
+one file per system, nothing to unzip:
 
-- **Windows:** "Windows protected your PC" → *More info* → *Run anyway*.
-- **macOS:** right-click the app → *Open*; on macOS 15, open it once, then
+| System | File |
+|---|---|
+| Windows | `TacticalFormation-Windows-amd64.exe` |
+| macOS (Apple Silicon) | `TacticalFormation-macOS-arm64.dmg` |
+| Linux (Ubuntu 22.04 or newer, and others with glibc 2.35 or newer) | `TacticalFormation-Linux-x86_64` |
+
+The copies are not signed, so the first start asks you to confirm:
+
+- **Windows:** double-click the `.exe`; at "Windows protected your PC" →
+  *More info* → *Run anyway*.
+- **macOS:** open the `.dmg` and drag *TacticalFormation* to *Applications*.
+  Then right-click the app → *Open*; on macOS 15, open it once, then
   *System Settings* → *Privacy & Security* → *Open Anyway*.
-- **Linux:** run `./TacticalFormation` (after `chmod +x TacticalFormation` if needed).
+- **Linux:** a downloaded file is not yet allowed to run, so first run
+  `chmod +x TacticalFormation-Linux-x86_64`, then `./TacticalFormation-Linux-x86_64`
+  (or in Files: right-click → *Properties* → *Executable as Program*).
 
 To run from the source code instead:
 
@@ -93,10 +104,11 @@ without it.
 uv run tools/build_app.py
 ```
 
-This makes `dist/TacticalFormation-<system>.zip`: one program on Windows and
-Linux, an app on macOS. The `build` workflow does the same on GitHub for all
-three systems; pushing a version tag (for example `v1.1.0`) publishes the zips
-on a GitHub release.
+This makes one file in `dist/` for the system it runs on: a `.exe` on
+Windows, a `.dmg` disk image holding the app on macOS, a program on Linux.
+The `build` workflow does the same on GitHub for all three systems (run it from
+the Actions tab to get the files as run artifacts); pushing a version tag (for
+example `v1.1.0`) publishes them on a GitHub release.
 
 ---
 
