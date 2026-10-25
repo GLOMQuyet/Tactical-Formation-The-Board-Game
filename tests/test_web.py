@@ -22,7 +22,7 @@ from unittest import mock
 from ai import minimax, paranoid
 from ai.policy import compute_move
 from core import rules
-from core.modes import ALL_MODES, with_difficulty
+from core.modes import ALL_MODES, human_side, start_edge, with_difficulty, with_side
 from core.state import GameState
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -119,6 +119,26 @@ class TestWebVersion(unittest.TestCase):
         self.assertEqual(report['plies'], sum(len(g['plies']) for g in recorded))
         self.assertGreater(report['botChecks'], 0)
         return recorded
+
+    def test_the_same_sides_can_be_chosen(self):
+        script = (
+            'const e = await import(process.argv[1]); const out = {};'
+            "for (const name of ['bot_2', 'play_3', 'play_4']) for (const c of e.MODES[name].players) {"
+            '  const m = e.withSide(e.MODES[name], c);'
+            '  out[`${name} ${c}`] = [e.humanSide(m), [...m.bots].sort(), e.startEdge(m, c)]; }'
+            'console.log(JSON.stringify(out));')
+        engine = (ROOT / 'web' / 'src' / 'engine' / 'engine.js').as_uri()
+        result = subprocess.run([NODE, '--input-type=module', '-e', script, engine],
+                                capture_output=True, text=True, timeout=60)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        expected = {}
+        for key in ('bot_2', 'bot_3', 'bot_4'):
+            mode = ALL_MODES[key]
+            for c in mode.players:
+                chosen = with_side(mode, c)
+                expected[f'{mode.name} {c}'] = [human_side(chosen), sorted(chosen.bot_colors),
+                                                start_edge(chosen, c)]
+        self.assertEqual(json.loads(result.stdout), expected)
 
     def test_two_players(self):
         games = self._replay('play_2', 'bot_2', games=30, bot_plies=(0, 9, 40, 101))

@@ -8,7 +8,7 @@ import multiprocessing
 import pygame
 
 from core import savegame
-from core.modes import ALL_MODES, with_difficulty
+from core.modes import ALL_MODES, with_difficulty, with_side
 from ui import assets, display, i18n, settings
 from ui.screens import game, howto, menu
 
@@ -76,8 +76,12 @@ def main():
             level = menu.difficulty_menu(*screens, mode)
             if level in ('exit', 'back'):
                 screen = 'exit' if level == 'exit' else 'bot'
-            else:
-                screen = start(with_difficulty(mode, level), level, back='bot')
+                continue
+            side = menu.side_menu(*screens, mode, level)
+            if side == 'exit':
+                screen = 'exit'
+            elif side != 'back':   # back from the sides shows the difficulties again
+                screen = start(with_side(with_difficulty(mode, level), side), level, back='bot')
         else:
             screen = 'menu'
 

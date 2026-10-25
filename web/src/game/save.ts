@@ -1,9 +1,11 @@
 // The autosave, in the same JSON format as the desktop game's autosave.json
-// (core/savegame.py), kept in the browser's localStorage.
+// (core/savegame.py), kept in the browser's localStorage. Since sides could
+// be chosen against the bots it also names the person's side; older saves
+// have none and keep Green.
 
 import {
-  Board, COLORS, GameState, MODES, applyRecord, cellOf, colorIndex, geometry, pointOf, withDifficulty,
-  type Difficulty, type MoveRecord,
+  Board, COLORS, GameState, MODES, applyRecord, cellOf, colorIndex, geometry, humanSide, pointOf,
+  withDifficulty, withSide, type ColorName, type Difficulty, type MoveRecord,
 } from '../engine/engine.js';
 import type { Translate } from '../i18n/i18n';
 import { storage } from '../storage';
@@ -20,6 +22,7 @@ interface SaveFile {
   format: number;
   mode: string;
   difficulty: Difficulty | null;
+  side?: ColorName | null;
   pieces: [number, number, string][];
   active_players: string[];
   turn_index: number;
@@ -42,6 +45,7 @@ export function writeSave(state: GameState, records: MoveRecord[], difficulty: D
     format: 1,
     mode: state.mode.name,
     difficulty,
+    side: humanSide(state.mode),
     pieces: state.board.pieces(),
     active_players: state.active.map((c) => COLORS[c]),
     turn_index: state.turnIndex,
@@ -67,7 +71,8 @@ export function readSave(): SavedGame | null {
     const base = MODES[data.mode as keyof typeof MODES];
     if (data.format !== 1 || !base) return null;
     const difficulty = data.difficulty ?? null;
-    const mode = difficulty === null ? base : withDifficulty(base, difficulty);
+    let mode = difficulty === null ? base : withDifficulty(base, difficulty);
+    if (data.side) mode = withSide(mode, data.side);
     const geo = geometry(mode);
     let records: MoveRecord[] = data.moves.map((m) => ({
       player: colorIndex(m.player),
@@ -96,7 +101,8 @@ export function readSave(): SavedGame | null {
 }
 
 export function describe(saved: SavedGame, t: Translate): string {
-  const level = saved.difficulty ? `, ${t(saved.difficulty)}` : '';
+  const side = humanSide(saved.state.mode);
+  const level = (saved.difficulty ? `, ${t(saved.difficulty)}` : '') + (side ? `, ${t(side)}` : '');
   const game = t(`game_${saved.state.mode.name}` as Parameters<Translate>[0]);
   return t('saved_game', { game, level, moves: saved.records.length });
 }

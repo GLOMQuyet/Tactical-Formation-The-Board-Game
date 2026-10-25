@@ -32,6 +32,9 @@ export const MODES: Record<
 export const DIFFICULTIES: Difficulty[];
 export const DIFFICULTY_DEPTH: Record<string, Record<Difficulty, number>>;
 export function withDifficulty(mode: Mode, level: Difficulty): Mode;
+export function withSide(mode: Mode, color: ColorName): Mode;
+export function humanSide(mode: Mode): ColorName | null;
+export function startEdge(mode: Mode, color: ColorName): 'top' | 'bottom' | 'left' | 'right';
 
 export const DIRS: Point[];
 

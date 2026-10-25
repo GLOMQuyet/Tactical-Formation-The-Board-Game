@@ -88,6 +88,11 @@ a { color: var(--gold); }
 .btn-lang { background: var(--lang); }
 .btn-share { background: var(--share); }
 
+/* A button with a picture at the left end (Button.icon on the desktop). */
+.btn-icon { display: flex; align-items: center; gap: 10px; padding-left: 12px; }
+.btn-icon img { width: 32px; height: 32px; flex: none; }
+.btn-icon span { flex: 1; text-align: center; }
+
 .btn-small {
   min-height: 40px;
   padding: 4px 14px;

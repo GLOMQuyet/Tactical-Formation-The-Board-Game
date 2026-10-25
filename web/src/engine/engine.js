@@ -97,6 +97,31 @@ export function withDifficulty(mode, level) {
   return { ...mode, depth: DIFFICULTY_DEPTH[mode.name][level] };
 }
 
+// The person's side in a bot game (core/modes.py with_side). Each bot mode
+// above has the person on Green. Any side can be chosen: it keeps its
+// starting place and its turn, and the bots play the others.
+export function withSide(mode, color) {
+  if (!mode.bots.length || !mode.players.includes(color)) {
+    throw new Error(`${color} is not a side to choose in ${mode.name}`);
+  }
+  return { ...mode, bots: mode.players.filter((c) => c !== color) };
+}
+
+/** The person's side in a bot game, or null in a game without bots. */
+export function humanSide(mode) {
+  const humans = mode.players.filter((c) => !mode.bots.includes(c));
+  return mode.bots.length && humans.length === 1 ? humans[0] : null;
+}
+
+/** Where `color` starts on the board: 'top', 'bottom', 'left' or 'right'. */
+export function startEdge(mode, color) {
+  const points = mode.start.find(([c]) => c === color)[1];
+  const dx = points.reduce((sum, [x]) => sum + x, 0) / points.length - mode.width / 2;
+  const dy = points.reduce((sum, [, y]) => sum + y, 0) / points.length - mode.height / 2;
+  if (Math.abs(dy) >= Math.abs(dx)) return dy > 0 ? 'bottom' : 'top';
+  return dx > 0 ? 'right' : 'left';
+}
+
 // ── Geometry (core/geometry.py) ──────────────────────────────────────────────
 
 // Capture directions as the Python engine names them, in its order. A vertex

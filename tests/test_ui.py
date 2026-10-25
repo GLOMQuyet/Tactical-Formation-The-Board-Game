@@ -18,7 +18,7 @@ import pygame  # noqa: E402
 
 from core import first_player, savegame  # noqa: E402
 from core.board import Board  # noqa: E402
-from core.modes import MODE_BOT_2, MODE_PLAY_3  # noqa: E402
+from core.modes import MODE_BOT_2, MODE_PLAY_3, MODE_PLAY_4  # noqa: E402
 from core.piece import Piece  # noqa: E402
 from core.savegame import SavedGame  # noqa: E402
 from core.state import GameState  # noqa: E402
@@ -197,6 +197,9 @@ class TestMenus(_Screens):
                              lambda: menu.human_menu(*screens),
                              lambda: menu.bot_menu(*screens),
                              lambda: menu.difficulty_menu(*screens, MODE_PLAY_3),
+                             lambda: menu.side_menu(*screens, MODE_BOT_2, 'easy'),
+                             lambda: menu.side_menu(*screens, MODE_PLAY_3, 'medium'),
+                             lambda: menu.side_menu(*screens, MODE_PLAY_4, 'hard'),
                              lambda: menu.settings_menu(*screens),
                              lambda: menu.unfinished_game_menu(*screens, saved),
                              lambda: howto.how_to_play_screen(*screens)):

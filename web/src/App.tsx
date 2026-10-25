@@ -3,8 +3,8 @@ import { MenuScreen, type MenuButton } from './components/MenuScreen';
 import { HowToPlay } from './components/HowToPlay';
 import { GameScreen } from './components/GameScreen';
 import { Toast, useToast } from './components/Toast';
-import { LINKS } from './assets';
-import { MODES, withDifficulty, type Difficulty, type Mode } from './engine/engine.js';
+import { LINKS, usePieceImages } from './assets';
+import { MODES, startEdge, withDifficulty, withSide, type Difficulty, type Mode } from './engine/engine.js';
 import { GameController } from './game/controller';
 import { describe, readSave, type SavedGame } from './game/save';
 import { useLanguage } from './i18n/i18n';
@@ -15,6 +15,7 @@ type Screen =
   | { kind: 'human' }
   | { kind: 'bots' }
   | { kind: 'difficulty'; mode: Mode }
+  | { kind: 'side'; mode: Mode; difficulty: Difficulty }
   | { kind: 'confirm'; mode: Mode; difficulty: Difficulty | null; back: Screen; saved: SavedGame }
   | { kind: 'howto' }
   | { kind: 'settings' }
@@ -27,6 +28,7 @@ export function App() {
   const [screen, setScreen] = useState<Screen>(HOME);
   const [toast, showToast] = useToast();
   const settings = useSettings();
+  const pieceImages = usePieceImages();
 
   const startGame = useCallback((mode: Mode, difficulty: Difficulty | null, saved: SavedGame | null = null) => {
     setScreen({ kind: 'game', controller: new GameController(mode, difficulty, saved) });
@@ -65,6 +67,7 @@ export function App() {
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return;
       if (screen.kind === 'confirm') setScreen(screen.back);
+      else if (screen.kind === 'side') setScreen({ kind: 'difficulty', mode: MODES[screen.mode.name as keyof typeof MODES] });
       else if (back[screen.kind]) setScreen(back[screen.kind] as Screen);
     };
     document.addEventListener('keydown', onKey);
@@ -121,7 +124,7 @@ export function App() {
       content = (
         <MenuScreen
           title={t('vs_bot')}
-          subtitle={t('you_are_green')}
+          subtitle={t('bot_subtitle')}
           wide
           buttons={[
             { label: t('game_bot_2'), onClick: () => setScreen({ kind: 'difficulty', mode: MODES.bot_2 }) },
@@ -142,11 +145,34 @@ export function App() {
           buttons={[
             ...levels.map((level) => ({
               label: t(level),
-              onClick: () => newGame(withDifficulty(mode, level), level, screen),
+              onClick: () => setScreen({ kind: 'side', mode: withDifficulty(mode, level), difficulty: level }),
             })),
             { label: t('back'), kind: 'back', onClick: () => setScreen({ kind: 'bots' }) },
           ]}
           notesBelow={[t('difficulty_note')]}
+        />
+      );
+      break;
+    }
+    case 'side': {
+      const { mode, difficulty } = screen;
+      content = (
+        <MenuScreen
+          title={t('choose_side')}
+          subtitle={`${t(`game_${mode.name}` as Parameters<typeof t>[0])}, ${t(difficulty)}`}
+          wide
+          buttons={[
+            ...mode.players.map((color) => ({
+              label: t('side_button', { color: t(color), edge: t(`edge_${startEdge(mode, color)}`) }),
+              icon: pieceImages[color],
+              onClick: () => newGame(withSide(mode, color), difficulty, screen),
+            })),
+            {
+              label: t('back'), kind: 'back' as const,
+              onClick: () => setScreen({ kind: 'difficulty', mode: MODES[mode.name as keyof typeof MODES] }),
+            },
+          ]}
+          notesBelow={[t('side_note')]}
         />
       );
       break;

@@ -224,4 +224,33 @@ def with_difficulty(mode, level):
     return replace(mode, ai_depth=DIFFICULTY_DEPTH[mode.name][level])
 
 
+# ── The person's side in a bot game ──────────────────────────────────────────
+# Each bot mode above has the person on Green. Any side can be chosen: it
+# keeps its starting place and its turn, and the bots play the others.
+
+def with_side(mode, color):
+    """Return bot game `mode` with the person playing `color`, bots the rest."""
+    if not mode.bot_colors or color not in mode.players:
+        raise ValueError(f'{color!r} is not a side to choose in {mode.name}')
+    return replace(mode, human_colors=frozenset({color}),
+                   bot_colors=frozenset(c for c in mode.players if c != color))
+
+
+def human_side(mode):
+    """The person's side in a bot game, or None in a game without bots."""
+    if not mode.bot_colors or len(mode.human_colors) != 1:
+        return None
+    return next(iter(mode.human_colors))
+
+
+def start_edge(mode, color):
+    """Where `color` starts on the board: 'top', 'bottom', 'left' or 'right'."""
+    points = mode.start_positions[color]
+    dx = sum(x for x, _y in points) / len(points) - mode.board_width / 2
+    dy = sum(y for _x, y in points) / len(points) - mode.board_height / 2
+    if abs(dy) >= abs(dx):
+        return 'bottom' if dy > 0 else 'top'
+    return 'right' if dx > 0 else 'left'
+
+
 MODES_BY_NAME = {m.name: m for m in ALL_MODES.values()}
