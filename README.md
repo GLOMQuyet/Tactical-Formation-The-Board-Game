@@ -38,9 +38,17 @@ On a phone the pieces are drawn larger, so they are easier to see and tap.
 
 ### Download (no Python needed)
 
-Ready-to-run copies are on the
-[latest release](https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game/releases/latest),
-one file per system, nothing to unzip:
+There are two versions:
+
+- **v1.2.2, the standard game:** the
+  [latest release](https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game/releases/latest),
+  the browser version and this page.
+- **[v1.3.0, with Best-Reply Search](https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game/releases/tag/v1.3.0):**
+  the same game, but the 3- and 4-player bots use Best-Reply Search, and
+  Easy, Medium and Hard search 4, 5 and 6 moves ahead in every mode, however
+  long it takes.
+
+Each release has one ready-to-run file per system, nothing to unzip:
 
 | System | File |
 |---|---|
