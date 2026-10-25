@@ -208,10 +208,24 @@ Cờ Trận dân gian **không có giới hạn số lượt** và không có lu
 Ở menu chính, **Play Human** để mọi người chơi trên cùng một máy; **Play Bot**
 để bạn (phe Xanh lá) đấu với bot, sau đó chọn độ khó Dễ / Vừa / Khó.
 
+### Ai đi trước
+
+Như ngoài đời, ván mới bắt đầu bằng việc chọn người đi trước:
+
+- **2 người** chơi **oẳn tù tì**: búa thắng kéo, kéo thắng bao, bao thắng búa;
+  ra giống nhau thì chơi lại.
+- **3–4 người** cùng **úp lá xòe** (úp hoặc ngửa bàn tay): ai ra khác mọi người
+  thì ra ngoài; ra giống hết hoặc chia đều thì làm lại. Khi còn hai người thì
+  oẳn tù tì.
+- Người thắng đi trước, rồi đi tiếp vòng quanh bàn theo thứ tự thường lệ.
+- Trong phần mềm, mỗi người lần lượt chọn tay (người khác đừng nhìn), máy chọn
+  ngẫu nhiên, cả bàn hô *"Oẳn tù tì, ra cái gì, ra cái này!"* rồi cùng ra tay.
+  Nút **Bỏ qua**, hoặc tắt trong **Cài đặt**, giữ thứ tự cố định.
+
 ### 2 người chơi
 
 - Bàn cờ **5×5 đỉnh**, không bỏ góc nào.
-- Màu: **Xanh lá** (đi trước) và **Vàng**. Khi đấu bot, bot cầm phe Vàng.
+- Màu: **Xanh lá** và **Vàng** (theo thứ tự cố định thì Xanh lá đi trước). Khi đấu bot, bot cầm phe Vàng.
 - Mỗi bên bắt đầu với **14 quân** (10 đỉnh + 4 tâm).
 
 ### 3 người chơi
@@ -516,10 +530,24 @@ The folk game Cờ Trận has **no turn limit** and no draw rule: a game goes on
 In the main menu, **Play Human** lets everyone play on the same machine;
 **Play Bot** puts you (Green) against bots, after you pick Easy, Medium or Hard.
 
+### Who Goes First
+
+As in the folk game, a new game starts by choosing who moves first:
+
+- **2 players** play **oẳn tù tì** (rock-paper-scissors): rock beats scissors,
+  scissors beat paper, paper beats rock; the same hand is played again.
+- **3–4 players** show a palm down or palm up at the same time (**úp lá
+  xòe**): whoever shows differently from the rest drops out; all alike or an
+  even split is shown again. When two are left they play oẳn tù tì.
+- The winner moves first; play then goes round the board in the usual order.
+- In the software each person picks a hand in turn (the others look away), the
+  bots pick at random, everyone chants, and all hands are shown at once.
+  **Skip**, or turning it off in **Settings**, keeps the fixed order.
+
 ### 2-Player Mode
 
 - **5×5 vertex** board, no corners removed.
-- Colors: **Green** (moves first) and **Yellow**. Against the bot, the bot plays Yellow.
+- Colors: **Green** and **Yellow** (in the fixed order Green moves first). Against the bot, the bot plays Yellow.
 - Each side starts with **14 pieces** (10 vertices + 4 centres).
 
 ### 3-Player Mode

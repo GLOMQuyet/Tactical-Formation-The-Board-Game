@@ -34,6 +34,7 @@ of difficulty, in English or Vietnamese.
 Nothing to install: it runs on phones, tablets and computers, in English or
 Vietnamese, with the same game modes, bots and look as the download below.
 Games are saved in the browser, so you can close the page and continue later.
+On a phone the pieces are drawn larger, so they are easier to see and tap.
 
 ### Download (no Python needed)
 
@@ -126,6 +127,23 @@ the Actions tab with a version typed in, which also makes the tag.
 | | 1 vs 2 Bots (3P) | You (Green) vs 2 Paranoid Minimax bots (Purple, Yellow) |
 | | 1 vs 3 Bots (4P) | You (Green) vs 3 Paranoid Minimax bots (Blue, Purple, Yellow) |
 | **Continue** | | Shown when a game is unfinished; resumes it |
+| **Settings** | | Sound, symbols on the pieces, and how the first player is chosen |
+
+**Who goes first.** As in the folk game, a new game starts by choosing who
+moves first. Two players play *oẳn tù tì* (rock-paper-scissors: rock beats
+scissors, scissors beat paper, paper beats rock; the same hand is played
+again). Three or four players first show a palm down or palm up at the same
+time (*úp lá xòe*): whoever shows differently from the rest drops out, until
+two are left, who play *oẳn tù tì*. Each person picks a hand in turn (the
+others look away when you share the computer), the bots pick at random,
+everyone chants *"Oẳn tù tì, ra cái gì, ra cái này!"*, and all hands are
+shown at once. The winner moves first, and play goes round the board in the
+usual order. **Skip**, or turning it off in **Settings**, keeps the fixed
+order (Green first with two players).
+
+**Settings.** Sound effects can be turned off. *Symbols on pieces* puts a
+shape on every piece (green ▲, yellow ●, purple ◆, blue ■), for players who
+cannot tell the colours apart.
 
 The menus and the game are in English or Vietnamese: the button in the top
 right corner of the main menu switches, and the choice is remembered. On the
@@ -147,7 +165,7 @@ so the window stays responsive while they search.
 strip at the bottom how many pieces each side has (sides that are out are
 struck through). The last move is marked on the board: a small ring where it
 started, an orange ring where it landed, and white rings on the pieces it
-flipped. On your turn the pieces that can jump glow, and a line above the
+flipped. Jumps, flips and results have short sounds. On your turn the pieces that can jump glow, and a line above the
 piece counts says what to do next, for example which row to click when a move
 sandwiches more than one. Bots wait a moment before moving so you can follow them. **Menu** (top right) leaves the game; in
 the 2-player bot game the undo button next to it takes back your last move
@@ -171,8 +189,8 @@ you can leave at any time and pick the game up again with **Continue**.
 Starting a new game asks first if it would replace a saved one. The save file
 is `autosave.json` in `%APPDATA%\TacticalFormation` (Windows),
 `~/Library/Application Support/TacticalFormation` (macOS) or
-`~/.local/share/tactical-formation` (Linux); the language choice is kept
-next to it in `settings.json`.
+`~/.local/share/tactical-formation` (Linux); the language and the other
+settings are kept next to it in `settings.json`.
 
 ---
 
@@ -239,6 +257,7 @@ Tactical-Formation-The-Board-Game/
 ├── core/
 │   ├── board.py, piece.py, rules.py, state.py   # Rule engine
 │   ├── modes.py            # The game variants and the bot difficulty levels
+│   ├── first_player.py     # Who moves first: oẳn tù tì and úp lá xòe
 │   ├── history.py          # Move records for undo and saves
 │   └── savegame.py         # Autosave and resume
 ├── ai/
@@ -247,7 +266,8 @@ Tactical-Formation-The-Board-Game/
 │   ├── policy.py           # Picks the engine for the current mode
 │   └── worker.py           # Runs the search in a separate process
 ├── ui/
-│   ├── screens/            # menu.py, howto.py (How to Play), game.py
+│   ├── screens/            # menu.py, howto.py (How to Play), game.py, first.py (who goes first)
+│   ├── settings.py, sound.py  # Settings (settings.json) and sound effects
 │   ├── display.py          # The window: scaling, full screen, mouse positions
 │   └── ...                 # Rendering, input, animation, widgets, theme, i18n (text)
 ├── web/                    # The browser version (React + TypeScript): src/engine/ (rules, bots), src/components/
@@ -256,8 +276,10 @@ Tactical-Formation-The-Board-Game/
 ├── tools/make_figures.py   # Renders the board figures used in the paper
 ├── tools/build_app.py      # Builds a ready-to-run copy with PyInstaller
 ├── tools/make_ludii.py     # Writes the Ludii version (docs/ludii/)
+├── tools/make_sounds.py    # Synthesises the sound effects (assets/sounds/)
+├── tools/make_symbols.py   # Draws the pieces with symbols for colour-blind players
 ├── docs/                   # Formal model of the 2-player game
-├── assets/                 # Images and fonts
+├── assets/                 # Images, fonts, sounds; hands/ are Noto Emoji (Apache 2.0)
 └── .github/workflows/      # Tests on every push; builds releases; publishes web/ on GitHub Pages
 ```
 
