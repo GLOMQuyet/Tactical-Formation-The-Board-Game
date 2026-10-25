@@ -4,8 +4,13 @@ name: build
 # program for Linux, each one file that is not zipped.
 # Run by hand from the Actions tab (the files are kept as run artifacts), or
 # push a version tag such as v1.1.0 to publish them on a GitHub release.
+# Run by hand with a version, it makes that tag and release from the branch.
 on:
   workflow_dispatch:
+    inputs:
+      release:
+        description: Version to publish as a release, for example v1.1.1 (empty = only build)
+        default: ''
   push:
     tags: ['v*']
 
@@ -36,7 +41,7 @@ jobs:
           archive: false
 
   release:
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') || startsWith(inputs.release, 'v')
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -48,8 +53,11 @@ jobs:
       - name: Publish the release
         env:
           GH_TOKEN: ${{ github.token }}
+          # The pushed tag, or the version typed in when run by hand.
+          TAG: ${{ inputs.release || github.ref_name }}
         run: >
-          gh release create "${GITHUB_REF_NAME}" files/*
+          gh release create "${TAG}" files/*
           --repo "${GITHUB_REPOSITORY}"
-          --title "Tactical Formation ${GITHUB_REF_NAME}"
+          --target "${GITHUB_SHA}"
+          --title "Tactical Formation ${TAG}"
           --generate-notes
