@@ -9,9 +9,19 @@ import undo from './assets/undo_icon.png';
 import welcome from './assets/welcome.webp';
 import wood from './assets/wood.jpg';
 import yellow from './assets/yellow_piece.png';
+import handDown from './assets/hands/down.png';
+import handPaper from './assets/hands/paper.png';
+import handRock from './assets/hands/rock.png';
+import handScissors from './assets/hands/scissors.png';
+import handUp from './assets/hands/up.png';
+import type { Hand } from './game/first';
 
 export const PIECE_IMAGES: Record<ColorName, string> = { green, yellow, purple, blue };
 export const UNDO_ICON = undo;
+// Hands for choosing who goes first: Noto Emoji pictures (Apache License 2.0).
+export const HAND_IMAGES: Record<Hand, string> = {
+  rock: handRock, scissors: handScissors, paper: handPaper, down: handDown, up: handUp,
+};
 export const WELCOME_BACKGROUND = welcome;
 export const WOOD = wood;
 

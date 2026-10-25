@@ -9,6 +9,8 @@ import {
 } from '../engine/engine.js';
 import { cancelSearches, searchMove, type FoundMove } from './bots';
 import { clearSave, writeSave, type SavedGame } from './save';
+import { getSettings } from '../settings';
+import { playSound } from '../sound';
 
 const reduceMotion = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -39,6 +41,8 @@ export class GameController {
   valid: number[] = [];
   /** The last tap was on one of the mover's pieces that has no jump. */
   stuck = false;
+  /** A new game first chooses who moves first (components/FirstPlayer.tsx). */
+  choosingFirst: boolean;
   capture: { piece: number; options: Capture[] } | null = null;
   over = false;
   winner: number | null = null;
@@ -66,6 +70,7 @@ export class GameController {
     this.difficulty = difficulty;
     this.state = saved ? saved.state : GameState.fresh(mode);
     this.records = saved ? saved.records : [];
+    this.choosingFirst = !saved && getSettings().folkStart;
   }
 
   // ── Subscription (for useSyncExternalStore) ──────────────────────────────
@@ -99,7 +104,8 @@ export class GameController {
   }
 
   get humanToMove(): boolean {
-    return !this.over && !this.panel && !this.botPending && this.isHuman(this.state.current);
+    return !this.choosingFirst && !this.over && !this.panel && !this.botPending
+      && this.isHuman(this.state.current);
   }
 
   /** The mover's pieces that have a jump, while a person is choosing one. */
@@ -122,6 +128,15 @@ export class GameController {
 
   start() {
     this.disposed = false;   // React may unmount and remount the screen in development
+    if (!this.choosingFirst) this.next();
+  }
+
+  /** `color` won the choosing and moves first; play begins. */
+  chooseFirst(color: number) {
+    if (!this.choosingFirst) return;
+    this.choosingFirst = false;
+    this.state.turnIndex = this.state.active.indexOf(color);
+    this.emit();
     this.next();
   }
 
@@ -169,6 +184,7 @@ export class GameController {
         this.emit();
         this.later(RESULT_PAUSE + MOVE_MS, () => {
           this.panel = 'result';
+          playSound(this.isBotGame && !this.isHuman(this.winner) ? 'lose' : 'win');
           this.emit();
         });
         return;
@@ -180,6 +196,7 @@ export class GameController {
       this.emit();
       this.later(RESULT_PAUSE, () => {
         this.panel = 'out';
+        playSound('lose');
         this.emit();
       });
       return;
@@ -394,6 +411,7 @@ export class GameController {
   private animateJump(i: number, from: number, to: number, flips: number[], before: number[]) {
     const geo = this.state.board.geo;
     this.jumps.set(i, { from: pointOf(geo, from), to: pointOf(geo, to), start: performance.now() });
+    playSound('jump');
     flips.forEach((e, k) => this.flipsShown.set(e, before[k]));
     this.landing++;
     this.later(MOVE_MS, () => {
@@ -407,6 +425,7 @@ export class GameController {
 
   private pulse(pieces: number[]) {
     if (!pieces.length) return;
+    playSound('flip');
     const now = performance.now();
     for (const e of pieces) this.pulses.set(e, now);
     this.later(FLIP_MS, () => {

@@ -9,6 +9,7 @@ import type { GameController } from '../game/controller';
 import { useLanguage } from '../i18n/i18n';
 import { Board } from './Board';
 import { ChoicePanel } from './ChoicePanel';
+import { FirstPlayer } from './FirstPlayer';
 
 interface Props {
   controller: GameController;
@@ -54,7 +55,10 @@ export function GameScreen({ controller, onLeave, onRestart }: Props) {
 
   let turnColor = current;
   let turnText = '';
-  if (controller.over) {
+  if (controller.choosingFirst) {
+    turnColor = null;
+    turnText = t('who_first');
+  } else if (controller.over) {
     turnColor = controller.winner;
     turnText = winnerText(controller.winner);
   } else if (current !== null) {
@@ -111,6 +115,7 @@ export function GameScreen({ controller, onLeave, onRestart }: Props) {
         </div>
       </div>
 
+      {controller.choosingFirst && <FirstPlayer controller={controller} />}
       {controller.panel === 'result' && (
         <ChoicePanel
           title={winnerText(controller.winner)}
