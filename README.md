@@ -40,7 +40,7 @@ On a phone the pieces are drawn larger, so they are easier to see and tap.
 
 There are two versions:
 
-- **v1.2.2, the standard game:** the
+- **v1.0.0, the standard game:** the
   [latest release](https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game/releases/latest),
   the browser version and this page.
 - **[v1.3.0, with Best-Reply Search](https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game/releases/tag/v1.3.0):**
