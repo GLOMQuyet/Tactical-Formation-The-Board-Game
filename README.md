@@ -131,9 +131,9 @@ the Actions tab with a version typed in, which also makes the tag.
 | Menu | Choice | Description |
 |---|---|---|
 | **Play Human** | 2, 3 or 4 Players | Everyone plays on the same machine, taking turns with the mouse |
-| **Play Bot** | 1 vs Bot (2P) | You (Green) vs a Minimax bot (Yellow) |
-| | 1 vs 2 Bots (3P) | You (Green) vs 2 Paranoid Minimax bots (Purple, Yellow) |
-| | 1 vs 3 Bots (4P) | You (Green) vs 3 Paranoid Minimax bots (Blue, Purple, Yellow) |
+| **Play Bot** | 1 vs Bot (2P) | You vs a Minimax bot; you pick Green or Yellow |
+| | 1 vs 2 Bots (3P) | You vs 2 Paranoid Minimax bots; you pick Purple, Yellow or Green |
+| | 1 vs 3 Bots (4P) | You vs 3 Paranoid Minimax bots; you pick Blue, Green, Purple or Yellow |
 | **Continue** | | Shown when a game is unfinished; resumes it |
 | **Settings** | | Sound, symbols on the pieces, and how the first player is chosen |
 
@@ -157,8 +157,12 @@ The menus and the game are in English or Vietnamese: the button in the top
 right corner of the main menu switches, and the choice is remembered. On the
 first run the language follows the computer's language setting.
 
-After choosing a bot game you pick a difficulty. It sets how many moves ahead
-the bots search, in every mode and in both versions:
+After choosing a bot game you pick a difficulty, then your side. The side
+keeps its place on the board (the menu says where: top, bottom, left or right)
+and its turn, and the bots play all the other sides.
+
+The difficulty sets how many moves ahead the bots search, in every mode and in
+both versions:
 
 | Difficulty | 2 players | 3 players | 4 players |
 |---|---|---|---|

@@ -2,7 +2,8 @@
 
 The game writes the save after every completed move and deletes it when the
 game ends, so closing the window never loses a game. A save holds the mode,
-the bot difficulty, the current position and turn, and every move played.
+the bot difficulty, the person's side against the bots, the current position
+and turn, and every move played.
 The moves keep Undo working after a resume. Replaying them also rebuilds
 the position history that the bots use against repetition, and checks that
 the file is consistent.
@@ -16,7 +17,7 @@ from typing import List, Optional
 
 from core.board import Board
 from core.history import MoveRecord, apply_record
-from core.modes import MODES_BY_NAME, with_difficulty
+from core.modes import MODES_BY_NAME, human_side, with_difficulty, with_side
 from core.piece import Piece
 from core.state import GameState
 
@@ -50,6 +51,7 @@ def save(state, moves, difficulty=None, path=None):
         'format': FORMAT,
         'mode': state.mode.name,
         'difficulty': difficulty,
+        'side': human_side(state.mode),
         'pieces': [[p.x, p.y, p.color] for p in state.board.pieces],
         'active_players': list(state.active_players),
         'turn_index': state.turn_index,
@@ -78,6 +80,9 @@ def load(path=None):
         difficulty = data.get('difficulty')
         if difficulty is not None:
             mode = with_difficulty(mode, difficulty)
+        side = data.get('side')   # saves from before sides could be chosen have none
+        if side is not None:
+            mode = with_side(mode, side)
         moves = [
             MoveRecord(m['player'], tuple(m['from']), tuple(m['to']),
                        [((x, y), before) for x, y, before in m['captured']])

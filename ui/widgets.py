@@ -10,19 +10,27 @@ from ui.theme import (BLACK, BTN_HOVER, BTN_NORMAL, FPS, HEIGHT, OVERLAY_PANEL,
 
 
 class Button:
-    def __init__(self, text, rect, color=BTN_NORMAL, hover_color=BTN_HOVER):
+    def __init__(self, text, rect, color=BTN_NORMAL, hover_color=BTN_HOVER, icon=None):
         self.text = text
         self.rect = pygame.Rect(rect)
         self.color = color
         self.hover_color = hover_color
+        self.icon = icon   # an image drawn at the left end, such as a piece
         self.hovered = False
 
     def draw(self, win, font):
         c = self.hover_color if self.hovered else self.color
         pygame.draw.rect(win, c, self.rect, border_radius=8)
         pygame.draw.rect(win, WHITE, self.rect, 2, border_radius=8)
+        text_area = self.rect
+        if self.icon is not None:
+            icon_rect = self.icon.get_rect(midleft=(self.rect.x + 12, self.rect.centery))
+            win.blit(self.icon, icon_rect)
+            text_area = self.rect.copy()
+            text_area.width -= icon_rect.right + 6 - self.rect.x
+            text_area.right = self.rect.right
         surf = font.render(self.text, True, WHITE)
-        win.blit(surf, surf.get_rect(center=self.rect.center))
+        win.blit(surf, surf.get_rect(center=text_area.center))
 
     def handle(self, event):
         if event.type == pygame.MOUSEMOTION:

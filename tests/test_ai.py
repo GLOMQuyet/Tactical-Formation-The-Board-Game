@@ -17,8 +17,8 @@ from ai.worker import BotWorker
 from core import rules
 from core.board import Board
 from core.modes import (
-    ALL_MODES, DIFFICULTIES, DIFFICULTY_DEPTH, MODE_BOT_2, MODE_PLAY_3,
-    MODE_PLAY_4, with_difficulty,
+    ALL_MODES, DIFFICULTIES, DIFFICULTY_DEPTH, MODE_BOT_2, MODE_PLAY_2, MODE_PLAY_3,
+    MODE_PLAY_4, human_side, start_edge, with_difficulty, with_side,
 )
 from core.piece import Piece
 from core.state import GameState
@@ -119,6 +119,49 @@ class TestDifficulty(unittest.TestCase):
         self.assertEqual(easy.ai_depth, 4)
         self.assertEqual(easy.players, MODE_PLAY_4.players)
         self.assertEqual(MODE_PLAY_4.ai_depth, 6)   # the original is unchanged
+
+
+class TestSide(unittest.TestCase):
+    def test_every_side_can_be_chosen(self):
+        for key in ('bot_2', 'bot_3', 'bot_4'):
+            mode = ALL_MODES[key]
+            self.assertEqual(human_side(mode), 'green', key)   # the default
+            for color in mode.players:
+                chosen = with_side(with_difficulty(mode, 'easy'), color)
+                self.assertEqual(human_side(chosen), color)
+                self.assertEqual(chosen.bot_colors, frozenset(mode.players) - {color})
+                self.assertEqual(chosen.players, mode.players)   # the turn order stays
+                self.assertEqual(chosen.ai_depth, DIFFICULTY_DEPTH[mode.name]['easy'])
+
+    def test_only_a_side_of_a_bot_game(self):
+        with self.assertRaises(ValueError):
+            with_side(MODE_PLAY_2, 'green')        # no bots to play the others
+        with self.assertRaises(ValueError):
+            with_side(MODE_BOT_2, 'blue')          # not a side in 2-player games
+        self.assertIsNone(human_side(MODE_PLAY_2))
+
+    def test_where_each_side_starts(self):
+        edges = {key: {c: start_edge(ALL_MODES[key], c) for c in ALL_MODES[key].players}
+                 for key in ('bot_2', 'bot_3', 'bot_4')}
+        self.assertEqual(edges, {
+            'bot_2': {'green': 'bottom', 'yellow': 'top'},
+            'bot_3': {'purple': 'bottom', 'yellow': 'left', 'green': 'right'},
+            'bot_4': {'blue': 'top', 'green': 'right', 'purple': 'bottom', 'yellow': 'left'},
+        })
+
+    def test_the_bots_play_the_other_sides(self):
+        state = GameState.new(with_side(dataclasses.replace(MODE_PLAY_3, ai_depth=1), 'purple'))
+        played = set()
+        while state.current_player != 'purple' or not played:
+            player = state.current_player
+            if player == 'purple':
+                move, direction, _n = rules.expanded_moves(player, state.board, state.mode)[0]
+            else:
+                move, direction = compute_move(state)
+                played.add(player)
+            rules.make_move(state.board, move, state.mode, direction)
+            state.advance_turn()
+        self.assertEqual(played, {'yellow', 'green'})
 
 
 # The worker runs searches in another process, so fake searches must be

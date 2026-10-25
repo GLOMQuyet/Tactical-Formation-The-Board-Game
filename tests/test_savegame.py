@@ -12,7 +12,8 @@ import unittest
 from core import rules, savegame
 from core.board import Board
 from core.history import MoveRecord, undo_record
-from core.modes import MODE_BOT_2, MODE_PLAY_3, MODE_PLAY_4_HUMAN, with_difficulty
+from core.modes import (MODE_BOT_2, MODE_PLAY_3, MODE_PLAY_4_HUMAN, human_side, with_difficulty,
+                        with_side)
 from core.state import GameState
 
 
@@ -82,6 +83,30 @@ class TestSaveGame(unittest.TestCase):
         saved = savegame.load(self.path)
         self.assertEqual(saved.difficulty, 'easy')
         self.assertEqual(saved.state.mode.ai_depth, 4)
+
+    def test_the_chosen_side_is_kept(self):
+        mode = with_side(with_difficulty(MODE_PLAY_3, 'medium'), 'purple')
+        state = GameState.new(mode)
+        moves = _play(state, 5, random.Random(8))
+        savegame.save(state, moves, 'medium', path=self.path)
+        saved = savegame.load(self.path)
+        self.assertEqual(human_side(saved.state.mode), 'purple')
+        self.assertEqual(saved.state.mode.bot_colors, frozenset({'yellow', 'green'}))
+        self.assertEqual(saved.state.mode.ai_depth, 5)
+
+    def test_a_save_without_a_side_plays_green(self):
+        state = GameState.new(with_difficulty(MODE_BOT_2, 'easy'))
+        savegame.save(state, _play(state, 3, random.Random(9)), 'easy', path=self.path)
+        with open(self.path, encoding='utf-8') as f:
+            data = json.load(f)
+        self.assertEqual(data.pop('side'), 'green')
+        for side, expected in ((None, 'green'), ('blue', None)):   # blue is not a 2P side
+            if side is not None:
+                data['side'] = side
+            with open(self.path, 'w', encoding='utf-8') as f:
+                json.dump(data, f)
+            saved = savegame.load(self.path)
+            self.assertEqual(saved and human_side(saved.state.mode), expected, side)
 
     def test_missing_or_broken_file_gives_none(self):
         self.assertIsNone(savegame.load(self.path))

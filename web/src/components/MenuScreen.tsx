@@ -11,6 +11,7 @@ export interface MenuButton {
   label: string;
   onClick: () => void;
   kind?: ButtonKind;
+  icon?: string;   // a picture at the left end, such as a piece
 }
 
 interface Props {
@@ -55,10 +56,11 @@ export function MenuScreen({ title, subtitle, buttons, notes = [], notesBelow = 
               key={b.label}
               ref={k === 0 ? first : undefined}
               type="button"
-              className={`btn btn-${b.kind ?? 'normal'}`}
+              className={`btn btn-${b.kind ?? 'normal'}${b.icon ? ' btn-icon' : ''}`}
               onClick={b.onClick}
             >
-              {b.label}
+              {b.icon && <img src={b.icon} alt="" />}
+              {b.icon ? <span>{b.label}</span> : b.label}
             </button>
           ))}
         </div>

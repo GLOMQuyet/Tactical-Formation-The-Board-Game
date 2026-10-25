@@ -1,5 +1,5 @@
-"""Menu screens: main menu, player-count choices, bot difficulty, settings
-and the unfinished-game question.
+"""Menu screens: main menu, player-count choices, bot difficulty, the
+person's side against the bots, settings and the unfinished-game question.
 
 Each screen runs until the player picks something and returns a short string
 naming the next screen; main.py does the switching. Labels come from ui.i18n,
@@ -8,7 +8,7 @@ so every screen follows the language chosen on the main menu.
 
 import pygame
 
-from core.modes import DIFFICULTIES
+from core.modes import DIFFICULTIES, human_side, start_edge
 from ui import assets, display, i18n, settings
 from ui.theme import (BTN_BACK, BTN_EXIT, BTN_HOWTO, BTN_LANG, BTN_NORMAL, BTN_RESUME,
                       BTN_SETTINGS, FPS, HEIGHT, NOTE_BACKING, TITLE_COLOR, WHITE, WIDTH)
@@ -19,9 +19,12 @@ _SUBMENU_TOP = HEIGHT // 2 - 70
 
 
 def describe(saved):
-    """One line about a saved game, e.g. 'Saved game: 1 vs Bot (2P), Hard, 12 moves played'."""
+    """One line about a saved game, e.g. 'Saved game: 1 vs Bot (2P), Hard, Green, 12 moves played'."""
     game = i18n.t(f'game_{saved.state.mode.name}')
     level = f', {i18n.t(saved.difficulty)}' if saved.difficulty else ''
+    side = human_side(saved.state.mode)
+    if side is not None:
+        level += f', {i18n.color(side)}'
     return i18n.t('saved_game', game=game, level=level, moves=len(saved.moves))
 
 
@@ -100,7 +103,7 @@ def bot_menu(win, font, font_small, bg):
                             i18n.t('back')],
                            [BTN_NORMAL, BTN_NORMAL, BTN_NORMAL, BTN_BACK], top=_SUBMENU_TOP,
                            width=320)
-    return _choose(win, font, font_small, bg, i18n.t('vs_bot'), i18n.t('you_are_green'),
+    return _choose(win, font, font_small, bg, i18n.t('vs_bot'), i18n.t('bot_subtitle'),
                    buttons, ['bot_2', 'bot_3', 'bot_4', 'menu'], escape='menu')
 
 
@@ -112,6 +115,24 @@ def difficulty_menu(win, font, font_small, bg, mode):
     return _choose(win, font, font_small, bg, i18n.t('difficulty'),
                    i18n.t(f'game_{mode.name}'), buttons, choices,
                    notes=((i18n.t('difficulty_note'), _SUBMENU_TOP + 300),), escape='back')
+
+
+def side_menu(win, font, font_small, bg, mode, level):
+    """Pick the person's side in bot game `mode` (difficulty `level`).
+
+    Returns a colour from mode.players, 'back' or 'exit'.
+    """
+    choices = [*mode.players, 'back']
+    labels = [i18n.t('side_button', color=i18n.color(c), edge=i18n.t(f'edge_{start_edge(mode, c)}'))
+              for c in mode.players]
+    buttons = make_buttons([*labels, i18n.t('back')],
+                           [BTN_NORMAL] * len(mode.players) + [BTN_BACK],
+                           top=_SUBMENU_TOP, width=320)
+    for button, color in zip(buttons, mode.players):
+        button.icon = assets.piece_image(color, 34)
+    subtitle = f"{i18n.t(f'game_{mode.name}')}, {i18n.t(level)}"
+    return _choose(win, font, font_small, bg, i18n.t('choose_side'), subtitle, buttons, choices,
+                   notes=((i18n.t('side_note'), buttons[-1].rect.bottom + 40),), escape='back')
 
 
 def settings_menu(win, font, font_small, bg):
