@@ -116,9 +116,9 @@ class TestDifficulty(unittest.TestCase):
 
     def test_difficulty_changes_only_the_depth(self):
         easy = with_difficulty(MODE_PLAY_4, 'easy')
-        self.assertEqual(easy.ai_depth, 2)
+        self.assertEqual(easy.ai_depth, 3)
         self.assertEqual(easy.players, MODE_PLAY_4.players)
-        self.assertEqual(MODE_PLAY_4.ai_depth, 4)   # the original is unchanged
+        self.assertEqual(MODE_PLAY_4.ai_depth, 5)   # the original is unchanged
 
 
 # The worker runs searches in another process, so fake searches must be

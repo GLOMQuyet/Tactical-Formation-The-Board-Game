@@ -85,9 +85,8 @@ export const MODES = {
 export const DIFFICULTIES = ['easy', 'medium', 'hard'];
 
 // Search depth for each difficulty: 3, 4 and 5 plies in every mode ('hard'
-// is each bot mode's default). The desktop's Python search is about 60 times
-// slower, so core/modes.py uses 2, 3 and 4 with three or four players. A bot
-// also gives up a ply that runs past the time limit (game/search.ts).
+// is each bot mode's default), as in core/modes.py. A bot also gives up a ply
+// that runs past the time limit (game/search.ts).
 export const DIFFICULTY_DEPTH = {
   bot_2: { easy: 3, medium: 4, hard: 5 },
   play_3: { easy: 3, medium: 4, hard: 5 },

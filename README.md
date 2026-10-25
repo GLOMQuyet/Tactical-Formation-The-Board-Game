@@ -154,14 +154,15 @@ the bots search:
 
 | Difficulty | 2 players | 3 players | 4 players |
 |---|---|---|---|
-| Easy | 3 | 2 | 2 |
-| Medium | 4 | 3 | 3 |
-| Hard | 5 | 4 | 4 |
+| Easy | 3 | 3 | 3 |
+| Medium | 4 | 4 | 4 |
+| Hard | 5 | 5 | 5 |
 
-The browser version, whose engine is much faster, searches 3, 4 and 5 moves
-ahead in every mode. A bot takes at most about 2 seconds a move: it searches
-one move ahead, then two, and so on, and when time runs out it plays the move
-of the deepest search it finished. Bots think in a separate process, so the
+A bot takes at most about 2 seconds a move: it searches one move ahead, then
+two, and so on, and when time runs out it plays the move of the deepest search
+it finished. With three or four players the desktop version often runs out of
+time on Medium and Hard and plays a 3- or 4-move search; the browser version,
+whose engine is much faster, finishes them all. Bots think in a separate process, so the
 window stays responsive while they search; a click during a bot's turn is
 answered with a note to wait. The paper measured fixed depths of 6, 4 and 3
 moves (see `experiments/`).
