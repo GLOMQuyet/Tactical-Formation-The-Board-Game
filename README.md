@@ -44,8 +44,8 @@ There are two versions:
   [latest release](https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game/releases/latest),
   the browser version and this page.
 - **[v1.3.0, with Best-Reply Search](https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game/releases/tag/v1.3.0):**
-  the same game, but the 3- and 4-player bots use Best-Reply Search, and
-  Easy, Medium and Hard search 4, 5 and 6 moves ahead in every mode, however
+  the same game and the same difficulty levels, but the 3- and 4-player bots
+  use Best-Reply Search, and the bots always search to the full depth, however
   long it takes.
 
 Each release has one ready-to-run file per system, nothing to unzip:
@@ -158,27 +158,27 @@ right corner of the main menu switches, and the choice is remembered. On the
 first run the language follows the computer's language setting.
 
 After choosing a bot game you pick a difficulty. It sets how many moves ahead
-the bots search. In the standard version, v1.0.0 (the download above and the
-browser version):
+the bots search, in every mode and in both versions:
 
 | Difficulty | 2 players | 3 players | 4 players |
 |---|---|---|---|
-| Easy | 3 | 3 | 3 |
-| Medium | 4 | 4 | 4 |
-| Hard | 5 | 5 | 5 |
+| Easy | 4 | 4 | 4 |
+| Medium | 5 | 5 | 5 |
+| Hard | 6 | 6 | 6 |
 
-In v1.3.0, the version with Best-Reply Search, they search 4, 5 and 6 moves
-ahead in every mode, always to the full depth; the rest of this section is
-about v1.0.0.
-
-A bot takes at most about 2 seconds a move: it searches one move ahead, then
+In the standard version, v1.0.0 (the download above and the browser version),
+a bot takes at most about 2 seconds a move: it searches one move ahead, then
 two, and so on, and when time runs out it plays the move of the deepest search
-it finished. With three or four players the desktop version often runs out of
-time on Medium and Hard and plays a 3- or 4-move search; the browser version,
-whose engine is much faster, finishes them all. Bots think in a separate process, so the
-window stays responsive while they search; a click during a bot's turn is
-answered with a note to wait. The paper measured fixed depths of 6, 4 and 3
-moves (see `experiments/`).
+it finished. The browser version, whose engine is much faster, finishes every
+level in time. The desktop version does not: with two players Medium and Hard
+usually stop at 5 moves, and with three or four players every level stops at
+about 4 moves, sometimes 3, so there Medium and Hard play much like Easy. In
+v1.3.0, the version with Best-Reply Search, the bots always search to the full
+depth, however long it takes.
+
+Bots think in a separate process, so the window stays responsive while they
+search; a click during a bot's turn is answered with a note to wait. The paper
+measured fixed depths of 6, 4 and 3 moves (see `experiments/`).
 
 **During a game.** The bar at the top left shows whose turn it is, and the
 strip at the bottom how many pieces each side has (sides that are out are

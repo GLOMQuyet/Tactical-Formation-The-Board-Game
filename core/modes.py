@@ -72,7 +72,7 @@ MODE_BOT_2 = Mode(
     bot_delay_ms=400,
     grid_rows=4, grid_cols=4, square_size=150,
     ai_engine='minimax',
-    ai_depth=5,
+    ai_depth=6,
 )
 
 # ── 3-player layouts ─────────────────────────────────────────────────────────
@@ -108,7 +108,7 @@ MODE_PLAY_3 = Mode(
     # bottom-left and bottom-right corner cells (col, row)
     missing_cells=((0, 4), (5, 4)),
     ai_engine='paranoid',
-    ai_depth=5,
+    ai_depth=6,
 )
 
 # 3-player human-only variant (used when user picks "Play Human → 3 Players")
@@ -169,7 +169,7 @@ MODE_PLAY_4 = Mode(
     grid_rows=6, grid_cols=6, square_size=100,
     missing_cells=((0, 0), (5, 0), (0, 5), (5, 5)),
     ai_engine='paranoid',
-    ai_depth=5,
+    ai_depth=6,
 )
 
 # 4-player human-only variant (used when user picks "Play Human → 4 Players")
@@ -203,19 +203,19 @@ ALL_MODES = {
 
 # ── Bot difficulty ────────────────────────────────────────────────────────────
 # Search depth (plies) for each difficulty, keyed by Mode.name; 'hard' is each
-# bot mode's default ai_depth. 3, 4 and 5 plies in every mode, as in the
+# bot mode's default ai_depth. 4, 5 and 6 plies in every mode, as in the
 # browser version. Each ply costs about 3 to 10 times the one before, and with
-# three or four players 5 plies can take longer than a person should wait, so
-# a bot gives up a ply that runs past the time limit and plays the deepest one
-# it finished (ai.policy.compute_move_in_time). The paper measured fixed
+# three or four players 5 or 6 plies can take longer than a person should wait,
+# so a bot gives up a ply that runs past the time limit and plays the deepest
+# one it finished (ai.policy.compute_move_in_time). The paper measured fixed
 # depths of 6, 4 and 3 plies for 2, 3 and 4 players (experiments/).
 
 DIFFICULTIES = ('easy', 'medium', 'hard')
 
 DIFFICULTY_DEPTH = {
-    'bot_2':  {'easy': 3, 'medium': 4, 'hard': 5},
-    'play_3': {'easy': 3, 'medium': 4, 'hard': 5},
-    'play_4': {'easy': 3, 'medium': 4, 'hard': 5},
+    'bot_2':  {'easy': 4, 'medium': 5, 'hard': 6},
+    'play_3': {'easy': 4, 'medium': 5, 'hard': 6},
+    'play_4': {'easy': 4, 'medium': 5, 'hard': 6},
 }
 
 
