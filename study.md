@@ -252,6 +252,10 @@ Như ngoài đời, ván mới bắt đầu bằng việc chọn người đi tr
 | Vừa | 4 | 4 | 4 |
 | Khó | 5 | 5 | 5 |
 
+Đây là bản chuẩn v1.0.0 (bản tải về và bản chơi trên trình duyệt). Ở bản v1.3.0,
+bản có thuật toán Best-Reply Search, bot tính trước 4, 5 và 6 nước ở mọi chế độ
+và luôn tính đủ; phần dưới đây nói về v1.0.0.
+
 Mỗi nước bot nghĩ tối đa khoảng 2 giây: bot tính trước 1 nước, rồi 2 nước, cứ
 thế sâu dần; hết giờ thì bot đi theo lần tính sâu nhất đã xong. Với 3–4 người ở
 mức Vừa và Khó, bản máy tính thường hết giờ và đi theo lần tính 3 hoặc 4 nước;
@@ -578,6 +582,11 @@ The difficulty sets how many moves ahead the bots search:
 | Easy | 3 | 3 | 3 |
 | Medium | 4 | 4 | 4 |
 | Hard | 5 | 5 | 5 |
+
+This is the standard version, v1.0.0 (the download and the browser version). In
+v1.3.0, the version with Best-Reply Search, the bots search 4, 5 and 6 moves
+ahead in every mode, always to the full depth; the rest of this section is about
+v1.0.0.
 
 A bot thinks for at most about 2 seconds a move: it searches one move ahead,
 then two, and so on, and when time runs out it plays the move of the deepest

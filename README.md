@@ -158,13 +158,18 @@ right corner of the main menu switches, and the choice is remembered. On the
 first run the language follows the computer's language setting.
 
 After choosing a bot game you pick a difficulty. It sets how many moves ahead
-the bots search:
+the bots search. In the standard version, v1.0.0 (the download above and the
+browser version):
 
 | Difficulty | 2 players | 3 players | 4 players |
 |---|---|---|---|
 | Easy | 3 | 3 | 3 |
 | Medium | 4 | 4 | 4 |
 | Hard | 5 | 5 | 5 |
+
+In v1.3.0, the version with Best-Reply Search, they search 4, 5 and 6 moves
+ahead in every mode, always to the full depth; the rest of this section is
+about v1.0.0.
 
 A bot takes at most about 2 seconds a move: it searches one move ahead, then
 two, and so on, and when time runs out it plays the move of the deepest search
@@ -269,7 +274,7 @@ Tactical-Formation-The-Board-Game/
 ├── uv.lock                 # Locked dependency versions
 ├── study.md                # Full rulebook & guide
 ├── core/
-│   ├── board.py, piece.py, rules.py, state.py   # Rule engine
+│   ├── board.py, piece.py, geometry.py, rules.py, state.py   # Rule engine
 │   ├── modes.py            # The game variants and the bot difficulty levels
 │   ├── first_player.py     # Who moves first: oẳn tù tì and úp lá xòe
 │   ├── history.py          # Move records for undo and saves
@@ -277,7 +282,8 @@ Tactical-Formation-The-Board-Game/
 ├── ai/
 │   ├── minimax.py          # 2-player bot: Minimax with Alpha-Beta
 │   ├── paranoid.py         # 3/4-player bots: Paranoid Minimax
-│   ├── policy.py           # Picks the engine for the current mode
+│   ├── policy.py           # Picks the engine for the mode; searches 1, 2, ... plies deep in time
+│   ├── deadline.py         # Stops a search that runs past about 2 seconds
 │   └── worker.py           # Runs the search in a separate process
 ├── ui/
 │   ├── screens/            # menu.py, howto.py (How to Play), game.py, first.py (who goes first)
@@ -292,7 +298,7 @@ Tactical-Formation-The-Board-Game/
 ├── tools/make_ludii.py     # Writes the Ludii version (docs/ludii/)
 ├── tools/make_sounds.py    # Synthesises the sound effects (assets/sounds/)
 ├── tools/make_symbols.py   # Draws the pieces with symbols for colour-blind players
-├── docs/                   # Formal model of the 2-player game
+├── docs/                   # Formal and visual model of the 2-player game, Ludii version, media/ (README images)
 ├── assets/                 # Images, fonts, sounds; hands/ are Noto Emoji (Apache 2.0)
 └── .github/workflows/      # Tests on every push; builds releases; publishes web/ on GitHub Pages
 ```
