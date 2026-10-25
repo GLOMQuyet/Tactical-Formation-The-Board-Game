@@ -128,6 +128,9 @@ the Actions tab with a version typed in, which also makes the tag.
   <img src="docs/media/boards.png" alt="Opening positions: 2 players on a 5×5 board, 3 players on a 7×6 board with two corners removed, 4 players on a 7×7 board with all four corners removed">
 </p>
 
+The menus of the standard version, v1.0.0 (in v1.3.0 you always play Green
+against the bots):
+
 | Menu | Choice | Description |
 |---|---|---|
 | **Play Human** | 2, 3 or 4 Players | Everyone plays on the same machine, taking turns with the mouse |
