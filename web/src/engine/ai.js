@@ -46,28 +46,39 @@ function countBy(history) {
   return seen;
 }
 
-// Move hints shared by the searches of one bot move, 1, 2, ... plies deep
-// (game/search.ts): the best move found in each position, tried first by the
-// next search, and the last move that cut off a search at each ply. They
-// change the order of a search, not its result.
-export function newHints() {
-  return { best: [], killers: [] };
+// What the searches of one bot move, 1, 2, ... plies deep (game/search.ts),
+// pass on from one depth to the next, as ai.search.Memory: the transposition
+// table (a value depends only on the position and the plies left, so a
+// shallower search's entries stay valid), the best move found in each
+// position, tried first, and the last move that cut off a search at each ply.
+// It changes the order and amount of searching, never the result.
+export function newMemory() {
+  return { table: [], best: [new Map(), new Map()], killers: [] };
 }
 
-function hintTable(hints, slot) {
-  let table = hints.best[slot];
-  if (!table) table = hints.best[slot] = new Map();
+// The transposition table for `depth` plies left and that side to move.
+function tableFor(memory, depth, maximizing) {
+  const slot = depth * 2 + (maximizing ? 1 : 0);
+  let table = memory.table[slot];
+  if (!table) table = memory.table[slot] = new Map();
   return table;
 }
 
-// Values of the root moves `moves` (sorted by captures): searchOne(move,
-// floor) searches one of them with alpha at `floor`. The best move of the
-// last search goes first; then only moves that may come within TIE_EPS of
-// the best need an exact value, and a clearly worse one stops early. The
-// result keeps the order of `moves`, whatever the search order.
-function scoreRoot(board, moves, history, hints, slot, searchOne) {
+// Keep `best` as the move to try first, unless the node failed low for the
+// side to move: then `best` is merely the least bad bound (ai.search.remember_best).
+function rememberBest(memory, maximizing, key, best, bestVal, alpha0, beta0) {
+  if (maximizing ? bestVal > alpha0 : bestVal < beta0) memory.best[maximizing ? 1 : 0].set(key, best);
+}
+
+// Values of the root moves `moves` (sorted by captures), as ai.search.choose:
+// searchOne(floor) searches the position after one of them with alpha at
+// `floor`. The best move of the last search goes first; then only moves that
+// may come within TIE_EPS of the best need an exact value, and a clearly
+// worse one stops early. The result keeps the order of `moves`, whatever the
+// search order.
+function scoreRoot(board, moves, history, memory, searchOne) {
   const seen = countBy(history);
-  const table = hintTable(hints, slot);
+  const table = memory.best[1];
   const first = table.get(board.key());
   const order = moves.map((_m, i) => i);
   if (first) order.sort((a, b) => sameMove(moves[b], first) - sameMove(moves[a], first));
@@ -80,7 +91,7 @@ function scoreRoot(board, moves, history, hints, slot, searchOne) {
     const tok = makeMove(board, m, m.d);
     const penalty = REPEAT_PENALTY * (seen.get(board.key()) || 0);
     const floor = bestVal - TIE_EPS + penalty - 1e-9;
-    const val = searchOne(m, floor) - penalty;
+    const val = searchOne(floor) - penalty;
     unmakeMove(board, tok);
     values[i] = val;
     if (val > bestVal) {
@@ -124,11 +135,10 @@ function search2(ctx, depth, alpha, beta, maximizing) {
 
   const alpha0 = alpha;
   const beta0 = beta;
-  const table = ctx.tt[depth * 2 + (maximizing ? 1 : 0)];
-  const known = hintTable(ctx.hints, maximizing ? 1 : 0);
+  const table = tableFor(ctx.memory, depth, maximizing);
   const key = board.key();
   const hit = table.get(key);
-  let ttBest = known.get(key) || null;
+  let ttBest = ctx.memory.best[maximizing ? 1 : 0].get(key) || null;
   if (hit !== undefined) {
     ttBest = hit.best;
     if (hit.flag === EXACT) return hit.val;
@@ -183,18 +193,18 @@ function search2(ctx, depth, alpha, beta, maximizing) {
 
   const flag = bestVal <= alpha0 ? UPPER : bestVal >= beta0 ? LOWER : EXACT;
   table.set(key, { val: bestVal, flag, best });
-  known.set(key, best);
+  rememberBest(ctx.memory, maximizing, key, best, bestVal, alpha0, beta0);
   return bestVal;
 }
 
 // The root moves of the side to move with their values: [{move, val}, ...]
 // (exact for the moves within TIE_EPS of the best, see scoreRoot).
-export function scoreMinimax(board, my, mode, depth, history = [], hints = newHints()) {
+export function scoreMinimax(board, my, mode, depth, history = [], memory = newMemory()) {
   const en = mode.players.map(colorIndex).find((c) => c !== my);
   const moves = expandedMoves(board, my);
   moves.sort((a, b) => b.n - a.n);
-  const ctx = { board, my, en, hints, tt: Array.from({ length: 2 * depth + 2 }, () => new Map()) };
-  return scoreRoot(board, moves, history, hints, 1, (_m, floor) =>
+  const ctx = { board, my, en, memory };
+  return scoreRoot(board, moves, history, memory, (floor) =>
     search2(ctx, depth - 1, floor, Infinity, false));
 }
 
@@ -275,22 +285,21 @@ export function scoreParanoid(board, active, turnIndex, depth, history = []) {
 // ── 3 and 4 players: Best-Reply Search ───────────────────────────────────────
 
 // The bot's own moves alternate with one reply, the worst for the bot of all
-// the moves every opponent could make (the others pass): ai/brs.py.
-// `opponents` is a bit mask of the colours still in.
-function searchBRS(ctx, depth, alpha, beta, maximizing, opponents) {
+// the moves every opponent still in (ctx.opponents) could make, while the
+// others pass: ai/brs.py. An opponent with no move just then adds none but
+// stays in, as in the game a side is only out when it cannot move on its
+// own turn.
+function searchBRS(ctx, depth, alpha, beta, maximizing) {
   checkTime();
   const board = ctx.board;
   if (depth === 0) return evaluateParanoid(board, ctx.my);
 
   const alpha0 = alpha;
   const beta0 = beta;
-  const slot = opponents * 2 + (maximizing ? 1 : 0);
-  let table = ctx.tt[depth * 32 + slot];
-  if (!table) table = ctx.tt[depth * 32 + slot] = new Map();
-  const known = hintTable(ctx.hints, slot);
+  const table = tableFor(ctx.memory, depth, maximizing);
   const key = board.key();
   const hit = table.get(key);
-  let ttBest = known.get(key) || null;
+  let ttBest = ctx.memory.best[maximizing ? 1 : 0].get(key) || null;
   if (hit !== undefined) {
     ttBest = hit.best;
     if (hit.flag === EXACT) return hit.val;
@@ -308,23 +317,14 @@ function searchBRS(ctx, depth, alpha, beta, maximizing, opponents) {
     if (!moves.length) return -(WIN + depth);   // the bot cannot move: it is out
   } else {
     moves = [];
-    let stillIn = 0;
-    for (const c of ctx.order) {
-      if (!(opponents & (1 << c))) continue;
-      const theirs = expandedMoves(board, c);
-      if (theirs.length) {
-        stillIn |= 1 << c;
-        for (const m of theirs) moves.push(m);
-      }
-    }
-    if (!stillIn) return WIN + depth;   // no opponent can move: the bot has won
-    opponents = stillIn;   // a side that cannot move is out
+    for (const c of ctx.opponents) for (const m of expandedMoves(board, c)) moves.push(m);
+    if (!moves.length) return WIN + depth;   // no opponent can move: each is out, the bot wins
   }
 
   // The best move known here first, then the last move that cut off a search
   // at this ply elsewhere (a "killer"), then the biggest captures.
   const killerSlot = depth * 2 + (maximizing ? 1 : 0);
-  const killer = ctx.hints.killers[killerSlot] || null;
+  const killer = ctx.memory.killers[killerSlot] || null;
   moves.sort((a, b) =>
     (ttBest ? sameMove(b, ttBest) - sameMove(a, ttBest) : 0)
     || (killer ? sameMove(b, killer) - sameMove(a, killer) : 0)
@@ -336,7 +336,7 @@ function searchBRS(ctx, depth, alpha, beta, maximizing, opponents) {
     bestVal = -Infinity;
     for (const m of moves) {
       const tok = makeMove(board, m, m.d);
-      const val = searchBRS(ctx, depth - 1, alpha, beta, false, opponents);
+      const val = searchBRS(ctx, depth - 1, alpha, beta, false);
       unmakeMove(board, tok);
       if (val > bestVal) {
         bestVal = val;
@@ -344,7 +344,7 @@ function searchBRS(ctx, depth, alpha, beta, maximizing, opponents) {
       }
       if (val > alpha) alpha = val;
       if (beta <= alpha) {
-        ctx.hints.killers[killerSlot] = m;
+        ctx.memory.killers[killerSlot] = m;
         break;
       }
     }
@@ -352,7 +352,7 @@ function searchBRS(ctx, depth, alpha, beta, maximizing, opponents) {
     bestVal = Infinity;
     for (const m of moves) {
       const tok = makeMove(board, m, m.d);
-      const val = searchBRS(ctx, depth - 1, alpha, beta, true, opponents);
+      const val = searchBRS(ctx, depth - 1, alpha, beta, true);
       unmakeMove(board, tok);
       if (val < bestVal) {
         bestVal = val;
@@ -360,7 +360,7 @@ function searchBRS(ctx, depth, alpha, beta, maximizing, opponents) {
       }
       if (val < beta) beta = val;
       if (beta <= alpha) {
-        ctx.hints.killers[killerSlot] = m;
+        ctx.memory.killers[killerSlot] = m;
         break;
       }
     }
@@ -368,36 +368,34 @@ function searchBRS(ctx, depth, alpha, beta, maximizing, opponents) {
 
   const flag = bestVal <= alpha0 ? UPPER : bestVal >= beta0 ? LOWER : EXACT;
   table.set(key, { val: bestVal, flag, best });
-  known.set(key, best);
+  rememberBest(ctx.memory, maximizing, key, best, bestVal, alpha0, beta0);
   return bestVal;
 }
 
-export function scoreBRS(board, active, turnIndex, depth, history = [], hints = newHints()) {
+export function scoreBRS(board, active, turnIndex, depth, history = [], memory = newMemory()) {
   const my = active[turnIndex % active.length];
-  const order = active.filter((c) => c !== my);   // the turn order, as in Python
-  let opponents = 0;
-  for (const c of order) opponents |= 1 << c;
+  const opponents = active.filter((c) => c !== my);   // in turn order, as in Python
   const moves = expandedMoves(board, my);
   moves.sort((a, b) => b.n - a.n);
-  const ctx = { board, my, order, hints, tt: [] };
-  return scoreRoot(board, moves, history, hints, opponents * 2 + 1, (_m, floor) =>
-    searchBRS(ctx, depth - 1, floor, Infinity, false, opponents));
+  const ctx = { board, my, opponents, memory };
+  return scoreRoot(board, moves, history, memory, (floor) =>
+    searchBRS(ctx, depth - 1, floor, Infinity, false));
 }
 
 // ── Entry point (ai/policy.py) ───────────────────────────────────────────────
 
 // The bot's move for the side to move in `state` ({board, active, turnIndex,
-// mode, history}): {from, to, d}, or null if it has no move. `hints` carries
-// move ordering from a shallower search of the same position (newHints).
-export function computeMove(state, rng = Math.random, hints = newHints()) {
+// mode, history}): {from, to, d}, or null if it has no move. `memory`
+// carries what a shallower search of the same position found (newMemory).
+export function computeMove(state, rng = Math.random, memory = newMemory()) {
   const { mode } = state;
   const board = state.board.clone();
   let scored;
   if (mode.engine === 'minimax') {
     scored = scoreMinimax(board, state.active[state.turnIndex % state.active.length],
-      mode, mode.depth, state.history, hints);
+      mode, mode.depth, state.history, memory);
   } else if (mode.engine === 'brs') {
-    scored = scoreBRS(board, state.active.slice(), state.turnIndex, mode.depth, state.history, hints);
+    scored = scoreBRS(board, state.active.slice(), state.turnIndex, mode.depth, state.history, memory);
   } else if (mode.engine === 'paranoid') {
     scored = scoreParanoid(board, state.active.slice(), state.turnIndex, mode.depth, state.history);
   } else {

@@ -15,8 +15,10 @@ const SMALL_SCREEN = '(max-width: 640px), (max-height: 520px)';
 
 /** How much larger than on the desktop to draw pieces: more on a small screen. */
 function usePieceScale(mode: Mode): number {
-  const [small, setSmall] = useState(() => matchMedia(SMALL_SCREEN).matches);
+  const [small, setSmall] = useState(
+    () => typeof matchMedia === 'function' && matchMedia(SMALL_SCREEN).matches);
   useEffect(() => {
+    if (typeof matchMedia !== 'function') return undefined;
     const query = matchMedia(SMALL_SCREEN);
     const update = () => setSmall(query.matches);
     query.addEventListener('change', update);

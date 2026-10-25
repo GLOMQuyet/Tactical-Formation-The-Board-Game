@@ -7,14 +7,20 @@
 // fall differently.
 
 import { Board, MODES, type ExpandedMove } from '../engine/engine.js';
-import { OutOfTime, computeMove, newHints, withTimeLimit } from '../engine/ai.js';
+import { OutOfTime, computeMove, newMemory, withTimeLimit } from '../engine/ai.js';
 
 /**
  * The longest one bot move may take (ms), as ai/policy.py: the bots search
  * the full depth of their difficulty, well within this on an ordinary phone;
  * it only keeps a very slow device from waiting much longer.
  */
-const TIME_BUDGET = 30000;
+export const TIME_BUDGET = 30000;
+
+/**
+ * The same when the search runs on the page itself, where no Web Worker can
+ * be used: the page cannot respond while it runs, so it stops much sooner.
+ */
+export const ON_PAGE_BUDGET = 3000;
 
 export interface SearchJob {
   id: number;
@@ -28,20 +34,20 @@ export interface SearchJob {
 
 export type FoundMove = Pick<ExpandedMove, 'from' | 'to' | 'd'> | null;
 
-export function searchHere(job: SearchJob): FoundMove {
+export function searchHere(job: SearchJob, budget = TIME_BUDGET): FoundMove {
   const base = MODES[job.modeName as keyof typeof MODES];
   const board = new Board(base, job.pieces);
-  const stop = performance.now() + TIME_BUDGET;
-  const hints = newHints();   // each search tries the best moves of the one before first
+  const stop = performance.now() + budget;
+  const memory = newMemory();   // what each search leaves for the next, deeper one
   let move: ExpandedMove | null = null;
   for (let depth = 1; depth <= job.depth; depth++) {
     const state = { mode: { ...base, depth }, board, active: job.active, turnIndex: job.turnIndex, history: job.history };
     let found: ExpandedMove | null;
     if (depth === 1) {
-      found = computeMove(state, Math.random, hints);   // one ply always finishes
+      found = computeMove(state, Math.random, memory);   // one ply always finishes
     } else {
       try {
-        found = withTimeLimit(stop, () => computeMove(state, Math.random, hints));
+        found = withTimeLimit(stop, () => computeMove(state, Math.random, memory));
       } catch (error) {
         if (error instanceof OutOfTime) break;
         throw error;

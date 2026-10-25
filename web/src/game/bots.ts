@@ -2,7 +2,7 @@
 // thinks (as ai/worker.py does on the desktop). Where workers are not
 // available the search runs on the page instead.
 
-import { searchHere, type FoundMove, type SearchJob } from './search';
+import { ON_PAGE_BUDGET, searchHere, type FoundMove, type SearchJob } from './search';
 
 export type { FoundMove };
 
@@ -38,7 +38,7 @@ function getWorker(): Worker {
 export function searchMove(job: Omit<SearchJob, 'id'>): Promise<FoundMove> {
   const full: SearchJob = { ...job, id: ++seq };
   return new Promise((resolve) => {
-    const here = () => setTimeout(() => resolve(searchHere(full)), 30);
+    const here = () => setTimeout(() => resolve(searchHere(full, ON_PAGE_BUDGET)), 30);
     if (!broken) {
       try {
         const w = getWorker();

@@ -19,7 +19,6 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from ai import brs, minimax, paranoid
 from ai.policy import compute_move
 from core import rules
 from core.modes import ALL_MODES, with_difficulty
@@ -59,8 +58,7 @@ def _bot_ties(state, bot_mode, repeat):
         seen.append([_move(m, d) for m, d in ties])
         return ties[0]
 
-    module = {'minimax': minimax, 'brs': brs, 'paranoid': paranoid}[bot_mode.ai_engine]
-    with mock.patch.object(module.random, 'choice', side_effect=choose):
+    with mock.patch.object(random, 'choice', side_effect=choose):
         compute_move(snapshot)
     return seen[0]
 

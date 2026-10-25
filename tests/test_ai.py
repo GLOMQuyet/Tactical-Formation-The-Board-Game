@@ -4,6 +4,7 @@ Run with: uv run python -m unittest tests.test_ai
 """
 
 import dataclasses
+import math
 import os
 import random
 import tempfile
@@ -11,7 +12,7 @@ import time
 import unittest
 from unittest import mock
 
-from ai import brs, minimax, paranoid, policy
+from ai import brs, minimax, paranoid, policy, search
 from ai.policy import compute_move
 from ai.worker import BotWorker
 from core import rules
@@ -104,18 +105,13 @@ def _brs_value(board, depth, maximizing, my_color, opponents, mode):
     if maximizing:
         moves = rules.expanded_moves(my_color, board, mode)
         if not moves:
-            return -(brs._WIN + depth)
+            return -(search.WIN + depth)
     else:
         moves = []
-        still_in = []
         for color in opponents:
-            theirs = rules.expanded_moves(color, board, mode)
-            if theirs:
-                still_in.append(color)
-                moves += theirs
-        if not still_in:
-            return brs._WIN + depth
-        opponents = tuple(still_in)
+            moves += rules.expanded_moves(color, board, mode)
+        if not moves:
+            return search.WIN + depth
     values = []
     for move, cd, _n in moves:
         token = rules.make_move(board, move, mode, cd)
@@ -148,22 +144,24 @@ class TestBestReplySearch(unittest.TestCase):
                     scored.append((_brs_value(board, 2, False, me, opponents, mode), (move, cd)))
                     rules.unmake_move(board, token)
                 best = max(v for v, _m in scored)
-                expected = {m for v, m in scored if v >= best - brs._TIE_EPS}
+                expected = {m for v, m in scored if v >= best - search.TIE_EPS}
                 found = _ties_of(lambda: brs.best_move(
                     state.board.clone(), list(state.active_players), state.turn_index,
                     mode, depth=3))
                 self.assertEqual(set(found), expected, key)
 
-    def test_hints_from_a_shallower_search_change_nothing(self):
+    def test_memory_of_shallower_searches_changes_nothing(self):
+        # The table, best moves and killers left by 1- and 2-ply searches only
+        # change the order and amount of the 3-ply search.
         for key in ('bot_3', 'bot_4'):
             for state in _positions(key, 3, seed=4):
                 args = (list(state.active_players), state.turn_index, state.mode)
-                hints = {}
+                memory = search.Memory()
                 for depth in (1, 2, 3):
-                    with_hints = _ties_of(lambda: brs.best_move(
-                        state.board.clone(), *args, depth=depth, hints=hints))
+                    with_memory = _ties_of(lambda: brs.best_move(
+                        state.board.clone(), *args, depth=depth, memory=memory))
                 without = _ties_of(lambda: brs.best_move(state.board.clone(), *args, depth=3))
-                self.assertEqual(with_hints, without, key)   # the same moves, in the same order
+                self.assertEqual(with_memory, without, key)   # the same moves, in the same order
 
     def test_sees_the_reply_of_a_side_that_moves_later(self):
         # Four players move Blue, Green, Purple, Yellow. Purple, the bot, can
@@ -184,12 +182,36 @@ class TestBestReplySearch(unittest.TestCase):
         move, _direction = brs.best_move(board.clone(), active, 2, mode, depth=2)
         self.assertNotEqual(move, trap)
 
+    def test_a_side_that_cannot_move_yet_still_answers_later(self):
+        # The same row, but Green cannot move now: Blue's (0, 2) and (0, 4) and
+        # Purple's (0, 3) leave its pieces nothing to jump into. It is the
+        # opponents' turn; if Purple then jumps from (0, 3) to (2, 3) to take
+        # the yellow piece, Green can jump over (0, 4) into (0, 3) and flip
+        # four purple pieces. A search that let Green go for being stuck at
+        # first would rate that line higher.
+        mode = MODE_PLAY_4
+        board = Board([Piece(0, 3, 'purple'), Piece(1, 3, 'purple'), Piece(4, 3, 'purple'),
+                       Piece(3, 3, 'yellow'), Piece(2, 6, 'yellow'), Piece(3, 6, 'yellow'),
+                       Piece(0, 2, 'blue'), Piece(0, 4, 'blue'),
+                       Piece(2, 0, 'blue'), Piece(3, 0, 'blue'),
+                       Piece(0, 5, 'green'), Piece(5, 3, 'green')])
+        self.assertEqual(rules.expanded_moves('green', board, mode), [])
+        everyone = ('blue', 'green', 'yellow')
+
+        def value(opponents):
+            # The opponents' reply, Purple's move, one more reply.
+            return brs._search(board.clone(), 3, -math.inf, math.inf, False,
+                               'purple', opponents, mode, search.Memory())[0]
+
+        self.assertLess(value(everyone), value(('blue', 'yellow')))
+        self.assertEqual(value(everyone), _brs_value(board.clone(), 3, False, 'purple', everyone, mode))
+
 
 class TestTimeBudget(unittest.TestCase):
     def test_with_time_it_plays_the_full_depth_move(self):
         # Ties are broken at random; take the first so both searches can be compared.
         state = GameState.new(with_difficulty(MODE_BOT_2, 'medium'))
-        with mock.patch.object(minimax.random, 'choice', side_effect=lambda ties: ties[0]):
+        with mock.patch.object(random, 'choice', side_effect=lambda ties: ties[0]):
             full = policy.compute_move(state)
             timed = policy.compute_move_in_time(state, budget=60)
         self.assertEqual(timed, full)   # the same move as one search at full depth

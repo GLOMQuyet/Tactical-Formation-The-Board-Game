@@ -7,20 +7,21 @@ export interface Scored {
   val: number;
 }
 
-export interface Hints {
+export interface Memory {
+  table: Map<number, { val: number; flag: number; best: ExpandedMove | null }>[];
   best: Map<number, ExpandedMove>[];
   killers: ExpandedMove[];
 }
 
 export class OutOfTime extends Error {}
-export function newHints(): Hints;
+export function newMemory(): Memory;
 export function withTimeLimit<T>(moment: number, fn: () => T): T;
 export function tiesOf(scored: Scored[]): ExpandedMove[];
-export function scoreMinimax(board: Board, my: number, mode: Mode, depth: number, history?: number[], hints?: Hints): Scored[];
-export function scoreBRS(board: Board, active: number[], turnIndex: number, depth: number, history?: number[], hints?: Hints): Scored[];
+export function scoreMinimax(board: Board, my: number, mode: Mode, depth: number, history?: number[], memory?: Memory): Scored[];
+export function scoreBRS(board: Board, active: number[], turnIndex: number, depth: number, history?: number[], memory?: Memory): Scored[];
 export function scoreParanoid(board: Board, active: number[], turnIndex: number, depth: number, history?: number[]): Scored[];
 export function computeMove(
   state: { mode: Mode; board: Board; active: number[]; turnIndex: number; history: number[] },
   rng?: () => number,
-  hints?: Hints,
+  memory?: Memory,
 ): ExpandedMove | null;

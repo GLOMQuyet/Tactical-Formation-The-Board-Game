@@ -29,14 +29,26 @@ def _same_kind(a, b):
 # The board's geometry never changes, so the jumps and capture rays from each
 # point are worked out once per board shape and looked up in the hot paths
 # (the bots call them hundreds of thousands of times per move).
-_GEOMETRY = {}   # (board_width, board_height, excluded_cells) -> (jumps, rays)
+_GEOMETRY = {}   # (board_width, board_height, excluded_cells) -> (jumps, rays, ray_to)
 
 
 def _geometry(mode):
+    """(jumps, rays, ray_to) for every point of the board, keyed by point.
+
+    jumps[p] is `_jumps_from(p)`, rays[p] is `_rays_from(p)`, and ray_to[p]
+    maps each capture direction from p to its ray.
+    """
     key = (mode.board_width, mode.board_height, mode.excluded_cells)
     tables = _GEOMETRY.get(key)
     if tables is None:
-        tables = _GEOMETRY[key] = ({}, {})
+        points = [(x, y) for x in range(mode.board_width + 1)
+                  for y in range(mode.board_height + 1)]
+        points += [(x + 0.5, y + 0.5) for x in range(mode.board_width)
+                   for y in range(mode.board_height)]
+        jumps = {p: _jumps_from(p, mode) for p in points}
+        rays = {p: _rays_from(p, mode) for p in points}
+        ray_to = {p: dict(rays[p]) for p in points}
+        tables = _GEOMETRY[key] = (jumps, rays, ray_to)
     return tables
 
 
@@ -87,11 +99,7 @@ def _rays_from(pos, mode):
 
 def legal_moves(piece, board, mode):
     """All landing squares the piece can jump to under `mode`."""
-    jumps_by_pos = _geometry(mode)[0]
-    pos = (piece.x, piece.y)
-    jumps = jumps_by_pos.get(pos)
-    if jumps is None:
-        jumps = jumps_by_pos[pos] = _jumps_from(pos, mode)
+    jumps = _geometry(mode)[0][(piece.x, piece.y)]
     index = board._index
     # Need an adjacent piece to jump over, and an empty landing square.
     return [land for adj, land in jumps if adj in index and land not in index]
@@ -112,11 +120,7 @@ def count_pieces_and_moves(color, board, mode):
         if p.color != color:
             continue
         pieces += 1
-        pos = (p.x, p.y)
-        jumps = jumps_by_pos.get(pos)
-        if jumps is None:
-            jumps = jumps_by_pos[pos] = _jumps_from(pos, mode)
-        for adj, land in jumps:
+        for adj, land in jumps_by_pos[(p.x, p.y)]:
             if adj in index and land not in index:
                 n += 1
     return pieces, n
@@ -124,11 +128,7 @@ def count_pieces_and_moves(color, board, mode):
 
 def find_captures(moved_piece, board, mode):
     """Return {direction: [enemy_pieces_to_flip]} for each sandwich ray."""
-    rays_by_pos = _geometry(mode)[1]
-    src = (moved_piece.x, moved_piece.y)
-    rays = rays_by_pos.get(src)
-    if rays is None:
-        rays = rays_by_pos[src] = _rays_from(src, mode)
+    rays = _geometry(mode)[1][(moved_piece.x, moved_piece.y)]
     index = board._index
     my_color = moved_piece.color
     options = {}
@@ -215,19 +215,11 @@ def make_expanded_move(board, move, mode, capture_direction):
 
     flipped = []
     if capture_direction is not None:
-        rays_by_pos = _geometry(mode)[1]
-        rays = rays_by_pos.get((tx, ty))
-        if rays is None:
-            rays = rays_by_pos[(tx, ty)] = _rays_from((tx, ty), mode)
-        for direction, ray in rays:
-            if direction != capture_direction:
-                continue
-            for cell in ray:
-                other = index[cell]
-                if other.color == color:
-                    break
-                flipped.append((other, other.color))
-            break
+        for cell in _geometry(mode)[2][(tx, ty)][capture_direction]:
+            other = index[cell]
+            if other.color == color:
+                break
+            flipped.append((other, other.color))
         for enemy, old in flipped:
             board._hash ^= _zob((enemy.x, enemy.y), old)
             enemy.color = color
@@ -274,25 +266,19 @@ def expanded_moves(color, board, mode):
     square, so its starting square counts as empty. The bots call this at
     every node, so the jump and ray loops are written out here.
     """
-    jumps_by_pos, rays_by_pos = _geometry(mode)
+    jumps_by_pos, rays_by_pos, _ray_to = _geometry(mode)
     index = board._index
     out = []
     for p in board.pieces:
         if p.color != color:
             continue
         src = (p.x, p.y)
-        jumps = jumps_by_pos.get(src)
-        if jumps is None:
-            jumps = jumps_by_pos[src] = _jumps_from(src, mode)
-        for adj, land in jumps:
+        for adj, land in jumps_by_pos[src]:
             if adj not in index or land in index:
                 continue
-            rays = rays_by_pos.get(land)
-            if rays is None:
-                rays = rays_by_pos[land] = _rays_from(land, mode)
             move = (src[0], src[1], land[0], land[1])
             found = False
-            for direction, ray in rays:
+            for direction, ray in rays_by_pos[land]:
                 n = 0
                 for cell in ray:
                     if cell == src:          # the jumping piece has left it

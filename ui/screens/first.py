@@ -46,7 +46,8 @@ def choose_first(win, mode, background, rng=random):
     chant_font = assets.font('assets/fonts/Roboto-Bold.ttf', 40)
     line_font = assets.font('assets/fonts/Roboto-Bold.ttf', 24)
     skip = Button(i18n.t('skip'), (_PANEL.right - 130, _PANEL.bottom - 52, 110, 38), color=BTN_BACK)
-    menu = Button(i18n.t('menu'), (690, 10, 100, 44))   # where the game screen has it
+    # Where the game screen has it: left of the undo button when there is one.
+    menu = Button(i18n.t('menu'), (636 if mode.name == 'bot_2' else 690, 10, 100, 44))
     start = Button(i18n.t('start_game'), (_PANEL.centerx - 110, _PANEL.top + 470, 220, 50))
     shade = pygame.Surface(win.get_size(), pygame.SRCALPHA)
     shade.fill(OVERLAY_SHADE)
