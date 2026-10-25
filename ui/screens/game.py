@@ -121,7 +121,7 @@ def _play(win, mode, difficulty, saved, worker):
             unsaved = True
 
     def _leave(result):
-        worker.close()   # no next search, so no new process (run() closes it too)
+        worker.cancel()
         if unsaved:
             _save()
         return result
@@ -356,11 +356,11 @@ def _play(win, mode, difficulty, saved, worker):
             if choice == 'quit':
                 return _leave('exit')
             if choice in ('menu', 'restart'):
+                worker.cancel()
                 savegame.delete()   # the human's part in this game is over
                 if choice == 'menu':
-                    worker.close()
                     return 'menu'
-                _reset()   # stops the search and readies the next one
+                _reset()
             continue   # 'watch': the bots play on
 
         menu_button.draw(win, button_font())
