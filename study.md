@@ -208,7 +208,7 @@ Cờ Trận dân gian **không có giới hạn số lượt** và không có lu
 Ở menu chính, **Play Human** để mọi người chơi trên cùng một máy; **Play Bot**
 để bạn đấu với bot, sau đó chọn độ khó Dễ / Vừa / Khó rồi chọn phe. Phe bạn
 chọn giữ nguyên chỗ trên bàn cờ (menu ghi rõ: trên, dưới, trái hay phải) và
-lượt đi; bot cầm tất cả các phe còn lại.
+lượt đi; bot cầm tất cả các phe còn lại. (Ở bản v1.3.0 bạn luôn cầm Xanh lá.)
 
 ### Ai đi trước
 
@@ -541,7 +541,8 @@ The folk game Cờ Trận has **no turn limit** and no draw rule: a game goes on
 In the main menu, **Play Human** lets everyone play on the same machine;
 **Play Bot** puts you against bots, after you pick Easy, Medium or Hard and then
 your side. Your side keeps its place on the board (the menu says where: top,
-bottom, left or right) and its turn; the bots play all the other sides.
+bottom, left or right) and its turn; the bots play all the other sides. (In
+v1.3.0 you always play Green.)
 
 ### Who Goes First
 
