@@ -24,6 +24,7 @@
   --lang: rgb(100 60 160);
   --resume: rgb(200 130 20);
   --share: rgb(45 52 80);
+  --settings: rgb(70 95 120);
   --gold: rgb(255 215 0);
   --strip: rgb(0 0 0 / 0.43);
   --note: rgb(0 0 0 / 0.59);
@@ -83,6 +84,7 @@ a { color: var(--gold); }
 .btn-howto { background: var(--howto); }
 .btn-back { background: var(--back); }
 .btn-exit { background: var(--exit); }
+.btn-settings { background: var(--settings); }
 .btn-lang { background: var(--lang); }
 .btn-share { background: var(--share); }
 
@@ -386,6 +388,72 @@ a { color: var(--gold); }
 
 .panel p { margin: 0 0 6px; font-size: clamp(16px, 1vmin + 12px, 22px); }
 .panel .btn { width: min(300px, 100%); }
+
+/* Who goes first (components/FirstPlayer.tsx), as ui/screens/first.py. */
+.panel.first { width: min(640px, 100%); position: relative; gap: 10px; }
+/* While choosing, Menu stays usable above the dimmed board. */
+.game-bar.above { position: relative; z-index: 6; }
+.panel.first .rule { font-size: clamp(13px, 0.6vmin + 11px, 16px); opacity: 0.9; }
+
+.first-players {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  gap: 6px;
+}
+
+.first-player {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  font-weight: 700;
+  font-size: clamp(13px, 0.6vmin + 11px, 18px);
+}
+
+.first-player > img { width: 34px; height: 34px; }
+.first-player.out { opacity: 0.35; }
+
+.first-hand {
+  width: clamp(66px, 16vmin, 110px);
+  height: clamp(66px, 16vmin, 110px);
+  display: grid;
+  place-items: center;
+  margin-top: 6px;
+  border-radius: 50%;
+  font-size: clamp(26px, 4vmin, 40px);
+}
+
+.first-hand.unknown { border: 3px solid #fff; }
+.first-hand.ready { border: 3px solid var(--gold); color: var(--gold); }
+.first-hand.lit { outline: 4px solid var(--gold); outline-offset: 2px; }
+.first-hand.dim { opacity: 0.45; }
+.first-hand.shake { animation: shake 450ms ease-in-out infinite; }
+@keyframes shake { 50% { transform: translateY(-14%); } }
+
+.first-prompt { color: var(--gold); font-weight: 700; }
+
+.first-choices { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.panel .btn.first-choice {
+  width: clamp(92px, 22vmin, 130px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 6px 8px;
+  font-weight: 700;
+}
+.first-choice img { width: 70%; aspect-ratio: 1; }
+
+.first-chant { color: var(--gold); font-weight: 700; font-size: clamp(24px, 2vmin + 16px, 38px) !important; }
+.first-result { min-height: 70px; }
+.panel .btn.first-skip { width: auto; align-self: flex-end; padding: 6px 14px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .first-hand.shake { animation: none; }
+}
 
 .toast {
   position: fixed;

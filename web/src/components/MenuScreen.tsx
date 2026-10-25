@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react';
 import { LINKS, WELCOME_BACKGROUND } from '../assets';
 import { useLanguage } from '../i18n/i18n';
 
-export type ButtonKind = 'normal' | 'resume' | 'howto' | 'back' | 'exit' | 'lang' | 'share';
+export type ButtonKind = 'normal' | 'resume' | 'howto' | 'back' | 'exit' | 'lang' | 'share' | 'settings';
 
 export interface MenuButton {
   label: string;

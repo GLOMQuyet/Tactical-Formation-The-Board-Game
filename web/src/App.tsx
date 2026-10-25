@@ -6,8 +6,9 @@ import { Toast, useToast } from './components/Toast';
 import { LINKS } from './assets';
 import { MODES, withDifficulty, type Difficulty, type Mode } from './engine/engine.js';
 import { GameController } from './game/controller';
-import { clearSave, describe, readSave, type SavedGame } from './game/save';
+import { describe, readSave, type SavedGame } from './game/save';
 import { useLanguage } from './i18n/i18n';
+import { toggleSetting, useSettings } from './settings';
 
 type Screen =
   | { kind: 'home' }
@@ -16,6 +17,7 @@ type Screen =
   | { kind: 'difficulty'; mode: Mode }
   | { kind: 'confirm'; mode: Mode; difficulty: Difficulty | null; back: Screen; saved: SavedGame }
   | { kind: 'howto' }
+  | { kind: 'settings' }
   | { kind: 'game'; controller: GameController };
 
 const HOME: Screen = { kind: 'home' };
@@ -24,6 +26,7 @@ export function App() {
   const { t, lang, toggle } = useLanguage();
   const [screen, setScreen] = useState<Screen>(HOME);
   const [toast, showToast] = useToast();
+  const settings = useSettings();
 
   const startGame = useCallback((mode: Mode, difficulty: Difficulty | null, saved: SavedGame | null = null) => {
     setScreen({ kind: 'game', controller: new GameController(mode, difficulty, saved) });
@@ -56,7 +59,9 @@ export function App() {
 
   // Esc goes back, as on the desktop.
   useEffect(() => {
-    const back: Partial<Record<Screen['kind'], Screen>> = { human: HOME, bots: HOME, difficulty: { kind: 'bots' }, howto: HOME };
+    const back: Partial<Record<Screen['kind'], Screen>> = {
+      human: HOME, bots: HOME, difficulty: { kind: 'bots' }, howto: HOME, settings: HOME,
+    };
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return;
       if (screen.kind === 'confirm') setScreen(screen.back);
@@ -74,6 +79,7 @@ export function App() {
         { label: t('play_human'), onClick: () => setScreen({ kind: 'human' }) },
         { label: t('play_bot'), onClick: () => setScreen({ kind: 'bots' }) },
         { label: t('how_to_play'), kind: 'howto', onClick: () => setScreen({ kind: 'howto' }) },
+        { label: t('settings'), kind: 'settings', onClick: () => setScreen({ kind: 'settings' }) },
       ];
       if (saved) {
         buttons.unshift({
@@ -153,7 +159,8 @@ export function App() {
           subtitle={t('replace_note')}
           wide
           buttons={[
-            { label: t('start_new'), onClick: () => { clearSave(); startGame(mode, difficulty); } },
+            // The saved game stays until the new one's first move replaces it.
+            { label: t('start_new'), onClick: () => startGame(mode, difficulty) },
             { label: t('keep_saved'), kind: 'resume', onClick: () => startGame(saved.state.mode, saved.difficulty, saved) },
             { label: t('back'), kind: 'back', onClick: () => setScreen(back) },
           ]}
@@ -164,6 +171,22 @@ export function App() {
     }
     case 'howto':
       content = <HowToPlay onClose={() => setScreen(HOME)} />;
+      break;
+    case 'settings':
+      content = (
+        <MenuScreen
+          title={t('settings')}
+          subtitle={t('subtitle')}
+          wide
+          buttons={[
+            { label: t(settings.sound ? 'sound_on' : 'sound_off'), kind: 'settings', onClick: () => toggleSetting('sound') },
+            { label: t(settings.symbols ? 'symbols_on' : 'symbols_off'), kind: 'settings', onClick: () => toggleSetting('symbols') },
+            { label: t(settings.folkStart ? 'folk_on' : 'folk_off'), kind: 'settings', onClick: () => toggleSetting('folkStart') },
+            { label: t('back'), kind: 'back', onClick: () => setScreen(HOME) },
+          ]}
+          notesBelow={[t('symbols_note')]}
+        />
+      );
       break;
     case 'game':
       content = (

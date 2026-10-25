@@ -228,7 +228,7 @@ def draw_scores(win, mode, pieces, active_players):
     cells = []
     for color in mode.players:
         out = color not in active_players
-        icon = assets.image(f'assets/{color}_piece.png', size=(28, 28)).copy()
+        icon = assets.piece_image(color, 28).copy()
         if out:
             icon.set_alpha(90)
         text = font.render(str(counts[color]), True, SCORE_OUT if out else WHITE)

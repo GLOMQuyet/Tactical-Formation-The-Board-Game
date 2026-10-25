@@ -1,5 +1,5 @@
-"""Menu screens: main menu, player-count choices, bot difficulty and the
-unfinished-game question.
+"""Menu screens: main menu, player-count choices, bot difficulty, settings
+and the unfinished-game question.
 
 Each screen runs until the player picks something and returns a short string
 naming the next screen; main.py does the switching. Labels come from ui.i18n,
@@ -8,9 +8,9 @@ so every screen follows the language chosen on the main menu.
 
 import pygame
 
-from ui import assets, display, i18n
+from ui import assets, display, i18n, settings
 from ui.theme import (BTN_BACK, BTN_EXIT, BTN_HOWTO, BTN_LANG, BTN_NORMAL, BTN_RESUME,
-                      FPS, HEIGHT, NOTE_BACKING, TITLE_COLOR, WHITE, WIDTH)
+                      BTN_SETTINGS, FPS, HEIGHT, NOTE_BACKING, TITLE_COLOR, WHITE, WIDTH)
 from ui.widgets import Button, make_buttons, pressed, shadowed_text
 
 # Sub-menu buttons start below the title and subtitle.
@@ -65,19 +65,20 @@ def _choose(win, font, font_small, bg, title, subtitle, buttons, results,
 def main_menu(win, font, font_small, bg, saved=None):
     """`saved` is the autosaved game (core.savegame.SavedGame) or None.
 
-    Returns 'continue', 'human', 'bot', 'howto', 'language' or 'exit'.
+    Returns 'continue', 'human', 'bot', 'howto', 'settings', 'language' or 'exit'.
     """
-    labels = [i18n.t('play_human'), i18n.t('play_bot'), i18n.t('how_to_play'), i18n.t('exit')]
-    colors = [BTN_NORMAL, BTN_NORMAL, BTN_HOWTO, BTN_EXIT]
-    results = ['human', 'bot', 'howto', 'exit']
+    labels = [i18n.t('play_human'), i18n.t('play_bot'), i18n.t('how_to_play'),
+              i18n.t('settings'), i18n.t('exit')]
+    colors = [BTN_NORMAL, BTN_NORMAL, BTN_HOWTO, BTN_SETTINGS, BTN_EXIT]
+    results = ['human', 'bot', 'howto', 'settings', 'exit']
     notes = ()
-    top = None
+    top = HEIGHT // 2 - 100
     if saved is not None:
         labels.insert(0, i18n.t('continue'))
         colors.insert(0, BTN_RESUME)
         results.insert(0, 'continue')
-        notes = ((describe(saved), HEIGHT // 2 - 85),)
-        top = HEIGHT // 2 - 55
+        notes = ((describe(saved), HEIGHT // 2 - 90),)
+        top = HEIGHT // 2 - 65
     buttons = make_buttons(labels, colors, top=top)
     language = Button(i18n.t('other_language'), (WIDTH - 170, 12, 156, 40), color=BTN_LANG)
     return _choose(win, font, font_small, bg, 'Tactical Formation', i18n.t('subtitle'),
@@ -109,6 +110,21 @@ def difficulty_menu(win, font, font_small, bg, mode):
     return _choose(win, font, font_small, bg, i18n.t('difficulty'),
                    i18n.t(f'game_{mode.name}'), buttons, ['easy', 'medium', 'hard', 'back'],
                    notes=((i18n.t('difficulty_note'), _SUBMENU_TOP + 300),), escape='back')
+
+
+def settings_menu(win, font, font_small, bg):
+    """Returns the setting to switch ('sound', 'symbols', 'folk_start'), 'menu' or 'exit'."""
+    def label(key, on, off):
+        return i18n.t(on if settings.get(key) else off)
+    buttons = make_buttons([label('sound', 'sound_on', 'sound_off'),
+                            label('symbols', 'symbols_on', 'symbols_off'),
+                            label('folk_start', 'folk_on', 'folk_off'),
+                            i18n.t('back')],
+                           [BTN_SETTINGS, BTN_SETTINGS, BTN_SETTINGS, BTN_BACK],
+                           top=_SUBMENU_TOP, width=440)
+    return _choose(win, font, font_small, bg, i18n.t('settings'), i18n.t('subtitle'),
+                   buttons, ['sound', 'symbols', 'folk_start', 'menu'],
+                   notes=((i18n.t('symbols_note'), _SUBMENU_TOP + 300),), escape='menu')
 
 
 def unfinished_game_menu(win, font, font_small, bg, saved):

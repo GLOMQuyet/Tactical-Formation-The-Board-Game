@@ -10,6 +10,8 @@ import functools
 
 import pygame
 
+from ui import settings
+
 
 def resource_path(rel):
     try:
@@ -42,8 +44,10 @@ def font(rel_path, size):
 
 # ── shared resource handles used throughout the UI ───────────────────────────
 
-def piece_image(color):
-    return image(f'assets/{color}_piece.png', size=(40, 40))
+def piece_image(color, size=40):
+    """A piece of `color`; with its shape on it when "Symbols on pieces" is on."""
+    name = f'{color}_piece_symbol' if settings.get('symbols') else f'{color}_piece'
+    return image(f'assets/{name}.png', size=(size, size))
 
 
 def background_image():
