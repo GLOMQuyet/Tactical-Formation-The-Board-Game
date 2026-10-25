@@ -1,10 +1,12 @@
 """Reusable UI widgets — buttons, game-over screen."""
 
+import functools
+
 import pygame
 
 from ui import assets, display, i18n
-from ui.theme import (BTN_HOVER, BTN_NORMAL, FPS, HEIGHT, OVERLAY_PANEL, OVERLAY_SHADE,
-                      TITLE_COLOR, WHITE, WIDTH)
+from ui.theme import (BLACK, BTN_HOVER, BTN_NORMAL, FPS, HEIGHT, OVERLAY_PANEL,
+                      OVERLAY_SHADE, TITLE_COLOR, WHITE, WIDTH)
 
 
 class Button:
@@ -31,6 +33,26 @@ class Button:
         return False
 
 
+@functools.lru_cache(maxsize=64)
+def _shadowed(font, text, color):
+    """`text` over a soft dark outline, so it reads on a busy picture."""
+    face = font.render(text, True, color)
+    dark = font.render(text, True, BLACK)
+    pad = 4
+    surf = pygame.Surface((face.get_width() + 2 * pad, face.get_height() + 2 * pad), pygame.SRCALPHA)
+    dark.set_alpha(110)
+    for dx in (-2, 0, 2):
+        for dy in (-2, 0, 2, 3):
+            surf.blit(dark, (pad + dx, pad + dy))
+    surf.blit(face, (pad, pad))
+    return surf
+
+
+def shadowed_text(win, font, text, color, center):
+    surf = _shadowed(font, text, color)
+    win.blit(surf, surf.get_rect(center=center))
+
+
 def make_buttons(labels, colors=None, top=None, width=260, height=52, gap=18):
     """A centred column of buttons; `top` defaults to just below mid-screen."""
     total = len(labels) * height + (len(labels) - 1) * gap
@@ -46,14 +68,23 @@ def make_buttons(labels, colors=None, top=None, width=260, height=52, gap=18):
 
 
 class UndoButton:
+    """A square button with the undo arrow, framed like the other buttons."""
     def __init__(self, pos, size, callback):
         self.rect = pygame.Rect(pos, size)
         self.callback = callback
         self.hovered = False
 
-    def draw(self, win):
-        pygame.draw.rect(win, (105, 105, 105), self.rect)
-        win.blit(assets.undo_icon(), self.rect.topleft)
+    def draw(self, win, enabled=True):
+        face = pygame.Surface(self.rect.size, pygame.SRCALPHA)
+        box = face.get_rect()
+        color = BTN_HOVER if self.hovered and enabled else BTN_NORMAL
+        pygame.draw.rect(face, color, box, border_radius=8)
+        pygame.draw.rect(face, WHITE, box, 2, border_radius=8)
+        icon = pygame.transform.smoothscale(assets.undo_icon(), (box.w - 12, box.h - 12))
+        face.blit(icon, icon.get_rect(center=box.center))
+        if not enabled:
+            face.set_alpha(110)
+        win.blit(face, self.rect)
 
     def handle_event(self, event):
         """Run the callback on a click; return True if the click hit the button."""
@@ -115,9 +146,13 @@ def choice_overlay(win, background, title, options, subtitle=None, escape=None):
         display.present()
 
 
-def game_over_screen(win, winner, background):
-    """Result over the final board. Returns 'restart', 'menu' or 'quit'."""
-    title = i18n.t('wins', color=i18n.color(winner)) if winner else '?'
+def game_over_screen(win, winner, background, yours=False):
+    """Result over the final board. Returns 'restart', 'menu' or 'quit'.
+
+    `yours` says "You win!" (a person who beat the bots).
+    """
+    title = (i18n.t('you_win') if yours else i18n.t('wins', color=i18n.color(winner))
+             if winner else '?')
     return choice_overlay(win, background, title,
                           [(i18n.t('new_game'), 'restart'), (i18n.t('main_menu'), 'menu')],
                           escape='menu')
