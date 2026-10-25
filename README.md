@@ -44,9 +44,9 @@ There are two versions:
   [latest release](https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game/releases/latest),
   the browser version and this page.
 - **[v1.3.0, with Best-Reply Search](https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game/releases/tag/v1.3.0):**
-  the same game and the same difficulty levels, but the 3- and 4-player bots
-  use Best-Reply Search, and the bots always search to the full depth, however
-  long it takes.
+  the same difficulty levels, but the 3- and 4-player bots use Best-Reply
+  Search, and the bots always search to the full depth, however long it takes.
+  It came out before sides could be chosen: there you always play Green.
 
 Each release has one ready-to-run file per system, nothing to unzip:
 
@@ -128,6 +128,9 @@ the Actions tab with a version typed in, which also makes the tag.
   <img src="docs/media/boards.png" alt="Opening positions: 2 players on a 5×5 board, 3 players on a 7×6 board with two corners removed, 4 players on a 7×7 board with all four corners removed">
 </p>
 
+The menus of the standard version, v1.0.0 (in v1.3.0 you always play Green
+against the bots):
+
 | Menu | Choice | Description |
 |---|---|---|
 | **Play Human** | 2, 3 or 4 Players | Everyone plays on the same machine, taking turns with the mouse |
@@ -159,7 +162,8 @@ first run the language follows the computer's language setting.
 
 After choosing a bot game you pick a difficulty, then your side. The side
 keeps its place on the board (the menu says where: top, bottom, left or right)
-and its turn, and the bots play all the other sides.
+and its turn, and the bots play all the other sides. (In v1.3.0 you always
+play Green.)
 
 The difficulty sets how many moves ahead the bots search, in every mode and in
 both versions:

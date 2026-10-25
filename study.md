@@ -208,7 +208,7 @@ Cờ Trận dân gian **không có giới hạn số lượt** và không có lu
 Ở menu chính, **Play Human** để mọi người chơi trên cùng một máy; **Play Bot**
 để bạn đấu với bot, sau đó chọn độ khó Dễ / Vừa / Khó rồi chọn phe. Phe bạn
 chọn giữ nguyên chỗ trên bàn cờ (menu ghi rõ: trên, dưới, trái hay phải) và
-lượt đi; bot cầm tất cả các phe còn lại.
+lượt đi; bot cầm tất cả các phe còn lại. (Ở bản v1.3.0 bạn luôn cầm Xanh lá.)
 
 ### Ai đi trước
 
@@ -227,7 +227,7 @@ Như ngoài đời, ván mới bắt đầu bằng việc chọn người đi tr
 ### 2 người chơi
 
 - Bàn cờ **5×5 đỉnh**, không bỏ góc nào.
-- Màu: **Xanh lá** và **Vàng** (theo thứ tự cố định thì Xanh lá đi trước). Khi đấu bot, bạn chọn một phe, bot cầm phe kia.
+- Màu: **Xanh lá** và **Vàng** (theo thứ tự cố định thì Xanh lá đi trước). Khi đấu bot, bạn chọn một phe (ở v1.3.0 luôn là Xanh lá), bot cầm phe kia.
 - Mỗi bên bắt đầu với **14 quân** (10 đỉnh + 4 tâm).
 
 ### 3 người chơi
@@ -235,14 +235,14 @@ Như ngoài đời, ván mới bắt đầu bằng việc chọn người đi tr
 - Bàn cờ **7×6 đỉnh**, bỏ hai góc dưới.
 - Màu và thứ tự đi trong phần mềm: **Tím → Vàng → Xanh lá**.
 - Số quân: Tím **14**, Vàng **13**, Xanh lá **13**.
-- Đấu bot: bạn chọn một phe, hai bot cầm hai phe còn lại.
+- Đấu bot: bạn chọn một phe (ở v1.3.0 luôn là Xanh lá), hai bot cầm hai phe còn lại.
 
 ### 4 người chơi
 
 - Bàn cờ **7×7 đỉnh**, bỏ cả bốn góc.
 - Màu và thứ tự đi trong phần mềm: **Xanh dương → Xanh lá → Tím → Vàng**.
 - Mỗi bên bắt đầu với **13 quân** (9 đỉnh + 4 tâm).
-- Đấu bot: bạn chọn một phe, ba bot cầm ba phe còn lại.
+- Đấu bot: bạn chọn một phe (ở v1.3.0 luôn là Xanh lá), ba bot cầm ba phe còn lại.
 
 ### Độ khó của bot
 
@@ -541,7 +541,8 @@ The folk game Cờ Trận has **no turn limit** and no draw rule: a game goes on
 In the main menu, **Play Human** lets everyone play on the same machine;
 **Play Bot** puts you against bots, after you pick Easy, Medium or Hard and then
 your side. Your side keeps its place on the board (the menu says where: top,
-bottom, left or right) and its turn; the bots play all the other sides.
+bottom, left or right) and its turn; the bots play all the other sides. (In
+v1.3.0 you always play Green.)
 
 ### Who Goes First
 
@@ -560,7 +561,7 @@ As in the folk game, a new game starts by choosing who moves first:
 ### 2-Player Mode
 
 - **5×5 vertex** board, no corners removed.
-- Colors: **Green** and **Yellow** (in the fixed order Green moves first). Against the bot, you pick a side and the bot plays the other.
+- Colors: **Green** and **Yellow** (in the fixed order Green moves first). Against the bot, you pick a side (in v1.3.0 always Green) and the bot plays the other.
 - Each side starts with **14 pieces** (10 vertices + 4 centres).
 
 ### 3-Player Mode
@@ -568,14 +569,14 @@ As in the folk game, a new game starts by choosing who moves first:
 - **7×6 vertex** board with the two bottom corners removed.
 - Colors and turn order in the software: **Purple → Yellow → Green**.
 - Pieces: Purple **14**, Yellow **13**, Green **13**.
-- Against bots: you pick a side, two bots play the other two.
+- Against bots: you pick a side (in v1.3.0 always Green), two bots play the other two.
 
 ### 4-Player Mode
 
 - **7×7 vertex** board with all four corners removed.
 - Colors and turn order in the software: **Blue → Green → Purple → Yellow**.
 - Each side starts with **13 pieces** (9 vertices + 4 centres).
-- Against bots: you pick a side, three bots play the other three.
+- Against bots: you pick a side (in v1.3.0 always Green), three bots play the other three.
 
 ### Bot Difficulty
 
