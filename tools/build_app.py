@@ -33,7 +33,7 @@ def make_dmg(app, target):
     shutil.move(app, stage)
     os.symlink('/Applications', os.path.join(stage, 'Applications'))
     # hdiutil now and then fails with "Resource busy", or stalls, on build machines.
-    for attempt in range(3):
+    for _ in range(3):
         try:
             if subprocess.run(['hdiutil', 'create', '-volname', 'Tactical Formation',
                                '-srcfolder', stage, '-format', 'UDZO', '-ov', target],

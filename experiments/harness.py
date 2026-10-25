@@ -178,7 +178,7 @@ def random_states(mode, n_games, max_plies, seed, lengths=None):
     `lengths`   = optional list; receives (plies, finished) for every game.
     """
     rng = random.Random(seed)
-    for g in range(n_games):
+    for _ in range(n_games):
         state = GameState.new(mode)
         records = []
         ply = 0

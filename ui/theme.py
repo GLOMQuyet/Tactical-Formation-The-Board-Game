@@ -13,7 +13,6 @@ BTN_HOWTO   = (30,  140, 100)
 BTN_LANG    = (100,  60, 160)
 BTN_RESUME  = (200, 130,  20)
 BTN_SETTINGS = (70,  95, 120)
-TEXT_COLOR  = (255, 255, 255)
 TITLE_COLOR = (255, 215,   0)
 NOTE_BACKING = (0,  0,   0, 150)   # translucent strip behind notes on the menus
 OVERLAY_SHADE = (0, 0, 0, 110)     # dims the board behind a result panel
