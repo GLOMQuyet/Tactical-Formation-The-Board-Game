@@ -1,6 +1,6 @@
 [project]
 name = "tactical-formation"
-version = "1.1.1"
+version = "1.2.0"
 description = "Tactical Formation, a Vietnamese folk board game for 2-4 players, with Minimax and Paranoid Minimax bots"
 readme = "README.md"
 license = "MIT"
