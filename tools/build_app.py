@@ -4,10 +4,11 @@
 # ///
 """Build a ready-to-run copy of the game (no Python needed to play it).
 
-Makes dist/TacticalFormation-<system>.zip holding a single program on Windows
-and Linux, or an app bundle on macOS. GitHub Actions runs this for every
-version tag (.github/workflows/build.yml) and attaches the zips to the
-release. Run with: uv run tools/build_app.py
+Makes one file in dist/ that is shared as it is, not zipped:
+TacticalFormation-Windows-<arch>.exe, TacticalFormation-macOS-<arch>.dmg (a
+disk image holding the app) or TacticalFormation-Linux-<arch>. GitHub Actions
+runs this for every version tag (.github/workflows/build.yml) and attaches the
+files to the release. Run with: uv run tools/build_app.py
 """
 
 import os
@@ -15,6 +16,7 @@ import platform
 import shutil
 import subprocess
 import sys
+import time
 
 import PyInstaller.__main__
 
@@ -23,16 +25,34 @@ NAME = 'TacticalFormation'
 SYSTEM = {'win32': 'Windows', 'darwin': 'macOS'}.get(sys.platform, 'Linux')
 
 
+def make_dmg(app, target):
+    """Put the app in a disk image, next to a link to Applications."""
+    stage = os.path.join(os.path.dirname(app), 'dmg')
+    shutil.rmtree(stage, ignore_errors=True)
+    os.makedirs(stage)
+    shutil.move(app, stage)
+    os.symlink('/Applications', os.path.join(stage, 'Applications'))
+    command = ['hdiutil', 'create', '-volname', 'Tactical Formation',
+               '-srcfolder', stage, '-format', 'UDZO', '-ov', target]
+    # hdiutil now and then fails with "Resource busy" on build machines.
+    for attempt in range(3):
+        if subprocess.run(command).returncode == 0:
+            return
+        time.sleep(10)
+    raise SystemExit('hdiutil could not make the disk image')
+
+
 def main():
     os.chdir(REPO)
     dist, work = os.path.join(REPO, 'dist'), os.path.join(REPO, 'build')
+    built = os.path.join(work, 'app')       # PyInstaller's output; dist/ gets the file to share
     shutil.rmtree(dist, ignore_errors=True)
     args = [
         os.path.join(REPO, 'main.py'),
         '--name', NAME,
         '--windowed',                                   # no console window
         '--noconfirm', '--clean',
-        '--distpath', dist, '--workpath', work, '--specpath', work,
+        '--distpath', built, '--workpath', work, '--specpath', work,
         f'--add-data={os.path.join(REPO, "assets")}{os.pathsep}assets',
         '--icon', os.path.join(REPO, 'assets', 'green_piece.png'),
     ]
@@ -40,15 +60,16 @@ def main():
     args.append('--onedir' if SYSTEM == 'macOS' else '--onefile')
     PyInstaller.__main__.run(args)
 
-    archive = os.path.join(dist, f'{NAME}-{SYSTEM}-{platform.machine().lower()}.zip')
+    os.makedirs(dist)
+    stem = os.path.join(dist, f'{NAME}-{SYSTEM}-{platform.machine().lower()}')
     if SYSTEM == 'macOS':
-        # ditto keeps the bundle's symlinks and signature intact.
-        subprocess.run(['ditto', '-c', '-k', '--keepParent',
-                        os.path.join(dist, f'{NAME}.app'), archive], check=True)
+        target = stem + '.dmg'
+        make_dmg(os.path.join(built, f'{NAME}.app'), target)
     else:
-        program = NAME + ('.exe' if SYSTEM == 'Windows' else '')
-        shutil.make_archive(archive[:-4], 'zip', dist, program)
-    print(f'built {archive} ({os.path.getsize(archive) // (1024 * 1024)} MB)')
+        suffix = '.exe' if SYSTEM == 'Windows' else ''
+        target = stem + suffix
+        shutil.move(os.path.join(built, NAME + suffix), target)
+    print(f'built {target} ({os.path.getsize(target) // (1024 * 1024)} MB)')
 
 
 if __name__ == '__main__':
