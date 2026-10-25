@@ -19,7 +19,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        # The Linux program needs the glibc of the system it is built on or
+        # newer, so it is built on the oldest Ubuntu runner (22.04, glibc 2.35).
+        os: [windows-latest, macos-latest, ubuntu-22.04]
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6

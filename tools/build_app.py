@@ -32,12 +32,15 @@ def make_dmg(app, target):
     os.makedirs(stage)
     shutil.move(app, stage)
     os.symlink('/Applications', os.path.join(stage, 'Applications'))
-    command = ['hdiutil', 'create', '-volname', 'Tactical Formation',
-               '-srcfolder', stage, '-format', 'UDZO', '-ov', target]
-    # hdiutil now and then fails with "Resource busy" on build machines.
+    # hdiutil now and then fails with "Resource busy", or stalls, on build machines.
     for attempt in range(3):
-        if subprocess.run(command).returncode == 0:
-            return
+        try:
+            if subprocess.run(['hdiutil', 'create', '-volname', 'Tactical Formation',
+                               '-srcfolder', stage, '-format', 'UDZO', '-ov', target],
+                              timeout=300).returncode == 0:
+                return
+        except subprocess.TimeoutExpired:
+            pass
         time.sleep(10)
     raise SystemExit('hdiutil could not make the disk image')
 

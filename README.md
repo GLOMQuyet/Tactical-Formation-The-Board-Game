@@ -45,7 +45,7 @@ one file per system, nothing to unzip:
 |---|---|
 | Windows | `TacticalFormation-Windows-amd64.exe` |
 | macOS (Apple Silicon) | `TacticalFormation-macOS-arm64.dmg` |
-| Linux (Ubuntu and others) | `TacticalFormation-Linux-x86_64` |
+| Linux (Ubuntu 22.04 or newer, and others with glibc 2.35 or newer) | `TacticalFormation-Linux-x86_64` |
 
 The copies are not signed, so the first start asks you to confirm:
 
