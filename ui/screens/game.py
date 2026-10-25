@@ -215,6 +215,8 @@ def _play(win, mode, difficulty, saved, worker):
             target_piece = state.board.piece_at(click) if click is not None else None
 
             if awaiting_capture_choice:
+                if sprites.get(moved_piece).jump(time.monotonic()) is not None:
+                    continue   # the rows are offered once the piece has landed
                 direction = renderer.nearest_capture_direction(
                     mouse_pos, moved_piece, capture_options, mode)
                 if direction is None:

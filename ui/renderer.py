@@ -177,7 +177,7 @@ def nearest_capture_direction(mouse_pos, moved_piece, capture_options, mode):
     """
     sx, sy = ui_input.pixel_pos((moved_piece.x, moved_piece.y), mode)
     mx, my = mouse_pos[0] - sx, mouse_pos[1] - sy
-    if math.hypot(mx, my) < 0.15 * mode.square_size:
+    if math.hypot(mx, my) < 0.2 * mode.square_size:   # at least the piece's half-width
         return None
     angle = math.atan2(my, mx)
     best, best_diff = None, float('inf')

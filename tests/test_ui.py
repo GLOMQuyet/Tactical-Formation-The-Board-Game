@@ -132,8 +132,9 @@ class TestBoardFeedback(unittest.TestCase):
         x, y = ui_input.pixel_pos((2, 3), mode)
         self.assertEqual(renderer.nearest_capture_direction((x + 90, y + 5), moved, options, mode), (1, 0))
         self.assertEqual(renderer.nearest_capture_direction((x - 40, y + 50), moved, options, mode), (-1, 1))
-        # A click on the moved piece itself picks no row.
+        # A click on the moved piece itself, even near its edge, picks no row.
         self.assertIsNone(renderer.nearest_capture_direction((x + 3, y - 2), moved, options, mode))
+        self.assertIsNone(renderer.nearest_capture_direction((x + 18, y - 4), moved, options, mode))
 
     def test_a_flipped_piece_turns_when_the_jump_lands(self):
         sprite = PieceSprite()

@@ -294,7 +294,7 @@ export class GameController {
     if (!this.capture) return;
     const { piece, options } = this.capture;
     const [px, py] = pointOf(this.state.board.geo, this.state.board.cell[piece]);
-    if (Math.hypot(x - px, y - py) < 0.15) return;
+    if (Math.hypot(x - px, y - py) < 0.2) return;   // a tap on the moved piece itself
     const angle = Math.atan2(y - py, x - px);
     let best = options[0];
     let bestDiff = Infinity;
