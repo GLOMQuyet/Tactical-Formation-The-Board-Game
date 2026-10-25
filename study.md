@@ -244,24 +244,24 @@ Như ngoài đời, ván mới bắt đầu bằng việc chọn người đi tr
 
 ### Độ khó của bot
 
-Độ khó quyết định bot tính trước bao nhiêu nước:
+Độ khó quyết định bot tính trước bao nhiêu nước, ở mọi chế độ và ở cả hai bản:
 
 | Độ khó | 2 người | 3 người | 4 người |
 |---|---|---|---|
-| Dễ | 3 | 3 | 3 |
-| Vừa | 4 | 4 | 4 |
-| Khó | 5 | 5 | 5 |
+| Dễ | 4 | 4 | 4 |
+| Vừa | 5 | 5 | 5 |
+| Khó | 6 | 6 | 6 |
 
-Đây là bản chuẩn v1.0.0 (bản tải về và bản chơi trên trình duyệt). Ở bản v1.3.0,
-bản có thuật toán Best-Reply Search, bot tính trước 4, 5 và 6 nước ở mọi chế độ
-và luôn tính đủ; phần dưới đây nói về v1.0.0.
+Ở bản chuẩn v1.0.0 (bản tải về và bản chơi trên trình duyệt), mỗi nước bot nghĩ
+tối đa khoảng 2 giây: bot tính trước 1 nước, rồi 2 nước, cứ thế sâu dần; hết giờ
+thì bot đi theo lần tính sâu nhất đã xong. Bản trên trình duyệt chạy nhanh hơn
+nhiều nên mức nào cũng tính đủ. Bản máy tính thì không: với 2 người, mức Vừa và
+Khó thường dừng ở 5 nước; với 3–4 người, mức nào cũng dừng ở khoảng 4 nước, đôi
+khi 3, nên ở đó mức Vừa và Khó chơi gần giống mức Dễ. Ở bản v1.3.0, bản có thuật
+toán Best-Reply Search, bot luôn tính đủ số nước, lâu bao nhiêu cũng được.
 
-Mỗi nước bot nghĩ tối đa khoảng 2 giây: bot tính trước 1 nước, rồi 2 nước, cứ
-thế sâu dần; hết giờ thì bot đi theo lần tính sâu nhất đã xong. Với 3–4 người ở
-mức Vừa và Khó, bản máy tính thường hết giờ và đi theo lần tính 3 hoặc 4 nước;
-bản trên trình duyệt chạy nhanh hơn nhiều nên tính đủ. Bot
-tính toán ở một tiến trình riêng nên cửa sổ không bị đứng trong lúc bot nghĩ;
-nếu bạn bấm khi chưa tới lượt, màn hình sẽ nhắc bạn chờ.
+Bot tính toán ở một tiến trình riêng nên cửa sổ không bị đứng trong lúc bot
+nghĩ; nếu bạn bấm khi chưa tới lượt, màn hình sẽ nhắc bạn chờ.
 
 ### Trong ván cờ
 
@@ -575,26 +575,27 @@ As in the folk game, a new game starts by choosing who moves first:
 
 ### Bot Difficulty
 
-The difficulty sets how many moves ahead the bots search:
+The difficulty sets how many moves ahead the bots search, in every mode and in
+both versions:
 
 | Difficulty | 2 players | 3 players | 4 players |
 |---|---|---|---|
-| Easy | 3 | 3 | 3 |
-| Medium | 4 | 4 | 4 |
-| Hard | 5 | 5 | 5 |
+| Easy | 4 | 4 | 4 |
+| Medium | 5 | 5 | 5 |
+| Hard | 6 | 6 | 6 |
 
-This is the standard version, v1.0.0 (the download and the browser version). In
-v1.3.0, the version with Best-Reply Search, the bots search 4, 5 and 6 moves
-ahead in every mode, always to the full depth; the rest of this section is about
-v1.0.0.
+In the standard version, v1.0.0 (the download and the browser version), a bot
+thinks for at most about 2 seconds a move: it searches one move ahead, then two,
+and so on, and when time runs out it plays the move of the deepest search it
+finished. The browser version, whose engine is much faster, finishes every level
+in time. The desktop version does not: with two players Medium and Hard usually
+stop at 5 moves, and with three or four players every level stops at about 4
+moves, sometimes 3, so there Medium and Hard play much like Easy. In v1.3.0, the
+version with Best-Reply Search, the bots always search to the full depth,
+however long it takes.
 
-A bot thinks for at most about 2 seconds a move: it searches one move ahead,
-then two, and so on, and when time runs out it plays the move of the deepest
-search it finished. With three or four players the desktop version often runs
-out of time on Medium and Hard and plays a 3- or 4-move search; the browser
-version, whose engine is much faster, finishes them all. Bots search in a separate process,
-so the window does not freeze while they think; a click before your turn is
-answered with a note to wait.
+Bots search in a separate process, so the window does not freeze while they
+think; a click before your turn is answered with a note to wait.
 
 ### During a Game
 
@@ -680,6 +681,6 @@ bots use **Paranoid Minimax**. The paper measured them at these fixed depths:
 | 3-player | 4 | ≈ 1.1 s / 4.5 s |
 | 4-player | 3 | ≈ 0.2 s / 1.4 s |
 
-Measured over complete bot-vs-bot games on an AMD Ryzen 7 6800H (see `experiments/results/timing.csv`). To keep the game quick, its Hard level searches 5 moves ahead in every mode and stops a search that runs past about 2 seconds (see Bot Difficulty); Easy and Medium search 3 and 4 moves ahead.
+Measured over complete bot-vs-bot games on an AMD Ryzen 7 6800H (see `experiments/results/timing.csv`). In the game, Easy, Medium and Hard search 4, 5 and 6 moves ahead in every mode, and the standard version stops a search that runs past about 2 seconds (see Bot Difficulty).
 
 The 3- and 4-player bots treat all other players as a coalition against themselves — they actively prioritize survival and piece count while trying to eliminate the weakest opponent.

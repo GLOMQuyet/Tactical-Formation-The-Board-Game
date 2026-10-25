@@ -106,7 +106,7 @@ def _random_game(mode_key, seed, bot_mode, bot_plies):
 @unittest.skipIf(NODE is None, 'Node.js is not installed')
 class TestWebVersion(unittest.TestCase):
     def _replay(self, mode_key, bot_key, games, bot_plies):
-        bot_mode = with_difficulty(ALL_MODES[bot_key], 'medium')
+        bot_mode = with_difficulty(ALL_MODES[bot_key], 'easy')
         recorded = [_random_game(mode_key, seed, bot_mode, bot_plies if seed < 3 else ())
                     for seed in range(games)]
         result = subprocess.run([NODE, str(ROOT / 'tests' / 'web_replay.mjs')],
