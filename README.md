@@ -107,8 +107,9 @@ uv run tools/build_app.py
 This makes one file in `dist/` for the system it runs on: a `.exe` on
 Windows, a `.dmg` disk image holding the app on macOS, a program on Linux.
 The `build` workflow does the same on GitHub for all three systems (run it from
-the Actions tab to get the files as run artifacts); pushing a version tag (for
-example `v1.1.0`) publishes them on a GitHub release.
+the Actions tab to get the files as run artifacts). Pushing a version tag (for
+example `v1.1.0`) publishes them on a GitHub release; so does running it from
+the Actions tab with a version typed in, which also makes the tag.
 
 ---
 
