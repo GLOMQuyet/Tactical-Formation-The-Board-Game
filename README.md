@@ -38,9 +38,17 @@ On a phone the pieces are drawn larger, so they are easier to see and tap.
 
 ### Download (no Python needed)
 
-Ready-to-run copies are on the
-[latest release](https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game/releases/latest),
-one file per system, nothing to unzip:
+There are two versions:
+
+- **v1.2.2, the standard game:** the
+  [latest release](https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game/releases/latest),
+  the browser version and this page.
+- **[v1.3.0, with Best-Reply Search](https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game/releases/tag/v1.3.0):**
+  the same game, but the 3- and 4-player bots use Best-Reply Search, and
+  Easy, Medium and Hard search 4, 5 and 6 moves ahead in every mode, however
+  long it takes.
+
+Each release has one ready-to-run file per system, nothing to unzip:
 
 | System | File |
 |---|---|
@@ -124,8 +132,8 @@ the Actions tab with a version typed in, which also makes the tag.
 |---|---|---|
 | **Play Human** | 2, 3 or 4 Players | Everyone plays on the same machine, taking turns with the mouse |
 | **Play Bot** | 1 vs Bot (2P) | You (Green) vs a Minimax bot (Yellow) |
-| | 1 vs 2 Bots (3P) | You (Green) vs 2 Best-Reply Search bots (Purple, Yellow) |
-| | 1 vs 3 Bots (4P) | You (Green) vs 3 Best-Reply Search bots (Blue, Purple, Yellow) |
+| | 1 vs 2 Bots (3P) | You (Green) vs 2 Paranoid Minimax bots (Purple, Yellow) |
+| | 1 vs 3 Bots (4P) | You (Green) vs 3 Paranoid Minimax bots (Blue, Purple, Yellow) |
 | **Continue** | | Shown when a game is unfinished; resumes it |
 | **Settings** | | Sound, symbols on the pieces, and how the first player is chosen |
 
@@ -154,23 +162,18 @@ the bots search:
 
 | Difficulty | 2 players | 3 players | 4 players |
 |---|---|---|---|
-| Easy | 4 | 4 | 4 |
-| Medium | 5 | 5 | 5 |
-| Hard | 6 | 6 | 6 |
+| Easy | 3 | 3 | 3 |
+| Medium | 4 | 4 | 4 |
+| Hard | 5 | 5 | 5 |
 
-The moves alternate between the bot and its opponents. With two players that
-is you; with three or four, the bots use Best-Reply Search: after each of its
-own moves the bot considers the one reply, from any opponent, that hurts it
-most. So Hard looks at three moves of its own and three answers in every
-mode, and it sees what you can do to it even when you move last.
-
-The bots always search the full depth, however long it takes. With four
-players on Hard that is a few seconds a move on the desktop (the browser
-version is much faster; only a browser that cannot search in the background
-stops after 3 seconds, so the page does not freeze). Bots think in a separate process, so the window stays
-responsive while they search; a click during a bot's turn is answered with a
-note to wait. The paper measured Minimax at 6 moves and the older Paranoid
-search at 4 and 3 moves for 3 and 4 players (see `experiments/`).
+A bot takes at most about 2 seconds a move: it searches one move ahead, then
+two, and so on, and when time runs out it plays the move of the deepest search
+it finished. With three or four players the desktop version often runs out of
+time on Medium and Hard and plays a 3- or 4-move search; the browser version,
+whose engine is much faster, finishes them all. Bots think in a separate process, so the
+window stays responsive while they search; a click during a bot's turn is
+answered with a note to wait. The paper measured fixed depths of 6, 4 and 3
+moves (see `experiments/`).
 
 **During a game.** The bar at the top left shows whose turn it is, and the
 strip at the bottom how many pieces each side has (sides that are out are
@@ -273,8 +276,7 @@ Tactical-Formation-The-Board-Game/
 │   └── savegame.py         # Autosave and resume
 ├── ai/
 │   ├── minimax.py          # 2-player bot: Minimax with Alpha-Beta
-│   ├── brs.py              # 3/4-player bots: Best-Reply Search
-│   ├── paranoid.py         # Paranoid Minimax, as measured in the paper
+│   ├── paranoid.py         # 3/4-player bots: Paranoid Minimax
 │   ├── policy.py           # Picks the engine for the current mode
 │   └── worker.py           # Runs the search in a separate process
 ├── ui/

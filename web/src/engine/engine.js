@@ -75,21 +75,22 @@ const BOARD_4 = {
 // Mode names are the Python ones, so saves use the same names.
 export const MODES = {
   play_2: { name: 'play_2', ...BOARD_2, bots: [], botDelay: 0, engine: null, depth: null },
-  bot_2: { name: 'bot_2', ...BOARD_2, bots: ['yellow'], botDelay: 400, engine: 'minimax', depth: 6 },
+  bot_2: { name: 'bot_2', ...BOARD_2, bots: ['yellow'], botDelay: 400, engine: 'minimax', depth: 5 },
   play_3_human: { name: 'play_3_human', ...BOARD_3, bots: [], botDelay: 0, engine: null, depth: null },
-  play_3: { name: 'play_3', ...BOARD_3, bots: ['purple', 'yellow'], botDelay: 600, engine: 'brs', depth: 6 },
+  play_3: { name: 'play_3', ...BOARD_3, bots: ['purple', 'yellow'], botDelay: 600, engine: 'paranoid', depth: 5 },
   play_4_human: { name: 'play_4_human', ...BOARD_4, bots: [], botDelay: 0, engine: null, depth: null },
-  play_4: { name: 'play_4', ...BOARD_4, bots: ['blue', 'purple', 'yellow'], botDelay: 600, engine: 'brs', depth: 6 },
+  play_4: { name: 'play_4', ...BOARD_4, bots: ['blue', 'purple', 'yellow'], botDelay: 600, engine: 'paranoid', depth: 5 },
 };
 
 export const DIFFICULTIES = ['easy', 'medium', 'hard'];
 
-// Search depth for each difficulty: 4, 5 and 6 plies in every mode ('hard'
-// is each bot mode's default), as in core/modes.py.
+// Search depth for each difficulty: 3, 4 and 5 plies in every mode ('hard'
+// is each bot mode's default), as in core/modes.py. A bot also gives up a ply
+// that runs past the time limit (game/search.ts).
 export const DIFFICULTY_DEPTH = {
-  bot_2: { easy: 4, medium: 5, hard: 6 },
-  play_3: { easy: 4, medium: 5, hard: 6 },
-  play_4: { easy: 4, medium: 5, hard: 6 },
+  bot_2: { easy: 3, medium: 4, hard: 5 },
+  play_3: { easy: 3, medium: 4, hard: 5 },
+  play_4: { easy: 3, medium: 4, hard: 5 },
 };
 
 export function withDifficulty(mode, level) {

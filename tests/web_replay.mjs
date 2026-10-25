@@ -10,7 +10,7 @@ import { readFileSync } from 'node:fs';
 import {
   COLORS, DIRS, GameState, MODES, expandedMoves, makeMove, pointOf,
 } from '../web/src/engine/engine.js';
-import { scoreBRS, scoreMinimax, scoreParanoid, tiesOf } from '../web/src/engine/ai.js';
+import { scoreMinimax, scoreParanoid, tiesOf } from '../web/src/engine/ai.js';
 
 class Mismatch extends Error {}
 
@@ -58,9 +58,7 @@ function replay(game) {
       }
       const scored = b.engine === 'minimax'
         ? scoreMinimax(board, state.current, mode, b.depth, history)
-        : b.engine === 'brs'
-          ? scoreBRS(board, state.active.slice(), state.turnIndex, b.depth, history)
-          : scoreParanoid(board, state.active.slice(), state.turnIndex, b.depth, history);
+        : scoreParanoid(board, state.active.slice(), state.turnIndex, b.depth, history);
       check(`${where}: bot's best moves (depth ${b.depth})`,
         tiesOf(scored).map((m) => asPython(geo, m)), b.ties);
       botChecks++;

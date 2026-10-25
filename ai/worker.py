@@ -19,10 +19,8 @@ from core.state import GameState
 # process that already runs SDL threads.
 _CONTEXT = multiprocessing.get_context('spawn')
 
-# Searches have no time limit (ai.policy.TIME_BUDGET), but none takes more
-# than a few seconds on an ordinary computer: one running for ten minutes
-# means the worker process died.
-STALL_SECONDS = 600
+# A search keeps to about ai.policy.TIME_BUDGET; one taking minutes is stuck.
+STALL_SECONDS = 120
 
 
 class BotWorker:

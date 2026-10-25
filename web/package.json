@@ -1,7 +1,7 @@
 {
   "name": "tactical-formation-web",
   "private": true,
-  "version": "1.3.0",
+  "version": "1.2.2",
   "description": "Cờ Trận (Tactical Formation) in the browser: React and TypeScript, built with Vite",
   "type": "module",
   "scripts": {
