@@ -40,7 +40,7 @@ wheels = [
 
 [[package]]
 name = "tactical-formation"
-version = "1.1.0"
+version = "1.1.1"
 source = { virtual = "." }
 dependencies = [
     { name = "pygame" },
