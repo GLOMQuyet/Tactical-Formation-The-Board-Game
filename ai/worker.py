@@ -19,7 +19,7 @@ from core.state import GameState
 # process that already runs SDL threads.
 _CONTEXT = multiprocessing.get_context('spawn')
 
-# A search keeps to about ai.policy.TIME_BUDGET; one taking minutes is stuck.
+# A search stops after ai.policy.TIME_BUDGET at most; one taking minutes is stuck.
 STALL_SECONDS = 120
 
 

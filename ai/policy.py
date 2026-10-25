@@ -7,25 +7,32 @@ a separate process, so the window keeps responding during the search.
 import dataclasses
 import time
 
-from ai import deadline, minimax, paranoid
+from ai import brs, deadline, minimax, paranoid
 
-# About how long a person waits for one bot move in the game (s).
-TIME_BUDGET = 2.0
+# The longest one bot move may take in the game (s). The bots search the
+# full depth of their difficulty (core.modes.DIFFICULTY_DEPTH), which takes a
+# few seconds at most on an ordinary computer; this only keeps a very slow
+# one from waiting much longer, by playing the deepest search it finished.
+TIME_BUDGET = 30.0
 
 
-def compute_move(state):
+def compute_move(state, hints=None):
     """Synchronous — clone the board and search. Safe to call in a worker.
 
     Returns (move, capture_direction) for the current player, or None if there
     are no legal moves. `move` is (fx, fy, tx, ty); `capture_direction` is the
-    sandwich ray the bot chose (or None).
+    sandwich ray the bot chose (or None). `hints` carries move ordering from a
+    shallower search of the same position (see `compute_move_in_time`).
     """
     mode = state.mode
     board = state.board.clone()
     history = state.position_history
     if mode.ai_engine == 'minimax':
         return minimax.best_move(board, state.current_player, mode,
-                                 history=history)
+                                 history=history, hints=hints)
+    elif mode.ai_engine == 'brs':
+        return brs.best_move(board, list(state.active_players),
+                             state.turn_index, mode, history=history, hints=hints)
     elif mode.ai_engine == 'paranoid':
         return paranoid.best_move(board, list(state.active_players),
                                   state.turn_index, mode, history=history)
@@ -42,16 +49,17 @@ def compute_move_in_time(state, budget=TIME_BUDGET):
     equally good moves may fall differently.
     """
     stop = time.perf_counter() + budget
+    hints = {}   # each search tries the best moves of the one before first
     result = None
     for depth in range(1, state.mode.ai_depth + 1):
         shallower = dataclasses.replace(
             state, mode=dataclasses.replace(state.mode, ai_depth=depth))
         if depth == 1:
-            found = compute_move(shallower)
+            found = compute_move(shallower, hints)
         else:
             try:
                 with deadline.until(stop):
-                    found = compute_move(shallower)
+                    found = compute_move(shallower, hints)
             except deadline.OutOfTime:
                 break
         result = found

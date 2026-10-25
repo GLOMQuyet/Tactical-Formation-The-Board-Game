@@ -21,7 +21,7 @@ export interface Mode {
   eliminate: boolean;
   bots: ColorName[];
   botDelay: number;
-  engine: 'minimax' | 'paranoid' | null;
+  engine: 'minimax' | 'brs' | 'paranoid' | null;
   depth: number | null;
 }
 

@@ -7,10 +7,14 @@
 // fall differently.
 
 import { Board, MODES, type ExpandedMove } from '../engine/engine.js';
-import { OutOfTime, computeMove, withTimeLimit } from '../engine/ai.js';
+import { OutOfTime, computeMove, newHints, withTimeLimit } from '../engine/ai.js';
 
-/** About how long a person waits for one bot move (ms). */
-const TIME_BUDGET = 2000;
+/**
+ * The longest one bot move may take (ms), as ai/policy.py: the bots search
+ * the full depth of their difficulty, well within this on an ordinary phone;
+ * it only keeps a very slow device from waiting much longer.
+ */
+const TIME_BUDGET = 30000;
 
 export interface SearchJob {
   id: number;
@@ -28,15 +32,16 @@ export function searchHere(job: SearchJob): FoundMove {
   const base = MODES[job.modeName as keyof typeof MODES];
   const board = new Board(base, job.pieces);
   const stop = performance.now() + TIME_BUDGET;
+  const hints = newHints();   // each search tries the best moves of the one before first
   let move: ExpandedMove | null = null;
   for (let depth = 1; depth <= job.depth; depth++) {
     const state = { mode: { ...base, depth }, board, active: job.active, turnIndex: job.turnIndex, history: job.history };
     let found: ExpandedMove | null;
     if (depth === 1) {
-      found = computeMove(state);   // one ply always finishes
+      found = computeMove(state, Math.random, hints);   // one ply always finishes
     } else {
       try {
-        found = withTimeLimit(stop, () => computeMove(state));
+        found = withTimeLimit(stop, () => computeMove(state, Math.random, hints));
       } catch (error) {
         if (error instanceof OutOfTime) break;
         throw error;

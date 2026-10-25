@@ -81,7 +81,7 @@ class TestSaveGame(unittest.TestCase):
         savegame.save(state, moves, 'easy', path=self.path)
         saved = savegame.load(self.path)
         self.assertEqual(saved.difficulty, 'easy')
-        self.assertEqual(saved.state.mode.ai_depth, 3)
+        self.assertEqual(saved.state.mode.ai_depth, 4)
 
     def test_missing_or_broken_file_gives_none(self):
         self.assertIsNone(savegame.load(self.path))

@@ -11,7 +11,7 @@ import time
 import unittest
 from unittest import mock
 
-from ai import minimax, paranoid, policy
+from ai import brs, minimax, paranoid, policy
 from ai.policy import compute_move
 from ai.worker import BotWorker
 from core import rules
@@ -79,6 +79,112 @@ class TestParanoid(unittest.TestCase):
                                                 state.board, mode), mode.name)
 
 
+def _positions(key, count, seed):
+    """Positions of random games in mode `key`, some way into the game."""
+    rng = random.Random(seed)
+    out = []
+    while len(out) < count:
+        state = GameState.new(ALL_MODES[key])
+        for _ in range(rng.randrange(40)):
+            if state.start_turn()[0]:
+                break
+            move, direction, _n = rng.choice(
+                rules.expanded_moves(state.current_player, state.board, state.mode))
+            rules.make_move(state.board, move, state.mode, direction)
+            state.advance_turn()
+        if not state.start_turn()[0]:
+            out.append(state)
+    return out
+
+
+def _brs_value(board, depth, maximizing, my_color, opponents, mode):
+    """Best-Reply Search written plainly: no pruning, no table, no ordering."""
+    if depth == 0:
+        return paranoid._evaluate(board, my_color, mode)
+    if maximizing:
+        moves = rules.expanded_moves(my_color, board, mode)
+        if not moves:
+            return -(brs._WIN + depth)
+    else:
+        moves = []
+        still_in = []
+        for color in opponents:
+            theirs = rules.expanded_moves(color, board, mode)
+            if theirs:
+                still_in.append(color)
+                moves += theirs
+        if not still_in:
+            return brs._WIN + depth
+        opponents = tuple(still_in)
+    values = []
+    for move, cd, _n in moves:
+        token = rules.make_move(board, move, mode, cd)
+        values.append(_brs_value(board, depth - 1, not maximizing, my_color, opponents, mode))
+        rules.unmake_move(board, token)
+    return max(values) if maximizing else min(values)
+
+
+def _ties_of(search):
+    """The equally-best moves a search hands to random.choice."""
+    seen = []
+    with mock.patch.object(random, 'choice', side_effect=lambda ties: seen.append(ties) or ties[0]):
+        search()
+    return seen[0]
+
+
+class TestBestReplySearch(unittest.TestCase):
+    def test_finds_the_same_best_moves_as_a_plain_search(self):
+        # Pruning, the table, the move hints and the narrow root window only
+        # make the search faster: the best moves must be those of a plain one.
+        for key in ('bot_3', 'bot_4'):
+            for state in _positions(key, 4, seed=3):
+                mode = state.mode
+                me = state.current_player
+                opponents = tuple(c for c in state.active_players if c != me)
+                board = state.board.clone()
+                scored = []
+                for move, cd, _n in rules.expanded_moves(me, board, mode):
+                    token = rules.make_move(board, move, mode, cd)
+                    scored.append((_brs_value(board, 2, False, me, opponents, mode), (move, cd)))
+                    rules.unmake_move(board, token)
+                best = max(v for v, _m in scored)
+                expected = {m for v, m in scored if v >= best - brs._TIE_EPS}
+                found = _ties_of(lambda: brs.best_move(
+                    state.board.clone(), list(state.active_players), state.turn_index,
+                    mode, depth=3))
+                self.assertEqual(set(found), expected, key)
+
+    def test_hints_from_a_shallower_search_change_nothing(self):
+        for key in ('bot_3', 'bot_4'):
+            for state in _positions(key, 3, seed=4):
+                args = (list(state.active_players), state.turn_index, state.mode)
+                hints = {}
+                for depth in (1, 2, 3):
+                    with_hints = _ties_of(lambda: brs.best_move(
+                        state.board.clone(), *args, depth=depth, hints=hints))
+                without = _ties_of(lambda: brs.best_move(state.board.clone(), *args, depth=3))
+                self.assertEqual(with_hints, without, key)   # the same moves, in the same order
+
+    def test_sees_the_reply_of_a_side_that_moves_later(self):
+        # Four players move Blue, Green, Purple, Yellow. Purple, the bot, can
+        # take the yellow piece at (3, 3) by jumping from (0, 3) to (2, 3).
+        # That empties (0, 3), and Green, three turns later, jumps there over
+        # Blue's (0, 4) and flips all four purple pieces on the row. Paranoid
+        # search at three plies only sees Yellow's and Blue's answers and takes
+        # the piece; Best-Reply Search sees Green's answer at two plies.
+        mode = MODE_PLAY_4
+        board = Board([Piece(0, 3, 'purple'), Piece(1, 3, 'purple'), Piece(4, 3, 'purple'),
+                       Piece(3, 3, 'yellow'), Piece(2, 6, 'yellow'), Piece(3, 6, 'yellow'),
+                       Piece(0, 4, 'blue'), Piece(2, 0, 'blue'), Piece(3, 0, 'blue'),
+                       Piece(0, 5, 'green'), Piece(5, 3, 'green')])
+        active = ['blue', 'green', 'purple', 'yellow']
+        trap = (0, 3, 2, 3)
+        move, _direction = paranoid.best_move(board.clone(), active, 2, mode, depth=3)
+        self.assertEqual(move, trap)
+        move, _direction = brs.best_move(board.clone(), active, 2, mode, depth=2)
+        self.assertNotEqual(move, trap)
+
+
 class TestTimeBudget(unittest.TestCase):
     def test_with_time_it_plays_the_full_depth_move(self):
         # Ties are broken at random; take the first so both searches can be compared.
@@ -116,9 +222,15 @@ class TestDifficulty(unittest.TestCase):
 
     def test_difficulty_changes_only_the_depth(self):
         easy = with_difficulty(MODE_PLAY_4, 'easy')
-        self.assertEqual(easy.ai_depth, 3)
+        self.assertEqual(easy.ai_depth, 4)
         self.assertEqual(easy.players, MODE_PLAY_4.players)
-        self.assertEqual(MODE_PLAY_4.ai_depth, 5)   # the original is unchanged
+        self.assertEqual(MODE_PLAY_4.ai_depth, 6)   # the original is unchanged
+
+    def test_the_same_depths_in_every_mode(self):
+        for key in ('bot_2', 'bot_3', 'bot_4'):
+            mode = ALL_MODES[key]
+            depths = {level: with_difficulty(mode, level).ai_depth for level in DIFFICULTIES}
+            self.assertEqual(depths, {'easy': 4, 'medium': 5, 'hard': 6}, key)
 
 
 # The worker runs searches in another process, so fake searches must be
