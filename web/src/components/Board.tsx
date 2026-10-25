@@ -104,6 +104,13 @@ export function Board({ controller }: { controller: GameController }) {
     );
   }
 
+  // A soft glow under each piece that can jump, while a person picks one.
+  const glow = controller.landing === 0 ? (
+    <g fill="#fff5b4" fillOpacity={0.6}>
+      {controller.movable().map((i) => <circle key={i} cx={px(board.cell[i])[0]} cy={px(board.cell[i])[1]} r={27} />)}
+    </g>
+  ) : null;
+
   const order = Array.from({ length: board.n }, (_, i) => i);
   order.sort((a, b) => Number(controller.jumps.has(a)) - Number(controller.jumps.has(b)));   // jumping piece on top
 
@@ -145,6 +152,7 @@ export function Board({ controller }: { controller: GameController }) {
       <path d={lines} stroke="#fff" strokeWidth={5} strokeLinecap="round" fill="none" />
       {marks}
       {options}
+      {glow}
       {pieces}
       {controller.valid.map((cell) => (
         <circle key={cell} cx={px(cell)[0]} cy={px(cell)[1]} r={15} fill="#32cd32" />

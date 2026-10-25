@@ -64,3 +64,7 @@ def big_font():
 
 def small_font():
     return font('assets/fonts/Roboto-Regular.ttf', 24)
+
+
+def hint_font(bold=False):
+    return font(f'assets/fonts/Roboto-{"Bold" if bold else "Regular"}.ttf', 18)

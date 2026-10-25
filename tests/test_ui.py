@@ -20,7 +20,9 @@ from core.modes import MODE_BOT_2, MODE_PLAY_3  # noqa: E402
 from core.piece import Piece  # noqa: E402
 from core.savegame import SavedGame  # noqa: E402
 from core.state import GameState  # noqa: E402
-from ui import assets, display, i18n  # noqa: E402
+from ui import assets, display, i18n, renderer  # noqa: E402
+from ui import input as ui_input  # noqa: E402
+from ui.animation import FLIP_TIME, MOVE_TIME, PieceSprite  # noqa: E402
 from ui.screens import game, howto, menu  # noqa: E402
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -74,7 +76,7 @@ class TestGameScreen(_Screens):
                        Piece(3, 2, 'yellow'), Piece(4, 2, 'green')])
         state = GameState(board=board, active_players=['green', 'yellow'], turn_index=0, mode=mode)
         shown = []
-        game.game_over_screen = lambda win, winner, background: shown.append(winner) or 'menu'
+        game.game_over_screen = lambda win, winner, background, **_: shown.append(winner) or 'menu'
         self.assertEqual(game.run(self.win, mode, saved=SavedGame(state, [], None)), 'menu')
         self.assertEqual(shown, ['green'])
         self.assertFalse(os.path.exists(savegame.default_path()))
@@ -120,6 +122,37 @@ class TestMenus(_Screens):
                     self.assertEqual(draw(), 'exit', lang)
         finally:
             i18n.set_lang(before, save=False)
+
+
+class TestBoardFeedback(unittest.TestCase):
+    def test_a_capture_row_is_picked_by_its_direction(self):
+        mode = MODE_PLAY_3
+        moved = Piece(2, 3, 'purple')
+        options = {(1, 0): [Piece(3, 3, 'green')], (-1, 1): [Piece(1.5, 3.5, 'yellow')]}
+        x, y = ui_input.pixel_pos((2, 3), mode)
+        self.assertEqual(renderer.nearest_capture_direction((x + 90, y + 5), moved, options, mode), (1, 0))
+        self.assertEqual(renderer.nearest_capture_direction((x - 40, y + 50), moved, options, mode), (-1, 1))
+        # A click on the moved piece itself, even near its edge, picks no row.
+        self.assertIsNone(renderer.nearest_capture_direction((x + 3, y - 2), moved, options, mode))
+        self.assertIsNone(renderer.nearest_capture_direction((x + 18, y - 4), moved, options, mode))
+
+    def test_a_flipped_piece_turns_when_the_jump_lands(self):
+        sprite = PieceSprite()
+        sprite.start_flip('yellow', at=10 + MOVE_TIME)
+        self.assertEqual(sprite.flip(10), ('yellow', 1))           # still in the air
+        color, scale = sprite.flip(10 + MOVE_TIME + FLIP_TIME / 2)
+        self.assertIsNone(color)
+        self.assertGreater(scale, 1)                               # pulsing
+        self.assertEqual(sprite.flip(10 + MOVE_TIME + FLIP_TIME + 0.01), (None, 1))
+
+    def test_a_jump_ends_where_it_lands(self):
+        sprite = PieceSprite()
+        sprite.start_animation((0, 0), (100, 50), now=5)
+        (x, y), scale = sprite.jump(5 + MOVE_TIME / 2)
+        self.assertAlmostEqual(x, 50)
+        self.assertAlmostEqual(y, 25)
+        self.assertGreater(scale, 1)                               # lifted mid-jump
+        self.assertIsNone(sprite.jump(5 + MOVE_TIME + 0.01))
 
 
 class TestWindow(unittest.TestCase):

@@ -37,6 +37,8 @@ export class GameController {
 
   selected = -1;
   valid: number[] = [];
+  /** The last tap was on one of the mover's pieces that has no jump. */
+  stuck = false;
   capture: { piece: number; options: Capture[] } | null = null;
   over = false;
   winner: number | null = null;
@@ -98,6 +100,17 @@ export class GameController {
 
   get humanToMove(): boolean {
     return !this.over && !this.panel && !this.botPending && this.isHuman(this.state.current);
+  }
+
+  /** The mover's pieces that have a jump, while a person is choosing one. */
+  movable(): number[] {
+    if (!this.humanToMove || this.selected !== -1 || this.capture) return [];
+    const board = this.state.board;
+    const out: number[] = [];
+    for (let i = 0; i < board.n; i++) {
+      if (board.color[i] === this.state.current && legalMoves(board, i).length) out.push(i);
+    }
+    return out;
   }
 
   canUndo(): boolean {
@@ -210,6 +223,7 @@ export class GameController {
     }
     const board = this.state.board;
     const cell = this.nearestPoint(x, y);
+    this.stuck = false;
     if (this.selected !== -1 && cell !== null && this.valid.includes(cell)) {
       this.humanMove(this.selected, cell);
       return;
@@ -219,6 +233,7 @@ export class GameController {
     const i = cell === null ? -1 : board.pieceAt(cell);
     let moves: number[] = [];
     if (i !== -1 && i !== this.selected && board.color[i] === this.state.current) moves = legalMoves(board, i);
+    this.stuck = !moves.length && i !== -1 && i !== this.selected && board.color[i] === this.state.current;
     this.selected = moves.length ? i : -1;
     this.valid = moves;
     this.emit();
@@ -279,7 +294,7 @@ export class GameController {
     if (!this.capture) return;
     const { piece, options } = this.capture;
     const [px, py] = pointOf(this.state.board.geo, this.state.board.cell[piece]);
-    if (Math.hypot(x - px, y - py) < 0.15) return;
+    if (Math.hypot(x - px, y - py) < 0.2) return;   // a tap on the moved piece itself
     const angle = Math.atan2(y - py, x - px);
     let best = options[0];
     let bestDiff = Infinity;
@@ -318,6 +333,7 @@ export class GameController {
     }
     this.selected = -1;
     this.valid = [];
+    this.stuck = false;
     this.save();
     this.next();
   }

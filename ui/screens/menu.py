@@ -11,7 +11,7 @@ import pygame
 from ui import assets, display, i18n
 from ui.theme import (BTN_BACK, BTN_EXIT, BTN_HOWTO, BTN_LANG, BTN_NORMAL, BTN_RESUME,
                       FPS, HEIGHT, NOTE_BACKING, TITLE_COLOR, WHITE, WIDTH)
-from ui.widgets import Button, make_buttons, pressed
+from ui.widgets import Button, make_buttons, pressed, shadowed_text
 
 # Sub-menu buttons start below the title and subtitle.
 _SUBMENU_TOP = HEIGHT // 2 - 70
@@ -35,10 +35,8 @@ def _choose(win, font, font_small, bg, title, subtitle, buttons, results,
     while True:
         clock.tick(FPS)
         win.blit(bg, (0, 0))
-        t = font.render(title, True, TITLE_COLOR)
-        win.blit(t, t.get_rect(center=(WIDTH // 2, title_y)))
-        s = font_small.render(subtitle, True, WHITE)
-        win.blit(s, s.get_rect(center=(WIDTH // 2, title_y + 50)))
+        shadowed_text(win, font, title, TITLE_COLOR, (WIDTH // 2, title_y))
+        shadowed_text(win, font_small, subtitle, WHITE, (WIDTH // 2, title_y + 50))
         for text, y in notes:
             n = assets.small_font().render(text, True, WHITE)
             rect = n.get_rect(center=(WIDTH // 2, y))

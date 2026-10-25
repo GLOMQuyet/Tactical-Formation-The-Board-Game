@@ -65,7 +65,9 @@ export function GameScreen({ controller, onLeave, onRestart }: Props) {
 
   let hint = '';
   if (controller.capture) hint = t('hint_capture');
-  else if (controller.humanToMove) hint = controller.selected !== -1 ? t('hint_move') : t('hint_select');
+  else if (controller.humanToMove) {
+    hint = controller.selected !== -1 ? t('hint_move') : controller.stuck ? t('hint_stuck') : t('hint_select');
+  }
 
   const counts = new Map<number, number>();
   for (let i = 0; i < state.board.n; i++) counts.set(state.board.color[i], (counts.get(state.board.color[i]) ?? 0) + 1);

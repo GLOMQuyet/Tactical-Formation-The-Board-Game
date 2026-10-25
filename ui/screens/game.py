@@ -61,13 +61,14 @@ def _play(win, mode, difficulty, saved, worker):
     winner = None
     pause_since = None   # when the game ended or the human was knocked out
     asked_out = False    # the "you are out" panel has been shown
+    stuck = False        # the last click was on an own piece with no jump
     last_save = 0.0
     unsaved = False
 
     def _reset():
         nonlocal state, move_history, selected_piece, valid_moves, moved_piece
         nonlocal capture_options, awaiting_capture_choice, game_over, winner
-        nonlocal pause_since, asked_out, unsaved
+        nonlocal pause_since, asked_out, unsaved, stuck
         worker.cancel()
         state = GameState.new(mode)
         move_history = []
@@ -82,6 +83,7 @@ def _play(win, mode, difficulty, saved, worker):
         pause_since = None
         asked_out = False
         unsaved = False
+        stuck = False
 
     def _save():
         nonlocal last_save, unsaved
@@ -116,6 +118,10 @@ def _play(win, mode, difficulty, saved, worker):
             _save()
         return result
 
+    def _human_to_move():
+        return (not game_over and not awaiting_capture_choice and pause_since is None
+                and state.current_player in mode.human_colors and not worker.busy)
+
     def _human_out():
         """True in a bot game once every human side has been eliminated."""
         return bool(mode.bot_colors and mode.human_colors
@@ -123,7 +129,7 @@ def _play(win, mode, difficulty, saved, worker):
 
     def _undo():
         """Take back moves until it is the human's turn before their last move."""
-        nonlocal selected_piece, valid_moves
+        nonlocal selected_piece, valid_moves, stuck
         if awaiting_capture_choice or game_over:
             return
         if not any(r.player in mode.human_colors for r in move_history):
@@ -140,12 +146,17 @@ def _play(win, mode, difficulty, saved, worker):
         sprites.clear()   # drop any half-finished move animation
         selected_piece = None
         valid_moves = []
+        stuck = False
         _save()
+
+    def _can_undo():
+        return (not awaiting_capture_choice and not game_over
+                and any(r.player in mode.human_colors for r in move_history))
 
     undo_button = None
     if mode.name == 'bot_2':
-        undo_button = UndoButton((750, 10), (40, 40), _undo)
-    menu_button = Button(i18n.t('menu'), (640 if undo_button else 690, 10, 100, 40))
+        undo_button = UndoButton((746, 10), (44, 44), _undo)
+    menu_button = Button(i18n.t('menu'), (636 if undo_button else 690, 10, 100, 44))
 
     while True:
         clock.tick(120 if not mode.bot_colors or mode.name == 'bot_2' else 60)
@@ -204,22 +215,27 @@ def _play(win, mode, difficulty, saved, worker):
             target_piece = state.board.piece_at(click) if click is not None else None
 
             if awaiting_capture_choice:
+                if sprites.get(moved_piece).jump(time.monotonic()) is not None:
+                    continue   # the rows are offered once the piece has landed
                 direction = renderer.nearest_capture_direction(
                     mouse_pos, moved_piece, capture_options, mode)
-                if direction is not None:
-                    captured = capture_options[direction]
-                    if move_history:
-                        move_history[-1].captured.extend(
-                            ((p.x, p.y), p.color) for p in captured)
-                    capturer_color = moved_piece.color
-                    for p in captured:
-                        p.color = capturer_color
+                if direction is None:
+                    continue   # a click on the moved piece itself picks no row
+                captured = capture_options[direction]
+                if move_history:
+                    move_history[-1].captured.extend(
+                        ((p.x, p.y), p.color) for p in captured)
+                sprites.start_flips([(p, p.color) for p in captured], delay=0)
+                capturer_color = moved_piece.color
+                for p in captured:
+                    p.color = capturer_color
                 awaiting_capture_choice = False
                 capture_options = {}
                 moved_piece = None
                 _finish_move()
                 continue
 
+            stuck = False
             if selected_piece is not None and click in valid_moves:
                 from_pos = (selected_piece.x, selected_piece.y)
                 rec = MoveRecord(state.current_player, from_pos, click)
@@ -234,6 +250,7 @@ def _play(win, mode, difficulty, saved, worker):
                         direction = next(iter(capture_options))
                         captured = capture_options[direction]
                         rec.captured.extend(((p.x, p.y), p.color) for p in captured)
+                        sprites.start_flips([(p, p.color) for p in captured])
                         for p in captured:
                             p.color = selected_piece.color
                         capture_options = {}
@@ -249,21 +266,35 @@ def _play(win, mode, difficulty, saved, worker):
                 # Select the clicked piece (switching straight from another
                 # one); clicking the selected piece or elsewhere deselects.
                 moves = []
-                if (target_piece is not None and target_piece is not selected_piece
-                        and target_piece.color == state.current_player):
+                own = (target_piece is not None and target_piece is not selected_piece
+                       and target_piece.color == state.current_player)
+                if own:
                     moves = rules.legal_moves(target_piece, state.board, mode)
+                stuck = own and not moves
                 selected_piece = target_piece if moves else None
                 valid_moves = moves
 
         # ── Render ────────────────────────────────────────────────────────
         win.fill((255, 255, 255))
         renderer.draw_board(win, mode)
+        human_to_move = _human_to_move()
+        movable = ()
+        if human_to_move and selected_piece is None:
+            movable = [p for p in state.pieces if p.color == state.current_player
+                       and rules.legal_moves(p, state.board, mode)]
         renderer.draw_last_move(win, move_history[-1] if move_history else None, mode)
-        renderer.draw_pieces(win, state.pieces, sprites, mode, selected_piece)
+        renderer.draw_pieces(win, state.pieces, sprites, mode, selected_piece, movable)
         if selected_piece is not None:
             renderer.draw_valid_moves(win, valid_moves, mode)
-        if awaiting_capture_choice and capture_options:
+        if (awaiting_capture_choice and capture_options
+                and sprites.get(moved_piece).jump(time.monotonic()) is None):
             renderer.draw_capture_options(win, moved_piece, capture_options, mode)
+        if awaiting_capture_choice:
+            renderer.draw_hint(win, i18n.t('hint_capture'), strong=True)
+        elif human_to_move:
+            key = ('hint_stuck' if stuck else 'hint_move' if selected_piece is not None
+                   else 'hint_select')
+            renderer.draw_hint(win, i18n.t(key))
         renderer.draw_scores(win, mode, state.pieces, state.active_players)
 
         # After a short pause on the final (or knock-out) position, ask what next.
@@ -271,7 +302,8 @@ def _play(win, mode, difficulty, saved, worker):
             background = win.copy()
             pause_since = None
             if game_over:
-                choice = game_over_screen(win, winner, background)
+                choice = game_over_screen(win, winner, background,
+                                          yours=bool(mode.bot_colors) and winner in mode.human_colors)
                 if choice == 'restart':
                     _reset()
                     continue
@@ -290,9 +322,11 @@ def _play(win, mode, difficulty, saved, worker):
 
         menu_button.draw(win, button_font())
         if undo_button is not None and not game_over:
-            undo_button.draw(win)
+            undo_button.draw(win, enabled=_can_undo())
         if not game_over:
-            renderer.draw_turn_text(win, mode, state.current_player, worker.busy)
+            renderer.draw_turn_text(win, mode, state.current_player, worker.busy,
+                                    yours=bool(mode.bot_colors)
+                                    and state.current_player in mode.human_colors)
         display.present()
 
 
@@ -317,6 +351,7 @@ def _apply_bot_move(state, move, sprites, mode, move_history, capture_direction=
             direction = capture_direction
         else:
             direction = max(captures.keys(), key=lambda d: len(captures[d]))
+        sprites.start_flips([(enemy, enemy.color) for enemy in captures[direction]])
         for enemy in captures[direction]:
             rec.captured.append(((enemy.x, enemy.y), enemy.color))
             enemy.color = piece.color
