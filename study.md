@@ -245,6 +245,8 @@ Bot tính toán ở một tiến trình riêng nên cửa sổ không bị đứ
 - Thanh góc trên bên trái cho biết đến lượt ai; dải ở cuối màn hình cho biết số
   quân của từng phe (phe đã bị loại bị gạch ngang). Nước vừa đi được đánh dấu:
   vòng nhỏ ở ô xuất phát, vòng cam ở ô đáp, vòng trắng quanh các quân vừa bị lật.
+- Đến lượt bạn, các quân nhảy được sẽ sáng lên; dòng chữ phía trên số quân cho
+  biết bước tiếp theo, ví dụ bấm vào hàng nào khi một nước kẹp được nhiều hàng.
 - Bot chờ một chút trước khi đi để bạn kịp theo dõi.
 - Nút **Menu** (góc trên bên phải) để rời ván; khi đấu bot 2 người, nút hoàn tác
   bên cạnh rút lại nước vừa đi của bạn cùng nước đáp của bot.
@@ -552,6 +554,9 @@ Bots search in a separate process, so the window does not freeze while they thin
   each side's pieces (sides that are out are struck through). The last move is
   marked: a small ring where it started, an orange ring where it landed, and
   white rings around the pieces it flipped.
+- On your turn the pieces that can jump glow; a line above the piece counts
+  says what to do next, for example which row to click when a move sandwiches
+  more than one.
 - Bots wait a moment before moving so you can follow them.
 - **Menu** (top right) leaves the game; in the 2-player bot game the undo
   button next to it takes back your last move together with the bot's reply.

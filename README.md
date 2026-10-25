@@ -147,7 +147,9 @@ so the window stays responsive while they search.
 strip at the bottom how many pieces each side has (sides that are out are
 struck through). The last move is marked on the board: a small ring where it
 started, an orange ring where it landed, and white rings on the pieces it
-flipped. Bots wait a moment before moving so you can follow them. **Menu** (top right) leaves the game; in
+flipped. On your turn the pieces that can jump glow, and a line above the
+piece counts says what to do next, for example which row to click when a move
+sandwiches more than one. Bots wait a moment before moving so you can follow them. **Menu** (top right) leaves the game; in
 the 2-player bot game the undo button next to it takes back your last move
 and the bot's reply. If you are knocked out of a bot game, you can watch the
 bots finish, start a new game, or go back to the menu. When the game ends,
