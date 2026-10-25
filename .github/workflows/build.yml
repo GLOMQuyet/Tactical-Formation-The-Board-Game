@@ -44,17 +44,24 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v') || startsWith(inputs.release, 'v')
     needs: build
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      # The pushed tag, or the version typed in when run by hand.
+      TAG: ${{ inputs.release || github.ref_name }}
     steps:
+      - name: A tag that already exists must be the commit built here
+        run: |
+          sha=$(gh api "repos/${GITHUB_REPOSITORY}/commits/${TAG}" --jq .sha) || exit 0
+          if [ "$sha" != "$GITHUB_SHA" ]; then
+            echo "::error::${TAG} already points at ${sha}, but this run built ${GITHUB_SHA}"
+            exit 1
+          fi
       - uses: actions/download-artifact@v8
         with:
           path: files
           pattern: TacticalFormation-*
           merge-multiple: true
       - name: Publish the release
-        env:
-          GH_TOKEN: ${{ github.token }}
-          # The pushed tag, or the version typed in when run by hand.
-          TAG: ${{ inputs.release || github.ref_name }}
         run: >
           gh release create "${TAG}" files/*
           --repo "${GITHUB_REPOSITORY}"
