@@ -7,31 +7,15 @@ position index) instead of a raw piece list, which keeps the hot
 """
 
 from core.board import _zob
-from core.geometry import (
-    is_vertex, is_center,
-    move_directions, capture_directions,
-)
-
-
-def _in_bounds(pos, mode):
-    x, y = pos
-    return 0 <= x <= mode.board_width and 0 <= y <= mode.board_height
-
-
-def _same_kind(a, b):
-    if is_vertex(a) and is_vertex(b):
-        return True
-    if is_center(a) and is_center(b):
-        return True
-    return False
+from core.geometry import move_directions, capture_directions
 
 
 def legal_moves(piece, board, mode):
     """All landing squares the piece can jump to under `mode`.
 
-    Hot path — bounds are inlined and the kind check is dropped: the move
-    direction tables already preserve vertex/center kind (land = src + 2·dir),
-    so `_same_kind(src, land)` is always true.
+    Hot path, so the bounds checks are written out. No vertex/centre check is
+    needed: the move direction tables keep the kind (land = src + 2·dir), so
+    a piece always lands on the same kind of point it left.
     """
     px = piece.x
     py = piece.y

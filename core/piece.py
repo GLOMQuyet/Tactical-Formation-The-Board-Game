@@ -25,7 +25,3 @@ def piece_at(pieces, pos):
         if p.x == pos[0] and p.y == pos[1]:
             return p
     return None
-
-
-def clone_pieces(pieces):
-    return [Piece(p.x, p.y, p.color) for p in pieces]

@@ -3,13 +3,13 @@ name: build
 # Ready-to-run copies of the game: a .exe for Windows, a .dmg for macOS and a
 # program for Linux, each one file that is not zipped.
 # Run by hand from the Actions tab (the files are kept as run artifacts), or
-# push a version tag such as v1.1.0 to publish them on a GitHub release.
+# push a version tag such as v1.0.1 to publish them on a GitHub release.
 # Run by hand with a version, it makes that tag and release from the branch.
 on:
   workflow_dispatch:
     inputs:
       release:
-        description: Version to publish as a release, for example v1.1.1 (empty = only build)
+        description: Version to publish as a release, for example v1.0.1 (empty = only build)
         default: ''
   push:
     tags: ['v*']

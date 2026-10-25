@@ -8,6 +8,7 @@ so every screen follows the language chosen on the main menu.
 
 import pygame
 
+from core.modes import DIFFICULTIES
 from ui import assets, display, i18n, settings
 from ui.theme import (BTN_BACK, BTN_EXIT, BTN_HOWTO, BTN_LANG, BTN_NORMAL, BTN_RESUME,
                       BTN_SETTINGS, FPS, HEIGHT, NOTE_BACKING, TITLE_COLOR, WHITE, WIDTH)
@@ -105,10 +106,11 @@ def bot_menu(win, font, font_small, bg):
 
 def difficulty_menu(win, font, font_small, bg, mode):
     """Pick the bots' strength for `mode`. Returns 'easy', 'medium', 'hard', 'back' or 'exit'."""
-    buttons = make_buttons([i18n.t('easy'), i18n.t('medium'), i18n.t('hard'), i18n.t('back')],
-                           [BTN_NORMAL, BTN_NORMAL, BTN_NORMAL, BTN_BACK], top=_SUBMENU_TOP)
+    choices = [*DIFFICULTIES, 'back']
+    buttons = make_buttons([i18n.t(c) for c in choices],
+                           [BTN_NORMAL] * len(DIFFICULTIES) + [BTN_BACK], top=_SUBMENU_TOP)
     return _choose(win, font, font_small, bg, i18n.t('difficulty'),
-                   i18n.t(f'game_{mode.name}'), buttons, ['easy', 'medium', 'hard', 'back'],
+                   i18n.t(f'game_{mode.name}'), buttons, choices,
                    notes=((i18n.t('difficulty_note'), _SUBMENU_TOP + 300),), escape='back')
 
 

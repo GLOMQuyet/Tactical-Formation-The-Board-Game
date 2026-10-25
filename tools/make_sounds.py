@@ -16,10 +16,6 @@ OUT = [os.path.join(REPO, 'assets', 'sounds'), os.path.join(REPO, 'web', 'src', 
 RATE = 22050
 
 
-def _silence(seconds):
-    return [0.0] * int(RATE * seconds)
-
-
 def _tone(freq, seconds, decay, freq_end=None, harmonics=((1, 1.0),), attack=0.004):
     """A decaying tone; `freq_end` slides the pitch; `harmonics` is [(multiple, level)]."""
     n = int(RATE * seconds)
