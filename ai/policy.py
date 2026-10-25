@@ -5,16 +5,16 @@ a separate process, so the window keeps responding during the search.
 """
 
 import dataclasses
+import math
 import time
 
 from ai import brs, deadline, minimax, paranoid
 from ai.search import Memory
 
-# The longest one bot move may take in the game (s). The bots search the
-# full depth of their difficulty (core.modes.DIFFICULTY_DEPTH), which takes a
-# few seconds at most on an ordinary computer; this only keeps a very slow
-# one from waiting much longer, by playing the deepest search it finished.
-TIME_BUDGET = 30.0
+# The longest one bot move may take in the game (s): no limit. The bots
+# always search the full depth of their difficulty (core.modes.DIFFICULTY_DEPTH),
+# a few seconds at most on an ordinary computer.
+TIME_BUDGET = math.inf
 
 
 def compute_move(state, memory=None):
@@ -44,7 +44,10 @@ def compute_move(state, memory=None):
 def compute_move_in_time(state, budget=TIME_BUDGET):
     """`compute_move` searching 1, 2, ... plies up to the mode's depth.
 
-    A deeper search that is still running after `budget` seconds is given up,
+    Each search leaves what it found in `memory` for the next, which makes the
+    deepest one faster than searching it alone. In the game there is no time
+    limit; with a `budget` (seconds), a deeper search still running after it
+    is given up,
     and the move of the deepest finished one is played (one ply always
     finishes, so there is always a move). When time allows, the move is one
     `compute_move` could play: the same search, though the random pick among
