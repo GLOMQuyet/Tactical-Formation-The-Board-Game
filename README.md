@@ -166,7 +166,8 @@ mode, and it sees what you can do to it even when you move last.
 
 The bots always search the full depth, however long it takes. With four
 players on Hard that is a few seconds a move on the desktop (the browser
-version is much faster). Bots think in a separate process, so the window stays
+version is much faster; only a browser that cannot search in the background
+stops after 3 seconds, so the page does not freeze). Bots think in a separate process, so the window stays
 responsive while they search; a click during a bot's turn is answered with a
 note to wait. The paper measured Minimax at 6 moves and the older Paranoid
 search at 4 and 3 moves for 3 and 4 players (see `experiments/`).

@@ -259,7 +259,8 @@ Khó, bot luôn thấy 3 nước của nó và 3 nước đáp ở mọi chế �
 khi bạn đi sau cùng.
 
 Bot luôn tính đủ số nước của độ khó, dù lâu bao nhiêu. Với 4 người ở mức Khó,
-bản máy tính mất vài giây mỗi nước (bản trên trình duyệt nhanh hơn nhiều). Bot tính toán ở một
+bản máy tính mất vài giây mỗi nước (bản trên trình duyệt nhanh hơn nhiều; chỉ
+trình duyệt nào không tính ngầm được thì dừng sau 3 giây để trang không bị đứng). Bot tính toán ở một
 tiến trình riêng nên cửa sổ không bị đứng trong lúc bot nghĩ; nếu bạn bấm khi
 chưa tới lượt, màn hình sẽ nhắc bạn chờ.
 
@@ -591,7 +592,8 @@ mode, your move included even when you move last.
 
 The bots always search the full depth, however long it takes. With four
 players on Hard that is a few seconds a move on the desktop (the browser
-version is much faster). Bots search in a separate process, so the window does not
+version is much faster; only a browser that cannot search in the background
+stops after 3 seconds, so the page does not freeze). Bots search in a separate process, so the window does not
 freeze while they think; a click before your turn is answered with a note to
 wait.
 
