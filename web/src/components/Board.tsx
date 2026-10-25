@@ -67,9 +67,9 @@ export function Board({ controller }: { controller: GameController }) {
   useSyncExternalStore(controller.subscribe, controller.getVersion);
   const now = useFrameClock(controller.animating);
   const pieceImages = usePieceImages();
-  const k = usePieceScale(controller.mode);
-  const piece = PIECE * k;
-  const margin = MARGIN * k;
+  const zoom = usePieceScale(controller.mode);
+  const piece = PIECE * zoom;
+  const margin = MARGIN * zoom;
   const { mode, state } = controller;
   const board = state.board;
   const geo = board.geo;
@@ -94,11 +94,11 @@ export function Board({ controller }: { controller: GameController }) {
   const last = controller.records[controller.records.length - 1];
   const marks = last && controller.landing === 0 ? (
     <g fill="none">
-      <circle cx={px(last.from)[0]} cy={px(last.from)[1]} r={13 * k} stroke="#ffd700" strokeWidth={3} />
+      <circle cx={px(last.from)[0]} cy={px(last.from)[1]} r={13 * zoom} stroke="#ffd700" strokeWidth={3} />
       {last.captured.map(([cell]) => (
-        <circle key={cell} cx={px(cell)[0]} cy={px(cell)[1]} r={31 * k} stroke="#fff" strokeWidth={3} />
+        <circle key={cell} cx={px(cell)[0]} cy={px(cell)[1]} r={31 * zoom} stroke="#fff" strokeWidth={3} />
       ))}
-      <circle cx={px(last.to)[0]} cy={px(last.to)[1]} r={32 * k} stroke="#ff8c00" strokeWidth={4} />
+      <circle cx={px(last.to)[0]} cy={px(last.to)[1]} r={32 * zoom} stroke="#ff8c00" strokeWidth={4} />
     </g>
   ) : null;
 
@@ -116,7 +116,7 @@ export function Board({ controller }: { controller: GameController }) {
           return <line key={d} x1={sx} y1={sy} x2={ex} y2={ey} stroke="#ffd700" strokeWidth={8} strokeLinecap="round" />;
         })}
         {rows.flatMap(({ flips }) => flips).map((e) => (
-          <circle key={`r${e}`} cx={px(board.cell[e])[0]} cy={px(board.cell[e])[1]} r={30 * k}
+          <circle key={`r${e}`} cx={px(board.cell[e])[0]} cy={px(board.cell[e])[1]} r={30 * zoom}
             fill="none" stroke="#ffd700" strokeWidth={4} strokeDasharray="7 6" />
         ))}
       </g>
@@ -126,7 +126,7 @@ export function Board({ controller }: { controller: GameController }) {
   // A soft glow under each piece that can jump, while a person picks one.
   const glow = controller.landing === 0 ? (
     <g fill="#fff5b4" fillOpacity={0.6}>
-      {controller.movable().map((i) => <circle key={i} cx={px(board.cell[i])[0]} cy={px(board.cell[i])[1]} r={27 * k} />)}
+      {controller.movable().map((i) => <circle key={i} cx={px(board.cell[i])[0]} cy={px(board.cell[i])[1]} r={27 * zoom} />)}
     </g>
   ) : null;
 
@@ -149,7 +149,7 @@ export function Board({ controller }: { controller: GameController }) {
     const color = controller.flipsShown.get(i) ?? board.color[i];
     return (
       <g key={i} transform={`translate(${x} ${y}) scale(${k})`}>
-        {i === controller.selected && <circle r={30 * k} fill="none" stroke="#ffd700" strokeWidth={5} />}
+        {i === controller.selected && <circle r={30 * zoom} fill="none" stroke="#ffd700" strokeWidth={5} />}
         <image href={pieceImages[COLORS[color]]} x={-piece / 2} y={-piece / 2} width={piece} height={piece}
           preserveAspectRatio="none" />
       </g>
@@ -174,7 +174,7 @@ export function Board({ controller }: { controller: GameController }) {
       {glow}
       {pieces}
       {controller.valid.map((cell) => (
-        <circle key={cell} cx={px(cell)[0]} cy={px(cell)[1]} r={15 * k} fill="#32cd32" />
+        <circle key={cell} cx={px(cell)[0]} cy={px(cell)[1]} r={15 * zoom} fill="#32cd32" />
       ))}
     </svg>
   );

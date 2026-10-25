@@ -46,6 +46,7 @@ def choose_first(win, mode, background, rng=random):
     chant_font = assets.font('assets/fonts/Roboto-Bold.ttf', 40)
     line_font = assets.font('assets/fonts/Roboto-Bold.ttf', 24)
     skip = Button(i18n.t('skip'), (_PANEL.right - 130, _PANEL.bottom - 52, 110, 38), color=BTN_BACK)
+    menu = Button(i18n.t('menu'), (690, 10, 100, 44))   # where the game screen has it
     start = Button(i18n.t('start_game'), (_PANEL.centerx - 110, _PANEL.top + 470, 220, 50))
     shade = pygame.Surface(win.get_size(), pygame.SRCALPHA)
     shade.fill(OVERLAY_SHADE)
@@ -128,7 +129,7 @@ def choose_first(win, mode, background, rng=random):
         for event in display.events():
             if event.type == pygame.QUIT:
                 return 'quit'
-            if pressed(event, pygame.K_ESCAPE):
+            if pressed(event, pygame.K_ESCAPE) or menu.handle(event):
                 return 'menu'
             if event.type == pygame.MOUSEMOTION:
                 mouse_hover = event.pos
@@ -221,4 +222,5 @@ def choose_first(win, mode, background, rng=random):
             start.draw(win, button_font())
         else:
             skip.draw(win, assets.hint_font(bold=True))
+        menu.draw(win, button_font())
         display.present()

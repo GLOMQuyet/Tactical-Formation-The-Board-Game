@@ -391,6 +391,8 @@ a { color: var(--gold); }
 
 /* Who goes first (components/FirstPlayer.tsx), as ui/screens/first.py. */
 .panel.first { width: min(640px, 100%); position: relative; gap: 10px; }
+/* While choosing, Menu stays usable above the dimmed board. */
+.game-bar.above { position: relative; z-index: 6; }
 .panel.first .rule { font-size: clamp(13px, 0.6vmin + 11px, 16px); opacity: 0.9; }
 
 .first-players {

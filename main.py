@@ -37,7 +37,9 @@ def main():
                 return 'continue'
             if choice != 'new':
                 return 'exit' if choice == 'exit' else back
-            savegame.delete()
+            # The saved game stays until the new one's first move replaces
+            # it, so leaving before that (even while choosing who goes
+            # first) loses nothing.
         result = game.run(win, mode, difficulty)
         return 'exit' if result == 'exit' else 'menu'
 

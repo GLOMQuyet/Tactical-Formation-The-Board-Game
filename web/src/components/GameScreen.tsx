@@ -81,7 +81,7 @@ export function GameScreen({ controller, onLeave, onRestart }: Props) {
 
   return (
     <main className="screen game" style={{ backgroundImage: `url(${WOOD})` }}>
-      <header className="game-bar">
+      <header className={`game-bar${controller.choosingFirst ? ' above' : ''}`}>
         <div className={`strip turn${controller.botPending ? ' thinking' : ''}`} role="status" aria-live="polite">
           {turnColor !== null && <img src={pieceImages[COLORS[turnColor]]} alt="" />}
           <span>{turnText}</span>

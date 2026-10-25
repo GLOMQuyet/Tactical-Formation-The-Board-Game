@@ -44,7 +44,13 @@ def get(key):
 
 
 def put(key, value, save=True):
-    """Change a setting and, unless `save` is False, remember it for the next run."""
+    """Change a setting and, unless `save` is False, remember it for the next run.
+
+    Saving reads the file again first, so a change made meanwhile in another
+    window of the game is kept.
+    """
+    if save:
+        forget()
     _load()[key] = value
     if save:
         try:

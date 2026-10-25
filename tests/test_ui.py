@@ -10,12 +10,13 @@ os.environ.setdefault('SDL_AUDIODRIVER', 'dummy')
 os.environ.setdefault('PYGAME_HIDE_SUPPORT_PROMPT', '1')
 
 import dataclasses  # noqa: E402
+import random  # noqa: E402
 import tempfile  # noqa: E402
 import unittest  # noqa: E402
 
 import pygame  # noqa: E402
 
-from core import savegame  # noqa: E402
+from core import first_player, savegame  # noqa: E402
 from core.board import Board  # noqa: E402
 from core.modes import MODE_BOT_2, MODE_PLAY_3  # noqa: E402
 from core.piece import Piece  # noqa: E402
@@ -99,6 +100,15 @@ class TestGameScreen(_Screens):
         self.assertEqual(asked, [True])
         self.assertFalse(os.path.exists(savegame.default_path()))
 
+    def test_leaving_before_the_first_move_keeps_the_saved_game(self):
+        # A new game was asked for over a saved one; the window closes while
+        # the players are still choosing who goes first.
+        old = GameState.new(MODE_BOT_2)
+        savegame.save(old, [], 'hard')
+        self.quit_on_second_frame()
+        self.assertEqual(game.run(self.win, MODE_PLAY_3, None), 'exit')
+        self.assertTrue(os.path.exists(savegame.default_path()))
+
     def test_closing_the_window_leaves_the_game(self):
         self.quit_on_second_frame()
         self.assertEqual(game.run(self.win, MODE_BOT_2, 'easy'), 'exit')
@@ -131,23 +141,44 @@ class TestWhoGoesFirst(_Screens):
     def click(pos):
         return [pygame.event.Event(pygame.MOUSEBUTTONDOWN, {'pos': pos, 'button': 1})]
 
+    @staticmethod
+    def expected(mode, seed, human_hand=None):
+        """Who the rules make first with these bot hands (drawn as the screen draws them)."""
+        rng = random.Random(seed)
+        left = list(mode.players)
+        while len(left) > 1:
+            hands = {c: first_player.bot_hand(left, rng) for c in left if c not in mode.human_colors}
+            hands.update({c: human_hand for c in left if c in mode.human_colors})
+            left = first_player.settle(left, hands)
+        return left[0]
+
+    def seed_not_first(self, mode, human_hand=None):
+        """A seed whose winner is not the mode's first colour (which Skip would give)."""
+        return next(s for s in range(100) if self.expected(mode, s, human_hand) != mode.players[0])
+
     def test_a_person_and_a_bot_find_who_goes_first(self):
-        # The person clicks the left hand (rock) on every frame; the bot picks
-        # at random and a tie is played again, until one of them wins.
+        # The person clicks the left hand (rock) on every frame; the bot's
+        # hands come from a seeded generator, and ties are played again.
+        seed = self.seed_not_first(MODE_BOT_2, 'rock')
         self.feed(*[self.click((250, 520)) for _ in range(5000)])
-        self.assertIn(first.choose_first(self.win, MODE_BOT_2, self.win.copy()), ('green', 'yellow'))
+        self.assertEqual(first.choose_first(self.win, MODE_BOT_2, self.win.copy(), random.Random(seed)),
+                         self.expected(MODE_BOT_2, seed, 'rock'))
 
     def test_bots_alone_settle_four_players(self):
         mode = dataclasses.replace(MODE_PLAY_3, players=('blue', 'green', 'purple', 'yellow'),
                                    bot_colors=frozenset({'blue', 'green', 'purple', 'yellow'}),
                                    human_colors=frozenset())
+        seed = self.seed_not_first(mode)
         self.feed()
-        self.assertIn(first.choose_first(self.win, mode, self.win.copy()), mode.players)
+        self.assertEqual(first.choose_first(self.win, mode, self.win.copy(), random.Random(seed)),
+                         self.expected(mode, seed))
 
     def test_skip_keeps_the_usual_order_and_escape_goes_back(self):
         self.feed([], self.click((675, 657)))
         self.assertEqual(first.choose_first(self.win, MODE_PLAY_3, self.win.copy()), 'purple')
         self.feed([], [pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_ESCAPE, 'mod': 0})])
+        self.assertEqual(first.choose_first(self.win, MODE_PLAY_3, self.win.copy()), 'menu')
+        self.feed([], self.click((740, 32)))   # the Menu button, as on the game screen
         self.assertEqual(first.choose_first(self.win, MODE_PLAY_3, self.win.copy()), 'menu')
 
 

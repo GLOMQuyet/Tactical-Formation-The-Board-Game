@@ -6,7 +6,7 @@ import { Toast, useToast } from './components/Toast';
 import { LINKS } from './assets';
 import { MODES, withDifficulty, type Difficulty, type Mode } from './engine/engine.js';
 import { GameController } from './game/controller';
-import { clearSave, describe, readSave, type SavedGame } from './game/save';
+import { describe, readSave, type SavedGame } from './game/save';
 import { useLanguage } from './i18n/i18n';
 import { toggleSetting, useSettings } from './settings';
 
@@ -159,7 +159,8 @@ export function App() {
           subtitle={t('replace_note')}
           wide
           buttons={[
-            { label: t('start_new'), onClick: () => { clearSave(); startGame(mode, difficulty); } },
+            // The saved game stays until the new one's first move replaces it.
+            { label: t('start_new'), onClick: () => startGame(mode, difficulty) },
             { label: t('keep_saved'), kind: 'resume', onClick: () => startGame(saved.state.mode, saved.difficulty, saved) },
             { label: t('back'), kind: 'back', onClick: () => setScreen(back) },
           ]}

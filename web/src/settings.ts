@@ -34,11 +34,23 @@ export function getSettings(): Settings {
   return current;
 }
 
-export function toggleSetting(key: keyof Settings) {
-  current = { ...current, [key]: !current[key] };
-  storage.set(KEY, JSON.stringify(current));
+function changed() {
   for (const listener of listeners) listener();
 }
+
+/** Flip a setting as shown, keeping changes another tab saved meanwhile. */
+export function toggleSetting(key: keyof Settings) {
+  current = { ...load(), [key]: !current[key] };
+  storage.set(KEY, JSON.stringify(current));
+  changed();
+}
+
+// Another tab changed the settings: show them here too.
+window.addEventListener('storage', (event) => {
+  if (event.key !== KEY) return;
+  current = load();
+  changed();
+});
 
 function subscribe(listener: () => void) {
   listeners.add(listener);
