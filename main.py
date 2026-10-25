@@ -9,7 +9,7 @@ import pygame
 
 from core import savegame
 from core.modes import ALL_MODES, with_difficulty
-from ui import assets, display, i18n
+from ui import assets, display, i18n, settings
 from ui.screens import game, howto, menu
 
 _HUMAN_GAMES = ('play_2', 'play_3', 'play_4')
@@ -17,8 +17,8 @@ _BOT_GAMES = ('bot_2', 'bot_3', 'bot_4')
 
 
 def main():
-    # The game has no sound, so only the display and font modules are started
-    # (pygame.init() would also open the audio device).
+    # Only the display and fonts are started here; ui.sound opens the audio
+    # device on the first sound, and a computer without one stays quiet.
     pygame.display.init()
     pygame.font.init()
     win = display.open_window('Tactical Formation', assets.image('assets/green_piece.png'))
@@ -61,6 +61,12 @@ def main():
             screen = menu.bot_menu(*screens)
         elif screen == 'howto':
             screen = howto.how_to_play_screen(*screens)
+        elif screen == 'settings':
+            choice = menu.settings_menu(*screens)
+            if choice in ('sound', 'symbols', 'folk_start'):
+                settings.toggle(choice)
+                choice = 'settings'
+            screen = choice
         elif screen in _HUMAN_GAMES:
             screen = start(ALL_MODES[screen], back='human')
         elif screen in _BOT_GAMES:

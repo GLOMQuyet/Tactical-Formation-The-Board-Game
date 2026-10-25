@@ -16,7 +16,9 @@ from ai.worker import BotWorker
 from core import rules, savegame
 from core.history import MoveRecord, undo_record
 from core.state import GameState
-from ui import display, i18n, input as ui_input, renderer
+from ui import display, i18n, input as ui_input, renderer, settings, sound
+from ui.animation import MOVE_TIME
+from ui.screens.first import choose_first
 from ui.widgets import (Button, UndoButton, button_font, eliminated_screen, game_over_screen,
                         pressed)
 
@@ -64,11 +66,14 @@ def _play(win, mode, difficulty, saved, worker):
     stuck = False        # the last click was on an own piece with no jump
     last_save = 0.0
     unsaved = False
+    # A new game starts by choosing who moves first, the folk way.
+    choosing_first = saved is None and settings.get('folk_start')
+    flip_sound_at = None   # when the flips of the last move are heard
 
     def _reset():
         nonlocal state, move_history, selected_piece, valid_moves, moved_piece
         nonlocal capture_options, awaiting_capture_choice, game_over, winner
-        nonlocal pause_since, asked_out, unsaved, stuck
+        nonlocal pause_since, asked_out, unsaved, stuck, choosing_first
         worker.cancel()
         state = GameState.new(mode)
         move_history = []
@@ -84,6 +89,7 @@ def _play(win, mode, difficulty, saved, worker):
         asked_out = False
         unsaved = False
         stuck = False
+        choosing_first = settings.get('folk_start')
 
     def _save():
         nonlocal last_save, unsaved
@@ -158,8 +164,31 @@ def _play(win, mode, difficulty, saved, worker):
         undo_button = UndoButton((746, 10), (44, 44), _undo)
     menu_button = Button(i18n.t('menu'), (636 if undo_button else 690, 10, 100, 44))
 
+    def _draw_position():
+        renderer.draw_board(win, mode)
+        renderer.draw_pieces(win, state.pieces, sprites, mode)
+        renderer.draw_scores(win, mode, state.pieces, state.active_players)
+
+    def _moved(flipped):
+        """Sounds for a move: the jump now, the flips when it lands."""
+        nonlocal flip_sound_at
+        sound.play('jump')
+        if flipped:
+            flip_sound_at = time.monotonic() + MOVE_TIME
+
     while True:
         clock.tick(120 if not mode.bot_colors or mode.name == 'bot_2' else 60)
+
+        if choosing_first:
+            choosing_first = False
+            _draw_position()
+            first = choose_first(win, mode, win.copy())
+            if first in ('quit', 'menu'):
+                return _leave('exit' if first == 'quit' else 'menu')
+            state.turn_index = state.active_players.index(first)
+        if flip_sound_at is not None and time.monotonic() >= flip_sound_at:
+            flip_sound_at = None
+            sound.play('flip')
 
         # ── Win/elimination check ─────────────────────────────────────────
         # No move limit: like the folk game, play continues until the winning
@@ -188,6 +217,7 @@ def _play(win, mode, difficulty, saved, worker):
                 move, capture_direction = result
                 if _apply_bot_move(state, move, sprites, mode, move_history,
                                    capture_direction):
+                    _moved(move_history[-1].captured)
                     _finish_move()
 
         # ── Events ────────────────────────────────────────────────────────
@@ -226,6 +256,7 @@ def _play(win, mode, difficulty, saved, worker):
                     move_history[-1].captured.extend(
                         ((p.x, p.y), p.color) for p in captured)
                 sprites.start_flips([(p, p.color) for p in captured], delay=0)
+                sound.play('flip')
                 capturer_color = moved_piece.color
                 for p in captured:
                     p.color = capturer_color
@@ -245,6 +276,7 @@ def _play(win, mode, difficulty, saved, worker):
                 sprites.get(selected_piece).selected = False
                 capture_options = rules.find_captures(
                     selected_piece, state.board, mode)
+                _moved(len(capture_options) == 1)
                 if capture_options:
                     if len(capture_options) == 1:
                         direction = next(iter(capture_options))
@@ -302,6 +334,8 @@ def _play(win, mode, difficulty, saved, worker):
             background = win.copy()
             pause_since = None
             if game_over:
+                lost = bool(mode.bot_colors) and winner not in mode.human_colors
+                sound.play('lose' if lost else 'win')
                 choice = game_over_screen(win, winner, background,
                                           yours=bool(mode.bot_colors) and winner in mode.human_colors)
                 if choice == 'restart':
@@ -309,6 +343,7 @@ def _play(win, mode, difficulty, saved, worker):
                     continue
                 return 'exit' if choice == 'quit' else 'menu'
             asked_out = True
+            sound.play('lose')
             choice = eliminated_screen(win, background)
             if choice == 'quit':
                 return _leave('exit')

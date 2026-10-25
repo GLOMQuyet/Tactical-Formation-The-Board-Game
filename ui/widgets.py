@@ -4,7 +4,7 @@ import functools
 
 import pygame
 
-from ui import assets, display, i18n
+from ui import assets, display, i18n, sound
 from ui.theme import (BLACK, BTN_HOVER, BTN_NORMAL, FPS, HEIGHT, OVERLAY_PANEL,
                       OVERLAY_SHADE, TITLE_COLOR, WHITE, WIDTH)
 
@@ -29,6 +29,7 @@ class Button:
             self.hovered = self.rect.collidepoint(event.pos)
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             if self.rect.collidepoint(event.pos):
+                sound.play('tap')
                 return True
         return False
 
@@ -92,6 +93,7 @@ class UndoButton:
             self.hovered = self.rect.collidepoint(event.pos)
         elif (event.type == pygame.MOUSEBUTTONDOWN
               and event.button == 1 and self.rect.collidepoint(event.pos)):
+            sound.play('tap')
             self.callback()
             return True
         return False
