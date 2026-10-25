@@ -254,8 +254,8 @@ Như ngoài đời, ván mới bắt đầu bằng việc chọn người đi tr
 
 Mỗi nước bot nghĩ tối đa khoảng 2 giây: bot tính trước 1 nước, rồi 2 nước, cứ
 thế sâu dần; hết giờ thì bot đi theo lần tính sâu nhất đã xong. Với 3–4 người ở
-mức Khó, bản máy tính thường hết giờ và đi theo lần tính 4 nước; bản trên trình
-duyệt chạy nhanh hơn nhiều nên tính đủ 5 nước. Bot
+mức Vừa và Khó, bản máy tính thường hết giờ và đi theo lần tính 3 hoặc 4 nước;
+bản trên trình duyệt chạy nhanh hơn nhiều nên tính đủ. Bot
 tính toán ở một tiến trình riêng nên cửa sổ không bị đứng trong lúc bot nghĩ;
 nếu bạn bấm khi chưa tới lượt, màn hình sẽ nhắc bạn chờ.
 
@@ -582,8 +582,8 @@ The difficulty sets how many moves ahead the bots search:
 A bot thinks for at most about 2 seconds a move: it searches one move ahead,
 then two, and so on, and when time runs out it plays the move of the deepest
 search it finished. With three or four players the desktop version often runs
-out of time on Hard and plays its 4-move search; the browser version, whose
-engine is much faster, finishes all 5. Bots search in a separate process,
+out of time on Medium and Hard and plays a 3- or 4-move search; the browser
+version, whose engine is much faster, finishes them all. Bots search in a separate process,
 so the window does not freeze while they think; a click before your turn is
 answered with a note to wait.
 

@@ -161,8 +161,8 @@ the bots search:
 A bot takes at most about 2 seconds a move: it searches one move ahead, then
 two, and so on, and when time runs out it plays the move of the deepest search
 it finished. With three or four players the desktop version often runs out of
-time on Hard and plays its 4-move search; the browser version, whose engine is
-much faster, finishes all 5. Bots think in a separate process, so the
+time on Medium and Hard and plays a 3- or 4-move search; the browser version,
+whose engine is much faster, finishes them all. Bots think in a separate process, so the
 window stays responsive while they search; a click during a bot's turn is
 answered with a note to wait. The paper measured fixed depths of 6, 4 and 3
 moves (see `experiments/`).
