@@ -1,0 +1,68 @@
+name: update release
+
+# Runs once, on a push to this branch, and is never merged: the v1.0.0
+# release gets the build of main at a06001d (difficulty 4/5/6, choose your
+# side against the bots). The release keeps its page, title and "latest"
+# mark; its tag moves to that commit, its three files are replaced and its
+# notes are rewritten.
+on:
+  push:
+    branches: [claude/sharp-ramanujan-q0nouk]
+
+permissions:
+  contents: write
+  actions: read
+
+env:
+  SHA: a06001dff35e770a8e328ac08f099f5fc6cee7bd
+  RUN: '40183994070'
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: The build is of that commit and passed
+        run: |
+          got=$(gh api "repos/${GH_REPO}/actions/runs/${RUN}" --jq '.head_sha + " " + .conclusion')
+          echo "$got"
+          test "$got" = "${SHA} success"
+      - uses: actions/download-artifact@v8
+        with:
+          run-id: ${{ env.RUN }}
+          github-token: ${{ github.token }}
+          pattern: TacticalFormation-*
+          merge-multiple: true
+          path: files
+      - name: Three files
+        run: |
+          ls -l files
+          test "$(ls files | wc -l)" = 3
+      - name: Move the tag to the commit
+        run: gh api -X PATCH "repos/${GH_REPO}/git/refs/tags/v1.0.0" -f sha="${SHA}" -F force=true
+      - name: Replace the files and the notes
+        run: |
+          gh release upload v1.0.0 files/* --clobber
+          cat > notes.md <<'NOTES'
+          **The standard game.** Tactical Formation (Cờ Trận), a Vietnamese folk board game for 2–4 players: play each other on one computer, or play bots at Easy, Medium or Hard, as the side you choose. The 2-player bot uses Minimax and the 3- and 4-player bots use Paranoid search; Easy, Medium and Hard search 4, 5 and 6 moves ahead, at most about 2 seconds a move.
+
+          The other version, [v1.3.0](https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game/releases/tag/v1.3.0), uses Best-Reply Search for the 3- and 4-player bots and always searches to the full depth; there you always play Green.
+
+          ## Download
+
+          | System | File |
+          |---|---|
+          | Windows | `TacticalFormation-Windows-amd64.exe` |
+          | macOS (Apple Silicon) | `TacticalFormation-macOS-arm64.dmg` |
+          | Linux (glibc 2.35 or newer) | `TacticalFormation-Linux-x86_64` |
+
+          The files are not signed; the [README](https://github.com/GLOMQuyet/Tactical-Formation-The-Board-Game#download-no-python-needed) says how to open them the first time.
+          NOTES
+          gh release edit v1.0.0 --notes-file notes.md
+      - name: Show the result
+        run: |
+          gh api "repos/${GH_REPO}/git/refs/tags/v1.0.0" --jq .object.sha
+          gh release view v1.0.0 --json tagName,isLatest,assets \
+            --jq '{tagName, isLatest, assets: [.assets[] | .name + " " + (.size | tostring)]}'
