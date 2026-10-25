@@ -1,8 +1,9 @@
 // One bot search, as run by the worker (or on the page as a fallback).
 // Like compute_move_in_time in ai/policy.py, it searches 1, 2, ... plies up
-// to the depth; a ply still running at the time limit is given up and the
-// move of the deepest finished one is played (one ply always finishes, so
-// there is always a move). When time allows, the move is one a search at the
+// to the depth, each leaving what it found for the next. With a time limit
+// (only on the page itself, see ON_PAGE_BUDGET) a ply still running at the
+// limit is given up and the move of the deepest finished one is played (one
+// ply always finishes, so there is always a move). When time allows, the move is one a search at the
 // full depth could play; only the random pick among equally good moves may
 // fall differently.
 
@@ -10,15 +11,16 @@ import { Board, MODES, type ExpandedMove } from '../engine/engine.js';
 import { OutOfTime, computeMove, newMemory, withTimeLimit } from '../engine/ai.js';
 
 /**
- * The longest one bot move may take (ms), as ai/policy.py: the bots search
- * the full depth of their difficulty, well within this on an ordinary phone;
- * it only keeps a very slow device from waiting much longer.
+ * The longest one bot move may take (ms), as ai/policy.py: no limit. The bots
+ * always search the full depth of their difficulty, about a second at most
+ * on an ordinary phone.
  */
-export const TIME_BUDGET = 30000;
+export const TIME_BUDGET = Infinity;
 
 /**
- * The same when the search runs on the page itself, where no Web Worker can
- * be used: the page cannot respond while it runs, so it stops much sooner.
+ * The limit when the search runs on the page itself, where no Web Worker can
+ * be used: the page cannot respond while it runs, so it stops after this
+ * and plays its deepest finished search.
  */
 export const ON_PAGE_BUDGET = 3000;
 
