@@ -154,12 +154,17 @@ the bots search:
 
 | Difficulty | 2 players | 3 players | 4 players |
 |---|---|---|---|
-| Easy | 2 | 2 | 1 |
-| Medium | 4 | 3 | 2 |
-| Hard | 6 | 4 | 3 |
+| Easy | 3 | 2 | 2 |
+| Medium | 4 | 3 | 3 |
+| Hard | 5 | 4 | 4 |
 
-Hard is the setting measured in the paper. Bots think in a separate process,
-so the window stays responsive while they search.
+The browser version, whose engine is much faster, searches 3, 4 and 5 moves
+ahead in every mode. A bot takes at most about 2 seconds a move: it searches
+one move ahead, then two, and so on, and when time runs out it plays the move
+of the deepest search it finished. Bots think in a separate process, so the
+window stays responsive while they search; a click during a bot's turn is
+answered with a note to wait. The paper measured fixed depths of 6, 4 and 3
+moves (see `experiments/`).
 
 **During a game.** The bar at the top left shows whose turn it is, and the
 strip at the bottom how many pieces each side has (sides that are out are

@@ -51,10 +51,31 @@ class SpriteRegistry:
         self._sprites.clear()
 
 
+_boards = {}   # the drawn background and lattice, per board shape and size
+
+
 def draw_board(win, mode):
-    """Draw board lattice — for each present cell, draw its 4 outer edges and
-    4 diamond diagonals. Cells in `mode.missing_cells` are skipped entirely,
-    which automatically removes the lattice segments that bordered them."""
+    """Draw the background and the board lattice.
+
+    The picture never changes during a game, so it is drawn once per board
+    shape and then copied each frame.
+    """
+    key = (mode.grid_rows, mode.grid_cols, mode.square_size, tuple(mode.missing_cells),
+           win.get_size())
+    board = _boards.get(key)
+    if board is None:
+        board = pygame.Surface(win.get_size())
+        if pygame.display.get_surface() is not None:
+            board = board.convert()   # the display's pixel format copies fastest
+        _draw_lattice(board, mode)
+        _boards[key] = board
+    win.blit(board, (0, 0))
+
+
+def _draw_lattice(win, mode):
+    """For each present cell, draw its 4 outer edges and 4 diamond diagonals.
+    Cells in `mode.missing_cells` are skipped entirely, which automatically
+    removes the lattice segments that bordered them."""
     tl = ui_input.board_top_left(mode)
     win.blit(assets.background_image(), (0, 0))
 

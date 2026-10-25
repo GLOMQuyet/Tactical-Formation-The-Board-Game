@@ -207,6 +207,21 @@ class TestMenus(_Screens):
 
 
 class TestBoardFeedback(unittest.TestCase):
+    def test_a_click_finds_the_nearest_board_point(self):
+        mode = MODE_PLAY_3
+        x, y = ui_input.pixel_pos((2, 3), mode)
+        self.assertEqual(ui_input.board_pos((x + 18, y - 15), mode), (2, 3))       # a vertex
+        cx, cy = ui_input.pixel_pos((2.5, 3.5), mode)
+        self.assertEqual(ui_input.board_pos((cx - 20, cy + 22), mode), (2.5, 3.5))  # a centre
+        # Between a vertex and a centre: whichever is nearer, never a mixed
+        # point such as (2, 3.5) that is not on the board.
+        self.assertEqual(ui_input.board_pos((x + 30, y + 26), mode), (2.5, 3.5))
+        self.assertEqual(ui_input.board_pos((x + 22, y + 14), mode), (2, 3))
+        # Off the board, and on a removed corner, there is nothing.
+        self.assertIsNone(ui_input.board_pos((5, 5), mode))
+        self.assertIsNone(ui_input.board_pos(ui_input.pixel_pos((0, 5), mode), mode))
+
+
     def test_a_capture_row_is_picked_by_its_direction(self):
         mode = MODE_PLAY_3
         moved = Piece(2, 3, 'purple')

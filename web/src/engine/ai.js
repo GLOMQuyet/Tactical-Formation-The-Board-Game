@@ -15,6 +15,26 @@ const EXACT = 0;
 const LOWER = 1;
 const UPPER = 2;
 
+// A time limit for one search in the game (game/search.ts), as ai/deadline.py:
+// the searches check it at every node. The tests and the replay set none.
+let stopAt = Infinity;
+
+export class OutOfTime extends Error {}
+
+function checkTime() {
+  if (stopAt !== Infinity && performance.now() > stopAt) throw new OutOfTime('out of time');
+}
+
+// Run `fn`; a search inside it throws OutOfTime after `moment` (performance.now()).
+export function withTimeLimit(moment, fn) {
+  stopAt = moment;
+  try {
+    return fn();
+  } finally {
+    stopAt = Infinity;
+  }
+}
+
 function sameMove(a, b) {
   return a.from === b.from && a.to === b.to && a.d === b.d;
 }
@@ -51,6 +71,7 @@ function evaluate2(board, my, en) {
 }
 
 function search2(ctx, depth, alpha, beta, maximizing) {
+  checkTime();
   const board = ctx.board;
   if (depth === 0) return evaluate2(board, ctx.my, ctx.en);
 
@@ -157,6 +178,7 @@ function nextTurn(board, active, turnIndex) {
 }
 
 function searchParanoid(ctx, active, turnIndex, depth, alpha, beta) {
+  checkTime();
   const board = ctx.board;
   if (!active.length) return evaluateParanoid(board, ctx.my);
   if (active.length === 1) return active[0] === ctx.my ? WIN + depth : -(WIN + depth);

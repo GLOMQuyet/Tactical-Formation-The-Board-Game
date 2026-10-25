@@ -1,5 +1,7 @@
 """Pixel ↔ board coordinate conversions."""
 
+import math
+
 
 def board_top_left(mode, width=800, height=800):
     board_pixels = mode.square_size * mode.grid_cols
@@ -27,13 +29,20 @@ def pixel_pos(board_pos, mode, width=800, height=800):
 
 
 def board_pos(mouse_pos, mode, width=800, height=800):
-    """Mouse pixel → nearest (x, y) board cell, or None if outside."""
-    mx, my = mouse_pos
+    """Mouse pixel → the nearest board point within half a square, or None.
+
+    Board points are the vertices (whole numbers) and the centres (halves in
+    both coordinates); a click anywhere near a piece or a dot finds it, as in
+    the browser version. Rounding x and y separately would also give
+    points like (1, 0.5), which are not on the board.
+    """
     tl = board_top_left(mode, width, height)
-    bp = board_pixels(mode)
-    if not (tl[0] - 20 <= mx <= tl[0] + bp + 20 and
-            tl[1] - 20 <= my <= tl[1] + bp + 20):
-        return None
-    x = (mx - tl[0]) / mode.square_size
-    y = (my - tl[1]) / mode.square_size
-    return (round(x * 2) / 2, round(y * 2) / 2)
+    x = (mouse_pos[0] - tl[0]) / mode.square_size
+    y = (mouse_pos[1] - tl[1]) / mode.square_size
+    best, best_d = None, 0.5
+    for px, py in ((round(x), round(y)), (math.floor(x) + 0.5, math.floor(y) + 0.5)):
+        d = math.hypot(px - x, py - y)
+        if (d < best_d and 0 <= px <= mode.board_width and 0 <= py <= mode.board_height
+                and (px, py) not in mode.excluded_cells):
+            best, best_d = (px, py), d
+    return best

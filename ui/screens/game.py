@@ -64,6 +64,7 @@ def _play(win, mode, difficulty, saved, worker):
     pause_since = None   # when the game ended or the human was knocked out
     asked_out = False    # the "you are out" panel has been shown
     stuck = False        # the last click was on an own piece with no jump
+    waiting_click = False   # a click came while a bot was thinking
     last_save = 0.0
     unsaved = False
     # A new game starts by choosing who moves first, the folk way.
@@ -73,7 +74,7 @@ def _play(win, mode, difficulty, saved, worker):
     def _reset():
         nonlocal state, move_history, selected_piece, valid_moves, moved_piece
         nonlocal capture_options, awaiting_capture_choice, game_over, winner
-        nonlocal pause_since, asked_out, unsaved, stuck, choosing_first
+        nonlocal pause_since, asked_out, unsaved, stuck, choosing_first, waiting_click
         worker.cancel()
         state = GameState.new(mode)
         move_history = []
@@ -89,6 +90,7 @@ def _play(win, mode, difficulty, saved, worker):
         asked_out = False
         unsaved = False
         stuck = False
+        waiting_click = False
         choosing_first = settings.get('folk_start')
 
     def _save():
@@ -177,7 +179,7 @@ def _play(win, mode, difficulty, saved, worker):
             flip_sound_at = time.monotonic() + MOVE_TIME
 
     while True:
-        clock.tick(120 if not mode.bot_colors or mode.name == 'bot_2' else 60)
+        clock.tick(60)
 
         if choosing_first:
             choosing_first = False
@@ -238,6 +240,8 @@ def _play(win, mode, difficulty, saved, worker):
             if event.type != pygame.MOUSEBUTTONDOWN or game_over or pause_since is not None:
                 continue
             if state.current_player not in mode.human_colors or worker.busy:
+                # Say why nothing happens while a bot is thinking.
+                waiting_click = state.current_player in mode.bot_colors
                 continue
 
             mouse_pos = event.pos
@@ -310,6 +314,8 @@ def _play(win, mode, difficulty, saved, worker):
         win.fill((255, 255, 255))
         renderer.draw_board(win, mode)
         human_to_move = _human_to_move()
+        if human_to_move:
+            waiting_click = False
         movable = ()
         if human_to_move and selected_piece is None:
             movable = [p for p in state.pieces if p.color == state.current_player
@@ -327,6 +333,8 @@ def _play(win, mode, difficulty, saved, worker):
             key = ('hint_stuck' if stuck else 'hint_move' if selected_piece is not None
                    else 'hint_select')
             renderer.draw_hint(win, i18n.t(key))
+        elif waiting_click and not game_over and state.current_player in mode.bot_colors:
+            renderer.draw_hint(win, i18n.t('hint_wait', color=i18n.color(state.current_player)))
         renderer.draw_scores(win, mode, state.pieces, state.active_players)
 
         # After a short pause on the final (or knock-out) position, ask what next.
