@@ -41,6 +41,8 @@ export class GameController {
   valid: number[] = [];
   /** The last tap was on one of the mover's pieces that has no jump. */
   stuck = false;
+  /** A tap came while a bot was thinking. */
+  waitingTap = false;
   /** A new game first chooses who moves first (components/FirstPlayer.tsx). */
   choosingFirst: boolean;
   capture: { piece: number; options: Capture[] } | null = null;
@@ -201,6 +203,7 @@ export class GameController {
       });
       return;
     }
+    if (this.isHuman(this.state.current)) this.waitingTap = false;
     this.emit();
     if (!this.over && !this.capture && !this.panel && !this.isHuman(this.state.current)) this.startBotTurn();
   }
@@ -233,7 +236,15 @@ export class GameController {
 
   /** A tap on the board at (x, y) in board units. */
   tap(x: number, y: number) {
-    if (!this.humanToMove) return;
+    if (!this.humanToMove) {
+      // Say why nothing happens while a bot is thinking.
+      if (!this.over && !this.panel && !this.choosingFirst && !this.isHuman(this.state.current)) {
+        this.waitingTap = true;
+        this.emit();
+      }
+      return;
+    }
+    this.waitingTap = false;
     if (this.capture) {
       if (this.landing === 0) this.chooseCapture(x, y);
       return;

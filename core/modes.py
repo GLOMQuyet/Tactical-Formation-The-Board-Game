@@ -72,7 +72,7 @@ MODE_BOT_2 = Mode(
     bot_delay_ms=400,
     grid_rows=4, grid_cols=4, square_size=150,
     ai_engine='minimax',
-    ai_depth=6,
+    ai_depth=5,
 )
 
 # ── 3-player layouts ─────────────────────────────────────────────────────────
@@ -169,7 +169,7 @@ MODE_PLAY_4 = Mode(
     grid_rows=6, grid_cols=6, square_size=100,
     missing_cells=((0, 0), (5, 0), (0, 5), (5, 5)),
     ai_engine='paranoid',
-    ai_depth=3,
+    ai_depth=4,
 )
 
 # 4-player human-only variant (used when user picks "Play Human → 4 Players")
@@ -202,15 +202,21 @@ ALL_MODES = {
 
 
 # ── Bot difficulty ────────────────────────────────────────────────────────────
-# Search depth for each difficulty, keyed by Mode.name. 'hard' is each bot
-# mode's default ai_depth, the setting measured in the paper.
+# Search depth (plies) for each difficulty, keyed by Mode.name; 'hard' is each
+# bot mode's default ai_depth. Chosen so a bot rarely needs more than about a
+# second here (each ply costs about 3 to 10 times the one before): 5 plies
+# with two players, 4 with three or four, where 3 and 4 plies already cover
+# every opponent's answer. The browser version, about 60 times faster, uses
+# 3, 4 and 5 in every mode. A bot also gives up a ply that runs past the time
+# limit (ai.policy.compute_move_in_time). The paper measured fixed depths of
+# 6, 4 and 3 plies for 2, 3 and 4 players (experiments/).
 
 DIFFICULTIES = ('easy', 'medium', 'hard')
 
 DIFFICULTY_DEPTH = {
-    'bot_2':  {'easy': 2, 'medium': 4, 'hard': 6},
+    'bot_2':  {'easy': 3, 'medium': 4, 'hard': 5},
     'play_3': {'easy': 2, 'medium': 3, 'hard': 4},
-    'play_4': {'easy': 1, 'medium': 2, 'hard': 3},
+    'play_4': {'easy': 2, 'medium': 3, 'hard': 4},
 }
 
 

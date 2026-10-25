@@ -8,8 +8,9 @@ import random
 import tempfile
 import time
 import unittest
+from unittest import mock
 
-from ai import minimax, paranoid
+from ai import minimax, paranoid, policy
 from ai.policy import compute_move
 from ai.worker import BotWorker
 from core import rules
@@ -77,6 +78,24 @@ class TestParanoid(unittest.TestCase):
                                                 state.board, mode), mode.name)
 
 
+class TestTimeBudget(unittest.TestCase):
+    def test_with_time_it_plays_the_full_depth_move(self):
+        # Ties are broken at random; take the first so both searches can be compared.
+        state = GameState.new(with_difficulty(MODE_BOT_2, 'medium'))
+        with mock.patch.object(minimax.random, 'choice', side_effect=lambda ties: ties[0]):
+            full = policy.compute_move(state)
+            timed = policy.compute_move_in_time(state, budget=60)
+        self.assertEqual(timed, full)   # the same move as one search at full depth
+
+    def test_without_time_it_still_answers_with_a_legal_move(self):
+        for key in ('bot_2', 'bot_3', 'bot_4'):
+            state = GameState.new(with_difficulty(ALL_MODES[key], 'hard'))
+            started = time.perf_counter()
+            move, _direction = policy.compute_move_in_time(state, budget=0)
+            self.assertLess(time.perf_counter() - started, 1.0, key)   # one shallow search
+            self.assertIn(move, rules.all_moves(state.current_player, state.board, state.mode), key)
+
+
 class TestDifficulty(unittest.TestCase):
     def test_every_bot_mode_has_three_levels(self):
         for key in ('bot_2', 'bot_3', 'bot_4'):
@@ -92,9 +111,9 @@ class TestDifficulty(unittest.TestCase):
 
     def test_difficulty_changes_only_the_depth(self):
         easy = with_difficulty(MODE_PLAY_4, 'easy')
-        self.assertEqual(easy.ai_depth, 1)
+        self.assertEqual(easy.ai_depth, 2)
         self.assertEqual(easy.players, MODE_PLAY_4.players)
-        self.assertEqual(MODE_PLAY_4.ai_depth, 3)   # the original is unchanged
+        self.assertEqual(MODE_PLAY_4.ai_depth, 4)   # the original is unchanged
 
 
 # The worker runs searches in another process, so fake searches must be

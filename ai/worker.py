@@ -12,19 +12,19 @@ that takes far longer than any real one is started again in a new process.
 import multiprocessing
 import time
 
-from ai.policy import compute_move
+from ai.policy import compute_move_in_time
 from core.state import GameState
 
 # "spawn" behaves the same on Windows, macOS and Linux, and avoids forking a
 # process that already runs SDL threads.
 _CONTEXT = multiprocessing.get_context('spawn')
 
-# The slowest search measured (Hard, 2 players) takes about 10 s.
+# A search keeps to about ai.policy.TIME_BUDGET; one taking minutes is stuck.
 STALL_SECONDS = 120
 
 
 class BotWorker:
-    def __init__(self, search=compute_move, stall_seconds=STALL_SECONDS):
+    def __init__(self, search=compute_move_in_time, stall_seconds=STALL_SECONDS):
         # `search` runs in the worker process, so it must be a module-level
         # function (picklable). Tests pass small fakes.
         self._search = search
@@ -87,6 +87,7 @@ class BotWorker:
         """Forget the current search, stopping it if it is still running."""
         if self._pending is not None and not self._pending.ready():
             self.close()   # a running search cannot be interrupted, only killed
+            self.warm_up()   # start the next process now, not at the next search
         self._pending = None
 
     def close(self):

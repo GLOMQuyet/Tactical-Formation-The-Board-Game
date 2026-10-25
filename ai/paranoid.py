@@ -11,6 +11,7 @@ the active-player set and turn cursor make the key fiddly; left for later.)
 import math
 import random
 
+from ai import deadline
 from core import rules
 from core.rules import make_move, unmake_move, expanded_moves
 
@@ -55,6 +56,7 @@ def _advance_turn(board, active_players, turn_index, mode):
 
 
 def _search(board, active_players, turn_index, depth, alpha, beta, my_color, mode):
+    deadline.check()
     if not active_players:
         return _evaluate(board, my_color, mode), None
 

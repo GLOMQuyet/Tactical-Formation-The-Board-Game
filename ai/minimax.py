@@ -15,6 +15,7 @@ perfectly repeatable.
 import math
 import random
 
+from ai import deadline
 from core import rules
 from core.rules import make_move, unmake_move, expanded_moves
 
@@ -52,6 +53,7 @@ def _evaluate(board, my_color, enemy_color, mode):
 
 
 def _search(board, depth, alpha, beta, maximizing, my_color, enemy_color, mode, tt):
+    deadline.check()
     if depth == 0:
         return _evaluate(board, my_color, enemy_color, mode), None
 

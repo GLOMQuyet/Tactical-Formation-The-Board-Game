@@ -7,6 +7,8 @@ export interface Scored {
   val: number;
 }
 
+export class OutOfTime extends Error {}
+export function withTimeLimit<T>(moment: number, fn: () => T): T;
 export function tiesOf(scored: Scored[]): ExpandedMove[];
 export function scoreMinimax(board: Board, my: number, mode: Mode, depth: number, history?: number[]): Scored[];
 export function scoreParanoid(board: Board, active: number[], turnIndex: number, depth: number, history?: number[]): Scored[];
