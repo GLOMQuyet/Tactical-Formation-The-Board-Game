@@ -4,7 +4,7 @@
 // hands are shown at once. Rounds go on until one player is left.
 
 import { useEffect, useRef, useState } from 'react';
-import { HAND_IMAGES, PIECE_IMAGES } from '../assets';
+import { HAND_IMAGES, usePieceImages } from '../assets';
 import { COLORS, colorIndex } from '../engine/engine.js';
 import type { GameController } from '../game/controller';
 import { botHand, handsFor, settle, type Hand } from '../game/first';
@@ -26,6 +26,7 @@ interface Round {
 
 export function FirstPlayer({ controller }: { controller: GameController }) {
   const { t, colorName } = useLanguage();
+  const pieceImages = usePieceImages();
   const { mode } = controller;
   const everyone = mode.players.map(colorIndex);
   const humans = everyone.filter((c) => controller.isHuman(c));
@@ -131,7 +132,7 @@ export function FirstPlayer({ controller }: { controller: GameController }) {
             else face = <span className="first-hand unknown">?</span>;
             return (
               <div key={c} className={`first-player${playing ? '' : ' out'}`}>
-                <img src={PIECE_IMAGES[COLORS[c]]} alt="" />
+                <img src={pieceImages[COLORS[c]]} alt="" />
                 <span>{colorName(c)}</span>
                 {face}
               </div>

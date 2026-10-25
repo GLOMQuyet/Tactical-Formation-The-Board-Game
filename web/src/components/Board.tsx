@@ -1,15 +1,30 @@
 // The board, drawn like the desktop game (ui/renderer.py): white lines on the
 // wood, the same piece pictures and rings, in the same pixel sizes — a
 // square is 150 px with two players and 100 px with three or four, a piece
-// 40 px — scaled to fit the screen.
+// 40 px — scaled to fit the screen. On a phone the pieces and their rings
+// are drawn larger (still well apart), so they stay easy to see and tap.
 
 import { useEffect, useMemo, useState, useSyncExternalStore, type PointerEvent } from 'react';
-import { PIECE_IMAGES } from '../assets';
+import { usePieceImages } from '../assets';
 import { COLORS, pointOf, type Mode } from '../engine/engine.js';
 import { FLIP_MS, MOVE_MS, type GameController } from '../game/controller';
 
 const PIECE = 40;
 const MARGIN = 36;
+const SMALL_SCREEN = '(max-width: 640px), (max-height: 520px)';
+
+/** How much larger than on the desktop to draw pieces: more on a small screen. */
+function usePieceScale(mode: Mode): number {
+  const [small, setSmall] = useState(() => matchMedia(SMALL_SCREEN).matches);
+  useEffect(() => {
+    const query = matchMedia(SMALL_SCREEN);
+    const update = () => setSmall(query.matches);
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
+  if (!small) return 1;
+  return mode.width === 4 ? 1.45 : 1.3;
+}
 
 export function squareSize(mode: Mode): number {
   return mode.width === 4 ? 150 : 100;
@@ -51,6 +66,10 @@ function boardLines(mode: Mode, s: number): string {
 export function Board({ controller }: { controller: GameController }) {
   useSyncExternalStore(controller.subscribe, controller.getVersion);
   const now = useFrameClock(controller.animating);
+  const pieceImages = usePieceImages();
+  const k = usePieceScale(controller.mode);
+  const piece = PIECE * k;
+  const margin = MARGIN * k;
   const { mode, state } = controller;
   const board = state.board;
   const geo = board.geo;
@@ -75,11 +94,11 @@ export function Board({ controller }: { controller: GameController }) {
   const last = controller.records[controller.records.length - 1];
   const marks = last && controller.landing === 0 ? (
     <g fill="none">
-      <circle cx={px(last.from)[0]} cy={px(last.from)[1]} r={13} stroke="#ffd700" strokeWidth={3} />
+      <circle cx={px(last.from)[0]} cy={px(last.from)[1]} r={13 * k} stroke="#ffd700" strokeWidth={3} />
       {last.captured.map(([cell]) => (
-        <circle key={cell} cx={px(cell)[0]} cy={px(cell)[1]} r={31} stroke="#fff" strokeWidth={3} />
+        <circle key={cell} cx={px(cell)[0]} cy={px(cell)[1]} r={31 * k} stroke="#fff" strokeWidth={3} />
       ))}
-      <circle cx={px(last.to)[0]} cy={px(last.to)[1]} r={32} stroke="#ff8c00" strokeWidth={4} />
+      <circle cx={px(last.to)[0]} cy={px(last.to)[1]} r={32 * k} stroke="#ff8c00" strokeWidth={4} />
     </g>
   ) : null;
 
@@ -97,7 +116,7 @@ export function Board({ controller }: { controller: GameController }) {
           return <line key={d} x1={sx} y1={sy} x2={ex} y2={ey} stroke="#ffd700" strokeWidth={8} strokeLinecap="round" />;
         })}
         {rows.flatMap(({ flips }) => flips).map((e) => (
-          <circle key={`r${e}`} cx={px(board.cell[e])[0]} cy={px(board.cell[e])[1]} r={30}
+          <circle key={`r${e}`} cx={px(board.cell[e])[0]} cy={px(board.cell[e])[1]} r={30 * k}
             fill="none" stroke="#ffd700" strokeWidth={4} strokeDasharray="7 6" />
         ))}
       </g>
@@ -107,7 +126,7 @@ export function Board({ controller }: { controller: GameController }) {
   // A soft glow under each piece that can jump, while a person picks one.
   const glow = controller.landing === 0 ? (
     <g fill="#fff5b4" fillOpacity={0.6}>
-      {controller.movable().map((i) => <circle key={i} cx={px(board.cell[i])[0]} cy={px(board.cell[i])[1]} r={27} />)}
+      {controller.movable().map((i) => <circle key={i} cx={px(board.cell[i])[0]} cy={px(board.cell[i])[1]} r={27 * k} />)}
     </g>
   ) : null;
 
@@ -130,8 +149,8 @@ export function Board({ controller }: { controller: GameController }) {
     const color = controller.flipsShown.get(i) ?? board.color[i];
     return (
       <g key={i} transform={`translate(${x} ${y}) scale(${k})`}>
-        {i === controller.selected && <circle r={30} fill="none" stroke="#ffd700" strokeWidth={5} />}
-        <image href={PIECE_IMAGES[COLORS[color]]} x={-PIECE / 2} y={-PIECE / 2} width={PIECE} height={PIECE}
+        {i === controller.selected && <circle r={30 * k} fill="none" stroke="#ffd700" strokeWidth={5} />}
+        <image href={pieceImages[COLORS[color]]} x={-piece / 2} y={-piece / 2} width={piece} height={piece}
           preserveAspectRatio="none" />
       </g>
     );
@@ -143,8 +162,8 @@ export function Board({ controller }: { controller: GameController }) {
     <svg
       id="board"
       className="board"
-      viewBox={`${-MARGIN} ${-MARGIN} ${w + 2 * MARGIN} ${h + 2 * MARGIN}`}
-      style={{ ['--aspect' as string]: (w + 2 * MARGIN) / (h + 2 * MARGIN) }}
+      viewBox={`${-margin} ${-margin} ${w + 2 * margin} ${h + 2 * margin}`}
+      style={{ ['--aspect' as string]: (w + 2 * margin) / (h + 2 * margin) }}
       onPointerDown={onPointerDown}
       role="img"
       aria-label="Board"
@@ -155,7 +174,7 @@ export function Board({ controller }: { controller: GameController }) {
       {glow}
       {pieces}
       {controller.valid.map((cell) => (
-        <circle key={cell} cx={px(cell)[0]} cy={px(cell)[1]} r={15} fill="#32cd32" />
+        <circle key={cell} cx={px(cell)[0]} cy={px(cell)[1]} r={15 * k} fill="#32cd32" />
       ))}
     </svg>
   );

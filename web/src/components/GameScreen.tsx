@@ -3,7 +3,7 @@
 // counts at the bottom, and a panel when the game ends.
 
 import { useEffect, useSyncExternalStore } from 'react';
-import { PIECE_IMAGES, UNDO_ICON, WOOD } from '../assets';
+import { UNDO_ICON, WOOD, usePieceImages } from '../assets';
 import { COLORS, colorIndex, type Difficulty, type Mode } from '../engine/engine.js';
 import type { GameController } from '../game/controller';
 import { useLanguage } from '../i18n/i18n';
@@ -20,6 +20,7 @@ interface Props {
 export function GameScreen({ controller, onLeave, onRestart }: Props) {
   useSyncExternalStore(controller.subscribe, controller.getVersion);
   const { t, colorName } = useLanguage();
+  const pieceImages = usePieceImages();
   const { mode, state } = controller;
 
   useEffect(() => {
@@ -82,7 +83,7 @@ export function GameScreen({ controller, onLeave, onRestart }: Props) {
     <main className="screen game" style={{ backgroundImage: `url(${WOOD})` }}>
       <header className="game-bar">
         <div className={`strip turn${controller.botPending ? ' thinking' : ''}`} role="status" aria-live="polite">
-          {turnColor !== null && <img src={PIECE_IMAGES[COLORS[turnColor]]} alt="" />}
+          {turnColor !== null && <img src={pieceImages[COLORS[turnColor]]} alt="" />}
           <span>{turnText}</span>
         </div>
         <button type="button" className="btn btn-normal btn-small" onClick={onLeave}>{t('menu')}</button>
@@ -106,7 +107,7 @@ export function GameScreen({ controller, onLeave, onRestart }: Props) {
               return (
                 <span key={name} className={`score${out ? ' out' : ''}`}
                   aria-label={`${colorName(c)}: ${n}${out ? ` (${t('out')})` : ''}`}>
-                  <img src={PIECE_IMAGES[name]} alt="" />
+                  <img src={pieceImages[name]} alt="" />
                   {n}
                 </span>
               );
