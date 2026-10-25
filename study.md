@@ -248,13 +248,14 @@ Như ngoài đời, ván mới bắt đầu bằng việc chọn người đi tr
 
 | Độ khó | 2 người | 3 người | 4 người |
 |---|---|---|---|
-| Dễ | 3 | 2 | 2 |
-| Vừa | 4 | 3 | 3 |
-| Khó | 5 | 4 | 4 |
+| Dễ | 3 | 3 | 3 |
+| Vừa | 4 | 4 | 4 |
+| Khó | 5 | 5 | 5 |
 
-Bản chơi trên trình duyệt chạy nhanh hơn nhiều nên tính trước 3, 4 và 5 nước ở
-mọi chế độ. Mỗi nước bot nghĩ tối đa khoảng 2 giây: bot tính trước 1 nước, rồi
-2 nước, cứ thế sâu dần; hết giờ thì bot đi theo lần tính sâu nhất đã xong. Bot
+Mỗi nước bot nghĩ tối đa khoảng 2 giây: bot tính trước 1 nước, rồi 2 nước, cứ
+thế sâu dần; hết giờ thì bot đi theo lần tính sâu nhất đã xong. Với 3–4 người ở
+mức Khó, bản máy tính thường hết giờ và đi theo lần tính 4 nước; bản trên trình
+duyệt chạy nhanh hơn nhiều nên tính đủ 5 nước. Bot
 tính toán ở một tiến trình riêng nên cửa sổ không bị đứng trong lúc bot nghĩ;
 nếu bạn bấm khi chưa tới lượt, màn hình sẽ nhắc bạn chờ.
 
@@ -574,14 +575,15 @@ The difficulty sets how many moves ahead the bots search:
 
 | Difficulty | 2 players | 3 players | 4 players |
 |---|---|---|---|
-| Easy | 3 | 2 | 2 |
-| Medium | 4 | 3 | 3 |
-| Hard | 5 | 4 | 4 |
+| Easy | 3 | 3 | 3 |
+| Medium | 4 | 4 | 4 |
+| Hard | 5 | 5 | 5 |
 
-The browser version, whose engine is much faster, searches 3, 4 and 5 moves
-ahead in every mode. A bot thinks for at most about 2 seconds a move: it
-searches one move ahead, then two, and so on, and when time runs out it plays
-the move of the deepest search it finished. Bots search in a separate process,
+A bot thinks for at most about 2 seconds a move: it searches one move ahead,
+then two, and so on, and when time runs out it plays the move of the deepest
+search it finished. With three or four players the desktop version often runs
+out of time on Hard and plays its 4-move search; the browser version, whose
+engine is much faster, finishes all 5. Bots search in a separate process,
 so the window does not freeze while they think; a click before your turn is
 answered with a note to wait.
 
@@ -669,6 +671,6 @@ bots use **Paranoid Minimax**. The paper measured them at these fixed depths:
 | 3-player | 4 | ≈ 1.1 s / 4.5 s |
 | 4-player | 3 | ≈ 0.2 s / 1.4 s |
 
-Measured over complete bot-vs-bot games on an AMD Ryzen 7 6800H (see `experiments/results/timing.csv`). To keep the game quick, its Hard level searches 5, 4 and 4 moves ahead and stops a search that runs past about 2 seconds (see Bot Difficulty); Easy and Medium search less deeply.
+Measured over complete bot-vs-bot games on an AMD Ryzen 7 6800H (see `experiments/results/timing.csv`). To keep the game quick, its Hard level searches 5 moves ahead in every mode and stops a search that runs past about 2 seconds (see Bot Difficulty); Easy and Medium search 3 and 4 moves ahead.
 
 The 3- and 4-player bots treat all other players as a coalition against themselves — they actively prioritize survival and piece count while trying to eliminate the weakest opponent.
