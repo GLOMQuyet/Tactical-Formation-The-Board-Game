@@ -1,6 +1,10 @@
 """Paranoid minimax for 3/4-player modes — current player maximises, all
 others minimise together. Operates on `core.board.Board` (O(1) piece_at).
 
+The game's 3/4-player bots use Best-Reply Search (ai/brs.py), which shares
+this module's evaluation; Paranoid search stays for the experiments behind
+the paper (experiments/), which measured it.
+
 Like the 2-player engine it uses make/unmake (no per-node clone), considers
 non-greedy captures via `rules.expanded_moves`, orders moves by capture size,
 and randomises among equally-best root moves. Evaluation uses the same
@@ -25,11 +29,10 @@ _TIE_EPS        = 0.02
 
 def _evaluate(board, my_color, mode):
     total = len(board.pieces)
-    my_count = sum(1 for p in board.pieces if p.color == my_color)
+    my_count, my_moves = rules.count_pieces_and_moves(my_color, board, mode)
     en_count = total - my_count
     capture = (my_count - en_count) / total if total else 0.0
 
-    my_moves = rules.count_moves(my_color, board, mode)
     denom = my_moves + total
     block = my_moves / denom if denom else 0.0
     return W_CAPTURE * capture + W_BLOCK * block

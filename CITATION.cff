@@ -20,10 +20,11 @@ keywords:
   - intangible cultural heritage
   - game AI
   - Minimax
+  - Best-Reply Search
   - Paranoid Minimax
 abstract: >-
   Software for Tactical Formation, a Vietnamese folk board game for 2–4
-  players: a rule engine, a playable game with Minimax and Paranoid Minimax
+  players: a rule engine, a playable game with Minimax and Best-Reply Search
   bots for computers and web browsers, and the experiments behind the paper
   that documents the game.
 preferred-citation:
